@@ -381,7 +381,7 @@ class PlayState extends MusicBeatState
 		{
 			case 'stage': new StageWeek1(); 			//Week 1
 
-			#if BASE_GAME
+			#if BASE_GAME_FILES
 			case 'spooky': new Spooky();				//Week 2
 			case 'philly': new Philly();				//Week 3
 			case 'limo': new Limo();					//Week 4
@@ -3132,9 +3132,9 @@ class PlayState extends MusicBeatState
 				combo++;
 				if(combo > 9999) combo = 9999;
 				popUpScore(note);
+
+				health += note.hitHealth * healthGain;
 			}
-			var gainHealth:Bool = true; // prevent health gain, *if* sustains are treated as a singular note
-			if (note.isSustainNote) health += note.hitHealth * healthGain;
 
 		}
 		else //Notes that count as a miss if you hit them (Hurt notes for example)
