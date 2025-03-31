@@ -1,4 +1,4 @@
-# Psych Engine Build Instructions
+# Gold Funk Build Instructions
 
 * [Dependencies](#dependencies)
 * [Building](#building)
