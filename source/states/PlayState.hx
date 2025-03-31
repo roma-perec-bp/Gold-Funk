@@ -123,8 +123,6 @@ class PlayState extends MusicBeatState
 	public static var uiPostfix:String = "";
 	public static var isPixelStage(get, never):Bool;
 
-	
-
 	@:noCompletion
 	static function set_stageUI(value:String):String
 	{
@@ -176,7 +174,7 @@ class PlayState extends MusicBeatState
 
 	public var gfSpeed:Int = 1;
 	public var health(default, set):Float = 1;
-	private var curHealth:Float = 1;
+	private var lerpHealth:Float = 1;
 	public var combo:Int = 0;
 
 	public var healthBar:Bar;
@@ -382,7 +380,8 @@ class PlayState extends MusicBeatState
 		switch (curStage)
 		{
 			case 'stage': new StageWeek1(); 			//Week 1
-				#if BASE_GAME
+
+			#if BASE_GAME
 			case 'spooky': new Spooky();				//Week 2
 			case 'philly': new Philly();				//Week 3
 			case 'limo': new Limo();					//Week 4
@@ -393,8 +392,7 @@ class PlayState extends MusicBeatState
 			case 'tank': new Tank();					//Week 7 - Ugh, Guns, Stress
 			case 'phillyStreets': new PhillyStreets(); 	//Weekend 1 - Darnell, Lit Up, 2Hot
 			case 'phillyBlazin': new PhillyBlazin();	//Weekend 1 - Blazin
-				#end
-				//мне они не много ошибок дают в плане оптимизация
+			#end
 		}
 		if(isPixelStage) introSoundsSuffix = '-pixel';
 
@@ -532,7 +530,7 @@ class PlayState extends MusicBeatState
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 		moveCameraSection();
 
-		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return curHealth, 0, 2);
+		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return isPixelStage ? health : lerpHealth, 0, 2);
 		healthBar.screenCenter(X);
 		healthBar.leftToRight = false;
 		healthBar.scrollFactor.set();
@@ -1694,7 +1692,7 @@ class PlayState extends MusicBeatState
 		else FlxG.camera.followLerp = 0;
 		callOnScripts('onUpdate', [elapsed]);
 
-		curHealth = FlxMath.lerp(curHealth, health, .2 / (ClientPrefs.data.framerate / 60)); //плавный хелбар
+		if(!isPixelStage) lerpHealth = FlxMath.lerp(lerpHealth, health, .2 / (ClientPrefs.data.framerate / 60)); //плавный хелбар
 
 		super.update(elapsed);
 
@@ -1835,16 +1833,20 @@ class PlayState extends MusicBeatState
 								opponentNoteHit(daNote);
 
 							if(daNote.isSustainNote) 
-								{
-									if(strum.sustainReduce) daNote.clipToStrumNote(strum);
+							{
+								if(strum.sustainReduce) daNote.clipToStrumNote(strum);
 	
-									//V-Slice sustain scoring shit
-									if(daNote.wasGoodHit && daNote.mustPress && !cpuControlled && !practiceMode) {
+								//V-Slice sustain scoring shit
+								if(daNote.wasGoodHit && daNote.mustPress && !daNote.hitCausesMiss) {
+									if(!guitarHeroSustains) health += 0.15 * healthGain * elapsed;
+
+									if(!cpuControlled && !practiceMode)
+									{
 										songScore += Std.int(holdBonus * elapsed);
-										updateScore();
+										updateScore(false);
 									}
 								}
-
+							}
 
 							// Kill extremely late notes and cause misses
 							if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
@@ -2287,29 +2289,27 @@ class PlayState extends MusicBeatState
 							}
 						});
 				}
-				case 'Flashing Lights': // у тя есть норм версия так что ебашь (только называние оставь)
-					if (!ClientPrefs.data.flashing) return;
+			/*case 'Flash Camera': //TO DO: Add values 3-5 and return it
+				if (!ClientPrefs.data.flashing) return;
 		
-					var duration:Float = Std.parseFloat(value1);
-					var color:String = value2;
-					if (color.length > 1)
-						{
-							if (!color.startsWith('0x'))
-								color = '0xFF$color';
-						}
-					else
-						{
-							color = "0xFFFFFFFF";
-						}
-					FlxG.camera.flash(Std.parseInt(color), Math.isNaN(duration) || value1.length <= 0 ? 1 : duration, null, true);
+				var duration:Float = Std.parseFloat(value1);
+				var color:String = value2;
+				if (color.length > 1)
+				{
+					if (!color.startsWith('0x'))
+						color = '0xFF$color';
+					}
+				else
+				{
+					color = "0xFFFFFFFF";
+				}
+				FlxG.camera.flash(Std.parseInt(color), Math.isNaN(duration) || value1.length <= 0 ? 1 : duration, null, true);*/
 
 			#if VIDEOS_ALLOWED
 			case 'Play Video':
 				startVideo(value1, true, false);	
 			#end
 	
-			
-
 			case 'Set Property':
 				try
 				{
@@ -3134,8 +3134,7 @@ class PlayState extends MusicBeatState
 				popUpScore(note);
 			}
 			var gainHealth:Bool = true; // prevent health gain, *if* sustains are treated as a singular note
-			if (guitarHeroSustains && note.isSustainNote) gainHealth = false;
-			if (gainHealth) health += note.hitHealth * healthGain;
+			if (note.isSustainNote) health += note.hitHealth * healthGain;
 
 		}
 		else //Notes that count as a miss if you hit them (Hurt notes for example)
