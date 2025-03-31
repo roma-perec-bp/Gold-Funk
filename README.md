@@ -1,13 +1,14 @@
 ![PsychionalEngineLogo](docs/img/PsychEngineLogoTweak.png)
 
-Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), intended to be a fix for the vanilla version's many issues while keeping the casual play aspect of it. Also aiming to be an easier alternative to newbie coders.
-
 This is the another fork of Psych Engine 1.0.4 but this one has more than other forks (i guess)
 Welp for now it doesnt but current target is making custom sofcode states and edit other states like Freeplay, MainMenu, etc.
 
 Parts of engine was used in mods like:
+
 [Brutal Pizdec Impotence DLC](https://gamebanana.com/mods/573827)
+
 [That Song Again](https://gamebanana.com/mods/580609)
+
 [I Hate This Mod](https://gamebanana.com/mods/582655)
 
 ## Installation:
