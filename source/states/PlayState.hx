@@ -123,6 +123,8 @@ class PlayState extends MusicBeatState
 	public static var uiPostfix:String = "";
 	public static var isPixelStage(get, never):Bool;
 
+	
+
 	@:noCompletion
 	static function set_stageUI(value:String):String
 	{
@@ -174,6 +176,7 @@ class PlayState extends MusicBeatState
 
 	public var gfSpeed:Int = 1;
 	public var health(default, set):Float = 1;
+	private var curHealth:Float = 1;
 	public var combo:Int = 0;
 
 	public var healthBar:Bar;
@@ -526,7 +529,7 @@ class PlayState extends MusicBeatState
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 		moveCameraSection();
 
-		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return health, 0, 2);
+		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return curHealth, 0, 2);
 		healthBar.screenCenter(X);
 		healthBar.leftToRight = false;
 		healthBar.scrollFactor.set();
@@ -1669,6 +1672,7 @@ class PlayState extends MusicBeatState
 	var canPause:Bool = true;
 	var freezeCamera:Bool = false;
 	var allowDebugKeys:Bool = true;
+	var holdBonus:Float = 250;
 
 	override public function update(elapsed:Float)
 	{
@@ -1686,6 +1690,8 @@ class PlayState extends MusicBeatState
 		}
 		else FlxG.camera.followLerp = 0;
 		callOnScripts('onUpdate', [elapsed]);
+
+		curHealth = FlxMath.lerp(curHealth, health, .2 / (ClientPrefs.data.framerate / 60)); //плавный хелбар
 
 		super.update(elapsed);
 
@@ -1825,7 +1831,17 @@ class PlayState extends MusicBeatState
 							else if (daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
 								opponentNoteHit(daNote);
 
-							if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
+							if(daNote.isSustainNote) 
+								{
+									if(strum.sustainReduce) daNote.clipToStrumNote(strum);
+	
+									//V-Slice sustain scoring shit
+									if(daNote.wasGoodHit && daNote.mustPress && !cpuControlled && !practiceMode) {
+										songScore += Std.int(holdBonus * elapsed);
+										updateScore();
+									}
+								}
+
 
 							// Kill extremely late notes and cause misses
 							if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
