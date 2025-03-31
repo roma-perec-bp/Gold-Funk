@@ -2287,6 +2287,28 @@ class PlayState extends MusicBeatState
 							}
 						});
 				}
+				case 'Flashing Lights': // у тя есть норм версия так что ебашь (только называние оставь)
+					if (!ClientPrefs.data.flashing) return;
+		
+					var duration:Float = Std.parseFloat(value1);
+					var color:String = value2;
+					if (color.length > 1)
+						{
+							if (!color.startsWith('0x'))
+								color = '0xFF$color';
+						}
+					else
+						{
+							color = "0xFFFFFFFF";
+						}
+					FlxG.camera.flash(Std.parseInt(color), Math.isNaN(duration) || value1.length <= 0 ? 1 : duration, null, true);
+
+			#if VIDEOS_ALLOWED
+			case 'Play Video':
+				startVideo(value1, true, false);	
+			#end
+	
+			
 
 			case 'Set Property':
 				try
