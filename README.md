@@ -2,6 +2,14 @@
 
 Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), intended to be a fix for the vanilla version's many issues while keeping the casual play aspect of it. Also aiming to be an easier alternative to newbie coders.
 
+This is the another fork of Psych Engine 1.0.4 but this one has more than other forks (i guess)
+Welp for now it doesnt but current target is making custom sofcode states and edit other states like Freeplay, MainMenu, etc.
+
+Parts of engine was used in mods like:
+[Brutal Pizdec Impotence DLC](https://gamebanana.com/mods/573827)
+[That Song Again](https://gamebanana.com/mods/580609)
+[I Hate This Mod](https://gamebanana.com/mods/582655)
+
 ## Installation:
 
 Refer to [the Build Instructions](/docs/BUILDING.md)
@@ -22,28 +30,17 @@ For this you can head over to [the wiki](https://shadowmario.github.io/psychengi
 There you can learn how to use the 212 PlayState funcions in your mod!
 
 ## Credits:
-* Shadow Mario - Main Programmer and Head of Psych Engine.
-* Riveren - Main Artist/Animator of Psych Engine.
+* ROMA PEREC - Main Programmer of Gold Funk
+* Shadow Mario - Creator of Original Psych Engine.
 
 ### Special Thanks
-* bbpanzu - Ex-Team Member (Programmer).
-* crowplexus - HScript Iris, Input System v3, and Other PRs.
-* Kamizeta - Creator of Pessy, Psych Engine's mascot.
-* MaxNeton - Loading Screen Easter Egg Artist/Animator.
-* Keoiki - Note Splash Animations and Latin Alphabet.
-* SqirraRNG - Crash Handler and Base code for Chart Editor's Waveform.
-* EliteMasterEric - Runtime Shaders support and Other PRs.
-* MAJigsaw77 - .MP4 Video Loader Library (hxvlc).
-* iFlicky - Composer of Psync, Tea Time and some sound effects.
-* KadeDev - Fixed some issues on Chart Editor and Other PRs.
-* superpowers04 - LUA JIT Fork.
-* CheemsAndFriends - Creator of FlxAnimate.
-* Ezhalt - Pessy's Easter Egg Jingle.
-* MaliciousBunny - Video for the Final Update.
+*later idk who to thank for now :/
 
 ***
 
 # Features
+
+(will be more added later)
 
 ## Attractive animated dialogue boxes:
 
@@ -78,8 +75,14 @@ There you can learn how to use the 212 PlayState funcions in your mod!
   * Bottom Boppers and GF does "Hey!" animations during Cocoa and Eggnog
   * On Winter Horrorland, GF bops her head slower in some parts of the song.
 ### Week 6:
+  * Pixelated splashes by a shader
   * On Thorns, the HUD is hidden during the cutscene
   * Also there's the Background girls being spooky during the "Hey!" parts of the Instrumental
+### Week 7:
+  * Camera Beat Hits on Ugh song
+  * Camera get closer in Stress on Tankman's line "Ha, pretty good!"
+### Weekend 1:
+  * Blazin on hard is extended (OST Version)
 
 ## Cool new Chart Editor changes and countless bug fixes
 ![Chart Editor](docs/img/chart.png)
