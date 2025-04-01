@@ -1073,8 +1073,8 @@ class PlayState extends MusicBeatState
 
 			new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 			{
-				FlxTween.tween(spr.scale, {x: 0, y: 0}, Conductor.crochet / 1000, {
-					ease: FlxEase.expoOut,
+				FlxTween.tween(spr.scale, {x: 0, y: 0}, Conductor.stepCrochet * 2 / 1000, {
+					ease: FlxEase.elasticIn,
 					onComplete: function(twn:FlxTween)
 					{
 						remove(spr);
