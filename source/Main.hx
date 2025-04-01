@@ -239,7 +239,7 @@ class Main extends Sprite
 		// remove if you're modding and want the crash log message to contain the link
 		// please remember to actually modify the link for the github page to report the issues to.
 		#if officialBuild
-		errMsg += "\nPlease report this error to the GitHub page: https://github.com/Rom4chek/Gold-Funk\issues";
+		errMsg += "\nPlease report this error to the GitHub page: https://github.com/Rom4chek/Gold-Funk/issues";
 		#end
 		errMsg += "\n\n> Thank you for using Gold Funk'!";
 
