@@ -1,11 +1,246 @@
 Russia (Russian Federation)
 
-// TEXT
+// Difficulties
 difficulty_: ""
 
 difficulty_easy: "Легко"
 difficulty_normal: "Нормально"
 difficulty_hard: "Сложно"
+
+// Achievements
+achievement_: ""
+description_: ""
+
+achievement_friday_night_play: "Freaky on a Friday Night"
+description_friday_night_play: "Сыграй в Пятницу... Ночью."
+
+achievement_week1_nomiss: "Она зовёт меня Папочкой тоже"
+description_week1_nomiss: "Пройди Неделю 1 на "Сложно" без промахов."
+
+achievement_week2_nomiss: "Никаких Приколов"
+description_week2_nomiss: "Пройди Неделю 2 на "Сложно" без промахов."
+
+achievement_week3_nomiss: "Зови меня "Хитман""
+description_week3_nomiss: "Пройди Неделю 3 на "Сложно" без промахов."
+
+achievement_week4_nomiss: "Убийца Леди"
+description_week4_nomiss: "Пройди Неделю 4 на "Сложно" без промахов."
+
+achievement_week5_nomiss: "Беззаботное Рождество"
+description_week5_nomiss: "Пройди Неделю 5 на "Сложно" без промахов."
+
+achievement_week6_nomiss: "Новый рекорд!!"
+description_week6_nomiss: "Пройди Неделю 6 на "Сложно" без промахов."
+
+achievement_week7_nomiss: "Чёрт возьми!"
+description_week7_nomiss: "Пройди Неделю 7 на "Сложно" без промахов."
+
+achievement_weekend1_nomiss: "Просто по Дружески"
+description_weekend1_nomiss: "Пройди Выходной 1 на "Сложно" без промахов."
+
+achievement_ur_bad: "Что за Ёкарное Происшествие!"
+description_ur_bad: "Пройди песню с рейтингом ниже 20%."
+
+achievement_ur_good: "Идеалист"
+description_ur_good: "Пройди песню с рейтингом 100%."
+
+achievement_roadkill_enthusiast: "Дорожный Дебошир"
+description_roadkill_enthusiast: "Смотри как умирают Приспешники 50 раз."
+
+achievement_oversinging: "Я тебя не перепеваю...?"
+description_oversinging: "Пой на протяжении 10 секунд без остановки."
+
+achievement_hype: "Гиперактивный"
+description_hype: "Заверши песню без малейшей передышки."
+
+achievement_two_keys: "Только Двое из Нас"
+description_two_keys: "Заверши Песню нажимая только на две ноты."
+
+achievement_toastie: ""Еду я на Печке""
+description_toastie: "Ты пытаешься запустить игру на своём тостере?"
+
+achievement_debugger: "Отладчик"
+description_debugger: "Пройди "Test" Сцену из Chart Editor."
+
+// Freeplay
+musicplayer_playing: "ИГРАЕТ: {1}"
+musicplayer_paused: "ИГРАЕТ: {1} (НА ПАУЗЕ)"
+musicplayer_tip: "Нажми ПРОБЕЛ для Паузы / Нажми ESCAPE для Выхода / Нажми R для Прослушивания Песни Сначала"
+
+// Options
+setting_scroll_type: "Тип Прокрутки"
+setting_scroll_speed: "Скорость Прокрутки"
+setting_playback_rate: "Скорость Воспроизведения"
+setting_health_gain_multiplier: "Множитель Получения Здоровья"
+setting_health_loss_multiplier: "Множитель Потери Здоровья"
+setting_instakill_on_miss: "Мгновенная Смерть при Промахе"
+setting_practice_mode: "Практика"
+setting_botplay: "Ботплей"
+
+gameplay_menu: "Настройки Игры"
+graphics_menu: "Настройки Графики"
+visuals_menu: "Настройки Внешнего Вида"
+
+setting_low_quality: "Низкое Качество"
+description_low_quality: "Если помечено, отключает некоторые детали заднего фона,\nуменьшая время загрузки и повышая производительность."
+
+setting_anti-aliasing: "Сглаживание"
+description_anti-aliasing: "Если НЕ помечено, отключает Сглаживание, \nповышая производительность ценой резкого вида изображения."
+
+setting_shaders: "Шейдеры"
+description_shaders: "Если НЕ помечено, отключает Шейдеры.\nОни используются для некоторых Эффектов, а также требовательны к ЦП на слабых ПК."
+
+setting_gpu_caching: "Кэширование на Видеокарте"
+description_gpu_caching: "Если помечено, позволяет использовать видеокарту для хранения текстур, уменьшая использование ОЗУ.\nНе включай это если у тебя дерьмовая видеокарта."
+
+setting_framerate: "Счётчик Кадров"
+description_framerate: "Показывает количество кадров в секунду"
+
+setting_note_skins: "Скины для Нот:"
+description_note_skins: "Выбери предпочитаемый скин нот."
+
+setting_note_splashes: "Всплеск Нот:"
+description_note_splashes: "Выбери предпочитаемые Всплеск Нот или отключи их."
+
+setting_note_splash_opacity: "Видимость Всплеска Нот"
+description_note_splash_opacity: "Насколько прозрачны Всплески Нот должны быть."
+
+setting_hide_hud: "Скрыть HUD"
+description_hide_hud: "Если помечено, скрывает большинство HUD элементов."
+
+setting_time_bar: "Шкала Времени:"
+description_time_bar: "Что Шкала Времени должна отображать?"
+
+setting_flashing_lights: "Вспышки"
+description_flashing_lights: "Убери галочку если ты чувствителен к Вспышкам и Яркому Свету!"
+
+setting_camera_zooms: "Зум Камеры"
+description_camera_zooms: "Если НЕ помечено, камера не будет приближаться в такт музыки."
+
+setting_score_text_grow_on_hit: "Текст Счёта растёт при Нажатиях"
+description_score_text_grow_on_hit: "Если НЕ помечено, отключает увеличение Текста Счёта\nпри каждом нажатии тобой на ноты."
+
+setting_health_bar_opacity: "Health Bar Opacity"
+description_health_bar_opacity: "How much transparent should the health bar and icons be."
+
+setting_fps_counter: "FPS Counter"
+description_fps_counter: "If unchecked, hides FPS Counter."
+
+setting_pause_screen_song: "Pause Screen Song:"
+description_pause_screen_song: "What song do you prefer for the Pause Screen?"
+
+setting_discord_rich_presence: "Discord Rich Presence"
+description_discord_rich_presence: "Uncheck this to prevent accidental leaks, it will hide the Application from your \"Playing\" box on Discord"
+
+setting_combo_stacking: "Combo Stacking"
+description_combo_stacking: "If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read"
+
+setting_downscroll: "Downscroll"
+description_downscroll: "If checked, notes go Down instead of Up, simple enough."
+
+setting_middlescroll: "Middlescroll"
+description_middlescroll: "If checked, your notes get centered."
+
+setting_opponent_notes: "Opponent Notes"
+description_opponent_notes: "If unchecked, opponent notes get hidden."
+
+setting_ghost_tapping: "Ghost Tapping"
+description_ghost_tapping: "If checked, you won't get misses from pressing keys\nwhile there are no notes able to be hit."
+
+setting_auto_pause: "Auto Pause"
+description_auto_pause: "If checked, the game automatically pauses if the screen isn't on focus."
+
+setting_disable_reset_button: "Disable Reset Button"
+description_disable_reset_button: "If checked, pressing Reset won't do anything."
+
+setting_hitsound_volume: "Hitsound Volume"
+description_hitsound_volume: "Funny notes go \"Tick!\" when you hit them."
+
+setting_rating_offset: "Rating Offset"
+description_rating_offset: "Changes how late/early you have to hit for a "Sick!"\nHigher values mean you have to hit later."
+
+setting_sick_hit_window: "Sick! Hit Window"
+description_sick_hit_window: "Changes the amount of time you have\nfor hitting a "Sick!" in milliseconds."
+
+setting_good_hit_window: "Good Hit Window"
+description_good_hit_window: "Changes the amount of time you have\nfor hitting a "Good" in milliseconds."
+
+setting_bad_hit_window: "Bad Hit Window"
+description_bad_hit_window: "Changes the amount of time you have\nfor hitting a "Bad" in milliseconds."
+
+setting_safe_frames: "Safe Frames"
+description_safe_frames: "Changes how many frames you have for\nhitting a note earlier or late."
+
+setting_sustains_as_one_note: "Sustains as One Note"
+description_sustains_as_one_note: "If checked, Hold Notes can't be pressed if you miss,\nand count as a single Hit/Miss.\nUncheck this if you prefer the old Input System."
+
+// Control Rebinding
+controls_rebinding: "Rebinding {1}"
+controls_rebinding2: "Hold ESC to Cancel\nHold Backspace to Delete"
+
+keygroup_NOTES: "NOTES"
+key_note_left: "Left"
+key_note_down: "Down"
+key_note_up: "Up"
+key_note_right: "Right"
+
+keygroup_UI: "UI"
+key_ui_left: "Left"
+key_ui_down: "Down"
+key_ui_up: "Up"
+key_ui_right: "Right"
+key_reset: "Reset"
+key_accept: "Accept"
+key_back: "Back"
+key_pause: "Pause"
+
+keygroup_VOLUME: "VOLUME"
+key_volume_mute: "Mute"
+key_volume_up: "Up"
+key_volume_down: "Down"
+
+keygroup_DEBUG: "DEBUG"
+key_debug_1: "Key 1"
+key_debug_2: "Key 2"
+
+delay_beat_hit: "Beat Hit!"
+combo_rating_offset: "Rating Offset:"
+combo_numbers_offset: "Numbers Offset:"
+delay_curren"t_offset: "Current offset: {1} ms"
+combo_offset: "Combo Offset"
+note_delay: "Note/Beat Delay"
+switch_on_accept: "(Press Accept to Switch)"
+switch_on_start: "(Press Start to Switch)"
+
+note_colors_tip: "Press RESET to Reset the selected Note Part."
+note_colors_shift: "Shift"
+note_colors_lb: "Left Shoulder Button"
+note_colors_hold_tip: "Hold {1} + Press RESET key to fully reset the selected Note."
+
+options_note_colors: "Note Colors"
+options_controls: "Controls"
+options_adjust_delay_and_combo: "Adjust Delay and Combo"
+options_graphics: "Graphics"
+options_visuals: "Visuals"
+options_gameplay: "Gameplay"
+options_language: "Language"
+
+reset_achievement: "Reset Achievement:"
+
+yes: "Yes"
+no: "No"
+
+freeplay_tip: "Нажми ПРОБЕЛ чтобы прослушать музыку / Нажми CTRL чтобы открыть Модификатор меню / Нажми R чтобы Сбросить свой Счёт и Точность."
+personal_best: "РЕКОРД: {1} ({2}%)"
+
+now_loading: "Загрузка{1}"
+
+reload_button: "RELOAD"
+enable_all_button: "ENABLE ALL"
+disable_all_button: "DISABLE ALL"
+no_mods_installed: "NO MODS INSTALLED\nPRESS BACK TO EXIT OR INSTALL A MOD"
+no_mods_found: "No Mods found."
+mod_restart: "* Moving or Toggling On/Off this Mod will restart the game."
 
 botplay: "Ботплей"
 
@@ -34,6 +269,24 @@ week_score: "СЧЁТ НЕДЕЛИ: {1}"
 blueballed: "Сварен в крутую: {1}"
 practice_mode: "Практика"
 charting_mode: "Чартинг"
+
+pause_resume: "Resume"
+pause_restart_song: "Restart Song"
+pause_change_difficulty: "Change Difficulty"
+pause_options: "Options"
+pause_exit_to_menu: "Exit to Menu"
+
+reset_score: "Сбросить Счёт у"
+
+storyname_tutorial: "Обучение"
+storyname_week1: "Дорогой Папочка"
+storyname_week2: "Жуткий Месяц"
+storyname_week3: "Пико"
+storyname_week4: "Мамочка должна Убивать"
+storyname_week5: "Красный Снег"
+storyname_week6: "Симулятор Ненависти ft. Moawling"
+storyname_week7: "Танкман"
+storyname_weekend1: "За Тобой Должок"
 // IMAGES
 images/mainmenu/menu_story_mode: "images/ru-RUS/mainmenu/menu_story_mode"
 images/mainmenu/menu_credits: "images/ru-RUS/mainmenu/menu_credits"
@@ -42,6 +295,6 @@ images/mainmenu/menu_mods: "images/ru-RUS/mainmenu/menu_mods"
 
 images/Menu_Tracks: "images/ru-RUS/Menu_Tracks"
 
-images/menudifficulties/easy: "images/ru-RUS/menudifficulties/easy"
-images/menudifficulties/easy: "images/ru-RUS/menudifficulties/normal"
-images/menudifficulties/easy: "images/ru-RUS/menudifficulties/hard"
+///images/menudifficulties/easy: "images/ru-RUS/menudifficulties/easy"
+///images/menudifficulties/easy: "images/ru-RUS/menudifficulties/normal"
+///images/menudifficulties/easy: "images/ru-RUS/menudifficulties/hard"
