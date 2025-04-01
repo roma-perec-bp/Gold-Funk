@@ -295,6 +295,16 @@ images/mainmenu/menu_mods: "images/ru-RUS/mainmenu/menu_mods"
 
 images/Menu_Tracks: "images/ru-RUS/Menu_Tracks"
 
+images/ready: "images/ru-RUS/ready"
+images/set: "images/ru-RUS/set"
+images/go: "images/ru-RUS/go"
+
+images/sick: "images/ru-RUS/sick"
+images/good: "images/ru-RUS/good"
+images/bad: "images/ru-RUS/bad"
+images/shit: "images/ru-RUS/shit"
+images/miss: "images/ru-RUS/miss"
+
 ///images/menudifficulties/easy: "images/ru-RUS/menudifficulties/easy"
 ///images/menudifficulties/easy: "images/ru-RUS/menudifficulties/normal"
 ///images/menudifficulties/easy: "images/ru-RUS/menudifficulties/hard"
