@@ -1,0 +1,47 @@
+Russia (Russian Federation)
+
+// TEXT
+difficulty_: ""
+
+difficulty_easy: "Легко"
+difficulty_normal: "Нормально"
+difficulty_hard: "Сложно"
+
+botplay: "Ботплей"
+
+rating_you_suck: "Отстой!"
+rating_shit: "Дерьмо"
+rating_bad: "Плохо"
+rating_bruh: "Брух"
+rating_meh: "Мее"
+rating_nice: "Найсик"
+rating_good: "Хорошо"
+rating_great: "Великолепно"
+rating_sick: "Круто!"
+rating_perfect: "Идеально!!"
+
+clear: "Пройдено"
+sdcb: "SDCB"
+fc: "FC"
+gfc: "GFC"
+sfc: "SFC"
+
+score_text: "Счёт: {1} | Промахи: {2} | Рейтинг: {3}"
+score_text_instakill: "Счёт: {1} | Рейтинг: {2}"
+
+week_score: "СЧЁТ НЕДЕЛИ: {1}"
+
+blueballed: "Сварен в крутую: {1}"
+practice_mode: "Практика"
+charting_mode: "Чартинг"
+// IMAGES
+images/mainmenu/menu_story_mode: "images/ru-RUS/mainmenu/menu_story_mode"
+images/mainmenu/menu_credits: "images/ru-RUS/mainmenu/menu_credits"
+images/mainmenu/menu_freeplay: "images/ru-RUS/mainmenu/menu_freeplay"
+images/mainmenu/menu_mods: "images/ru-RUS/mainmenu/menu_mods"
+
+images/Menu_Tracks: "images/ru-RUS/Menu_Tracks"
+
+images/menudifficulties/easy: "images/ru-RUS/menudifficulties/easy"
+images/menudifficulties/easy: "images/ru-RUS/menudifficulties/normal"
+images/menudifficulties/easy: "images/ru-RUS/menudifficulties/hard"
