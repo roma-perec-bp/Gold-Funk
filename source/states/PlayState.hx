@@ -1063,7 +1063,31 @@ class PlayState extends MusicBeatState
 
 	inline private function createCountdownSprite(image:String, antialias:Bool):FlxSprite
 	{
-		var spr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(image));
+		var spr:FlxSprite = new FlxSprite();
+
+		if(stageUI == "normal" && image == "go")
+		{
+			spr.frames = Paths.getSparrowAtlas(image);
+			spr.animation.addByPrefix(image, image, 24, false);
+			spr.animation.play(image);
+
+			new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
+			{
+				FlxTween.tween(spr.scale, {x: 0, y: 0}, Conductor.crochet / 1000, {
+					ease: FlxEase.expoOut,
+					onComplete: function(twn:FlxTween)
+					{
+						remove(spr);
+						spr.destroy();
+					}
+				});
+			});
+		}
+		else
+		{
+			spr.loadGraphic(Paths.image(image));
+		}
+
 		spr.cameras = [camHUD];
 		spr.scrollFactor.set();
 		spr.updateHitbox();
@@ -1074,14 +1098,26 @@ class PlayState extends MusicBeatState
 		spr.screenCenter();
 		spr.antialiasing = antialias;
 		insert(members.indexOf(noteGroup), spr);
-		FlxTween.tween(spr, {/*y: spr.y + 100,*/ alpha: 0}, Conductor.crochet / 1000, {
-			ease: FlxEase.cubeInOut,
-			onComplete: function(twn:FlxTween)
+
+		if (PlayState.isPixelStage)
+		{
+			new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 			{
 				remove(spr);
 				spr.destroy();
-			}
-		});
+			});
+		}
+		else if(stageUI == "normal" && image != "go")
+		{
+			FlxTween.tween(spr, {y: spr.y + 50, alpha: 0}, Conductor.crochet / 1000, {
+				ease: FlxEase.cubeIn,
+				onComplete: function(twn:FlxTween)
+				{
+					remove(spr);
+					spr.destroy();
+				}
+			});
+		}
 		return spr;
 	}
 
