@@ -1868,21 +1868,7 @@ class PlayState extends MusicBeatState
 							else if (daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
 								opponentNoteHit(daNote);
 
-							if(daNote.isSustainNote) 
-							{
-								if(strum.sustainReduce) daNote.clipToStrumNote(strum);
-	
-								//V-Slice sustain scoring shit
-								if(daNote.wasGoodHit && daNote.mustPress && !daNote.hitCausesMiss) {
-									if(!isPixelStage && !guitarHeroSustains) health += 0.15 * healthGain * elapsed;
-
-									if(!cpuControlled && !practiceMode)
-									{
-										songScore += Std.int(holdBonus * elapsed);
-										updateScore(false);
-									}
-								}
-							}
+							if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
 
 							// Kill extremely late notes and cause misses
 							if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
@@ -1907,6 +1893,22 @@ class PlayState extends MusicBeatState
 				}
 			}
 			checkEventNote();
+		}
+
+		for (holdNote in notes.members)
+		{
+			if (holdNote == null || !holdNote.alive || !holdNote.mustPress) continue;
+
+			if (holdNote.noteWasHit && !holdNote.missed && holdNote.isSustainNote)
+			{
+				if(!isPixelStage && !guitarHeroSustains) health += 0.15 * healthGain * elapsed;
+
+				if(!cpuControlled && !practiceMode)
+				{
+					songScore += Std.int(holdBonus * elapsed);
+					updateScoreText();
+				}
+			}
 		}
 
 		#if debug
@@ -3112,6 +3114,7 @@ class PlayState extends MusicBeatState
 		if(result == LuaUtils.Function_Stop) return;
 
 		note.wasGoodHit = true;
+		note.noteWasHit = true; //пиздец что эту переменную не использовали
 
 		if (note.hitsoundVolume > 0 && !note.hitsoundDisabled)
 			FlxG.sound.play(Paths.sound(note.hitsound), note.hitsoundVolume);
