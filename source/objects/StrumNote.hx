@@ -32,7 +32,7 @@ class StrumNote extends FlxSprite
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
 		
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[leData];
+		/*var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[leData];
 		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[leData];
 		
 		if(leData <= arr.length)
@@ -43,7 +43,7 @@ class StrumNote extends FlxSprite
 				rgbShader.g = arr[1];
 				rgbShader.b = arr[2];
 			}
-		}
+		}*/
 
 		noteData = leData;
 		this.player = player;
@@ -135,10 +135,7 @@ class StrumNote extends FlxSprite
 		}
 		updateHitbox();
 
-		if(lastAnim != null)
-		{
-			playAnim(lastAnim, true);
-		}
+		if(lastAnim != null) playAnim(lastAnim, true);
 	}
 
 	public function playerPosition()
@@ -149,23 +146,48 @@ class StrumNote extends FlxSprite
 	}
 
 	override function update(elapsed:Float) {
-		if(resetAnim > 0) {
+		super.update(elapsed);
+		centerOrigin();
+
+		if(resetAnim > 0) 
+		{
 			resetAnim -= elapsed;
-			if(resetAnim <= 0) {
+
+			if(resetAnim <= 0)
+			{
 				playAnim('static');
 				resetAnim = 0;
 			}
 		}
-		super.update(elapsed);
+
+		if(player == 1)
+		{
+			if(animation.curAnim.name == 'confirm' && animation.curAnim.finished)
+			{
+				resetAnim = 0;
+				playAnim('pressed', true);
+			}
+		}
 	}
 
-	public function playAnim(anim:String, ?force:Bool = false) {
+	public function playAnim(anim:String, ?force:Bool = false, ?colorNote:Array<FlxColor>) {
 		animation.play(anim, force);
+
 		if(animation.curAnim != null)
 		{
 			centerOffsets();
 			centerOrigin();
 		}
-		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+
+		if(useRGBShader)
+		{
+			rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+			if(colorNote != null)
+			{
+				rgbShader.r = colorNote[0];
+				rgbShader.g = colorNote[1];
+				rgbShader.b = colorNote[2];
+			}
+		}
 	}
 }
