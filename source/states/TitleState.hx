@@ -80,6 +80,8 @@ class TitleState extends MusicBeatState
 
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
+		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
+
 		if(!initialized)
 		{
 			if(FlxG.save.data != null && FlxG.save.data.fullscreen)
@@ -120,12 +122,7 @@ class TitleState extends MusicBeatState
 	var swagShader:ColorSwap = null;
 
 	function startIntro()
-	{
-		if(ClientPrefs.data.windowDarkMode)
-		{
-                     WindowColorMode.setDarkMode();
-		}
-		
+	{	
 		persistentUpdate = true;
 		if (!initialized && FlxG.sound.music == null)
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);

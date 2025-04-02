@@ -4,6 +4,7 @@ import objects.Note;
 import objects.StrumNote;
 import objects.NoteSplash;
 import objects.Alphabet;
+import hxwindowmode.WindowColorMode;
 
 class VisualsSettingsSubState extends BaseOptionsMenu
 {
@@ -161,10 +162,11 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Window Dark Mode',
-			"If checked, will enable Window Dark Mode (NEED RESTART!!)",
+			"If checked, will enable Window Dark Mode",
 			'windowDarkMode',
 			BOOL);
 		addOption(option);
+		option.onChange = onChangeWindowMode;
 
 		super();
 		add(notes);
@@ -204,6 +206,11 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	}
 
 	var changedMusic:Bool = false;
+	function onChangeWindowMode()
+	{
+		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
+	}
+
 	function onChangePauseMusic()
 	{
 		if(ClientPrefs.data.pauseMusic == 'None')
