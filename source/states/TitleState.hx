@@ -15,6 +15,8 @@ import openfl.display.BitmapData;
 
 import shaders.ColorSwap;
 
+import hxwindowmode.WindowColorMode;
+
 import states.StoryMenuState;
 import states.MainMenuState;
 
@@ -119,6 +121,11 @@ class TitleState extends MusicBeatState
 
 	function startIntro()
 	{
+		if(ClientPrefs.data.windowDarkMode)
+		{
+                     WindowColorMode.setDarkMode();
+		}
+		
 		persistentUpdate = true;
 		if (!initialized && FlxG.sound.music == null)
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
