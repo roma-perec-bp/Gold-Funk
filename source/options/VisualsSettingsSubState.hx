@@ -162,7 +162,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 
 		var option:Option = new Option('Window Dark Mode',
 			"If checked, will enable Window Dark Mode (NEED RESTART!!)",
-			'WDM',
+			'windowDarkMode',
 			BOOL);
 		addOption(option);
 
