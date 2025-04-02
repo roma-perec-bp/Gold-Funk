@@ -15,6 +15,8 @@ import openfl.display.BitmapData;
 
 import shaders.ColorSwap;
 
+import hxwindowmode.WindowColorMode;
+
 import states.StoryMenuState;
 import states.MainMenuState;
 
