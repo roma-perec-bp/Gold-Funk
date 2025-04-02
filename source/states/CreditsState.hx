@@ -45,6 +45,9 @@ class CreditsState extends MusicBeatState
 			["Gold Funk Engine Contributors"],
 			["SantiagoCalebe",		"santiago",	 "Github Collaborator / Programmer.",	"https://santiagocalebe.github.io",	"ba05ff"], //icon later for now
 			[""],
+			["Gold Funk MISC."],
+			["T-Bar",		"tbar",	 "Window Dark Mode's Creator",	"https://lib.haxe.org/p/hxWindowColorMode/",	"add8e6"], //icon later for now
+			[""],
 			["Original Psych Engine Team"],
 			["Shadow Mario",		"shadowmario",		"Main Programmer and Head of Psych Engine",					"https://ko-fi.com/shadowmario",	"444444"],
 			["Riveren",				"riveren",			"Main Artist/Animator of Psych Engine",						"https://x.com/riverennn",			"14967B"],
