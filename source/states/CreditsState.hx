@@ -39,14 +39,14 @@ class CreditsState extends MusicBeatState
 
 		var defaultList:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
 			["Gold Funk' Team"],
-			["ROMA PEREC",		    "rom",		        "Main Programmer and Head of Gold Funk\'",					"t.me/romcock",	    "ff0000"],
-			["Ender69",				"ender",			"Programmer.",						                        "t.me/ender69bunker",	"2fff00"],
+			["ROMA PEREC",		    "rom",		        "Main Programmer and Head of Gold Funk\'",					"t.me/romcock",	                    "ff0000"],
+			["Ender69",				"ender",			"Programmer.",						                        "t.me/ender69bunker",	             "2fff00"],
 			[""],
 			["Gold Funk Contributors"],
-			["SantiagoCalebe",		"santiago",	 "Github Collaborator / Programmer.",	"https://santiagocalebe.github.io",	"ba05ff"],
+			["SantiagoCalebe",		"santiago",	        "Github Collaborator / Programmer.",	                    "https://santiagocalebe.github.io",	"ba05ff"],
 			[""],
 			["Gold Funk MISC."],
-			["T-Bar",		"tbar",	 "Window Dark Mode's Creator",	"https://lib.haxe.org/p/hxWindowColorMode/",	"add8e6"],
+			["T-Bar",		        "tbar",	            "Window Dark Mode's Creator",	                   "https://lib.haxe.org/p/hxWindowColorMode/", "add8e6"],
 			[""],
 			["Original Psych Engine Team"],
 			["Shadow Mario",		"shadowmario",		"Main Programmer and Head of Psych Engine",					"https://ko-fi.com/shadowmario",	"444444"],
