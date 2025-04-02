@@ -209,6 +209,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	function onChangeWindowMode()
 	{
 		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
+		WindowColorMode.redrawWindowHeader();
 	}
 
 	function onChangePauseMusic()
