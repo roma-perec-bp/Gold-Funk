@@ -10,10 +10,10 @@ body:
   - type: dropdown
     id: eyetest
     attributes:
-      label: [Optional] You are a modder or a player?
+      label: You are a modder or a player?
       options:
         - Player.
         - Modder.
         - Both.
     validations:
-      required: true
+      required: false
