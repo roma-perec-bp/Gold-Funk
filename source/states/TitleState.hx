@@ -527,7 +527,7 @@ class TitleState extends MusicBeatState
 					FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 					FlxG.sound.music.fadeIn(4, 0, 0.7);
 				case 2:
-					createCoolText(['Gold Funk\' Made By'], 40);
+					createCoolText(['Gold Funk Made By'], 40);
 				case 4:
 					addMoreText('ROMA PEREC', 40);
 					addMoreText('Ender69', 40);
@@ -552,7 +552,7 @@ class TitleState extends MusicBeatState
 				case 15:
 					addMoreText('Gold');
 				case 16:
-					addMoreText('Funk\'');
+					addMoreText('Funk');
 
 				case 17:
 					skipIntro();
