@@ -168,6 +168,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = onChangeWindowMode;
 
+		var option:Option = new Option('Backdrops',
+			"If unchecked, will disable the backdrops. \n Will affect Main Menu and Title Menu. \n This option normally doesn't affect performance.",
+			'backdrop',
+			BOOL);
+		addOption(option);
+
 		super();
 		add(notes);
 		add(splashes);
