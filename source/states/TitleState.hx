@@ -46,7 +46,7 @@ class TitleState extends MusicBeatState
 
 	public static var initialized:Bool = false;
 
-	private var backdrop:FlxBackdrop;
+	var backdrop:FlxBackdrop;
 
 	var credGroup:FlxGroup = new FlxGroup();
 	var textGroup:FlxGroup = new FlxGroup();
