@@ -3,6 +3,7 @@ package states;
 import flixel.FlxObject;
 import flixel.effects.FlxFlicker;
 import lime.app.Application;
+import flixel.addons.display.FlxBackdrop;
 import states.editors.MasterEditorMenu;
 import options.OptionsState;
 
