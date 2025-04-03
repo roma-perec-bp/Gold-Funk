@@ -37,6 +37,7 @@ class MainMenuState extends MusicBeatState
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
+	var checker:FlxBackdrop;
 
 	static var showOutdatedWarning:Bool = true;
 	override function create()
