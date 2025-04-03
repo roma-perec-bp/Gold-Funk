@@ -93,6 +93,11 @@ class TitleState extends MusicBeatState
                 checker.screenCenter(X);
                 add(checker);
 
+		if(ClientPrefs.data.backdrop)
+		{
+			checker.alpha = 0;
+		}
+
 		if(!initialized)
 		{
 			if(FlxG.save.data != null && FlxG.save.data.fullscreen)
