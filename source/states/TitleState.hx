@@ -16,6 +16,7 @@ import openfl.display.BitmapData;
 import shaders.ColorSwap;
 
 import hxwindowmode.WindowColorMode;
+import flixel.addons.display.FlxBackdrop;
 
 import states.StoryMenuState;
 import states.MainMenuState;
@@ -44,6 +45,8 @@ class TitleState extends MusicBeatState
 	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
 
 	public static var initialized:Bool = false;
+
+	private var backdrop:FlxBackdrop;
 
 	var credGroup:FlxGroup = new FlxGroup();
 	var textGroup:FlxGroup = new FlxGroup();
@@ -82,6 +85,13 @@ class TitleState extends MusicBeatState
 
 		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
 		WindowColorMode.redrawWindowHeader();
+
+                checker = new FlxBackdrop(Paths.image('backdrop'));
+                checker.updateHitbox();
+                checker.scrollFactor.set(0, 0);
+                checker.alpha = 0.4;
+                checker.screenCenter(X);
+                add(checker);
 
 		if(!initialized)
 		{
@@ -327,6 +337,13 @@ class TitleState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
+             if (backdrop != null)
+             {
+         	checker.x = 0;
+                checker.y -= 0.16;  
+             }
+
+		
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
 		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
