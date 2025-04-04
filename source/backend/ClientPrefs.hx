@@ -75,6 +75,7 @@ import states.TitleState;
 	public var badWindow:Float = 135.0;
 	public var safeFrames:Float = 10.0;
 	public var guitarHeroSustains:Bool = true;
+	public var sustainGain:Bool = true;
 	public var discordRPC:Bool = true;
 	public var loadingScreen:Bool = true;
 	public var language:String = 'en-US';

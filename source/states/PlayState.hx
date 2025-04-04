@@ -1915,7 +1915,7 @@ class PlayState extends MusicBeatState
 
 			if (holdNote.noteWasHit && !holdNote.missed && holdNote.isSustainNote)
 			{
-				if(!isPixelStage && !guitarHeroSustains) health += 0.15 * healthGain * elapsed;
+				if(!isPixelStage && ClientPrefs.data.sustainGain) health += 0.15 * healthGain * elapsed;
 
 				if(!cpuControlled && !practiceMode)
 				{
@@ -3403,7 +3403,7 @@ class PlayState extends MusicBeatState
 				health += note.hitHealth * healthGain;
 			}
 
-			if(isPixelStage && !guitarHeroSustains) if (note.isSustainNote) health += note.hitHealth * healthGain; //so it wont be smooth in week 6
+			if(isPixelStage && ClientPrefs.data.sustainGain) if (note.isSustainNote) health += note.hitHealth * healthGain; //so it wont be smooth in week 6
 
 		}
 		else //Notes that count as a miss if you hit them (Hurt notes for example)

@@ -51,6 +51,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Gain Health from Sustain Note',
+			"If checked, Health can be gained from Hold Notes.",
+			'sustainGain',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Hitsound Volume',
 			'Funny notes does \"Tick!\" when you hit them.',
 			'hitsoundVolume',
