@@ -9,6 +9,8 @@ class Rating
 	public var hitWindow:Null<Float> = 0.0; //ms
 	public var ratingMod:Float = 1;
 	public var score:Int = 350;
+	public var bonusHealth:Float = 0.02;
+	public var grayNote:Bool = false;
 	public var noteSplash:Bool = true;
 	public var hits:Int = 0;
 
@@ -33,19 +35,24 @@ class Rating
 		var rating:Rating = new Rating('good');
 		rating.ratingMod = 0.67;
 		rating.score = 200;
+		rating.bonusHealth = 0.015;
 		rating.noteSplash = false;
 		ratingsData.push(rating);
 
 		var rating:Rating = new Rating('bad');
 		rating.ratingMod = 0.34;
 		rating.score = 100;
+		rating.bonusHealth = 0;
 		rating.noteSplash = false;
+		rating.grayNote = true;
 		ratingsData.push(rating);
 
 		var rating:Rating = new Rating('shit');
 		rating.ratingMod = 0;
 		rating.score = 50;
+		rating.bonusHealth = -0.02;
 		rating.noteSplash = false;
+		rating.grayNote = true;
 		ratingsData.push(rating);
 		return ratingsData;
 	}

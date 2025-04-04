@@ -80,6 +80,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		/*['Flash Camera', 'Value 1: Duration\nValue 2: Color (HEX)']*/
 		['Change Character', "Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"],
 		['Change Scroll Speed', "Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in seconds."],
+		['Change Combo Camera', "Value 1: Is it should be on game camera or hud? (camHUD or camGame)\nValue 2: X, Y (650, 300)"],
 		['Set Property', "Value 1: Variable name\nValue 2: New value"],
 		#if VIDEOS_ALLOWED
 		['Play Video', 'Value 1: Video Name'],

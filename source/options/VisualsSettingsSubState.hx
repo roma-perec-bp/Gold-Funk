@@ -4,7 +4,10 @@ import objects.Note;
 import objects.StrumNote;
 import objects.NoteSplash;
 import objects.Alphabet;
+
+#if (cpp && windows)
 import hxwindowmode.WindowColorMode;
+#end
 
 class VisualsSettingsSubState extends BaseOptionsMenu
 {

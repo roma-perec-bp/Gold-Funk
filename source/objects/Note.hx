@@ -6,6 +6,8 @@ import backend.NoteTypesConfig;
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
+import shaders.ColorSwap;
+
 import objects.StrumNote;
 
 import flixel.math.FlxRect;
@@ -68,6 +70,7 @@ class Note extends FlxSprite
 	public var nextNote:Note;
 
 	public var spawned:Bool = false;
+	public var badassed:Bool = false;
 
 	public var tail:Array<Note> = []; // for sustains
 	public var parent:Note;
@@ -85,6 +88,7 @@ class Note extends FlxSprite
 
 	public var rgbShader:RGBShaderReference;
 	public static var globalRgbShaders:Array<RGBPalette> = [];
+	var colorSwap:ColorSwap;
 	public var inEditor:Bool = false;
 
 	public var animSuffix:String = '';
@@ -261,7 +265,12 @@ class Note extends FlxSprite
 		if(noteData > -1)
 		{
 			rgbShader = new RGBShaderReference(this, initializeGlobalRGBShader(noteData));
-			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) rgbShader.enabled = false;
+			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB)
+			{
+				rgbShader.enabled = false;
+				colorSwap = new ColorSwap();
+				shader = colorSwap.shader;
+			}
 			texture = '';
 
 			x += swagWidth * (noteData);
@@ -465,6 +474,11 @@ class Note extends FlxSprite
 		if(animFrames.length < 1) return;
 
 		animation.addByPrefix(name, prefix, framerate, doLoop);
+	}
+
+	public function desaturate():Void
+	{
+		colorSwap.saturation = -1;
 	}
 
 	override function update(elapsed:Float)
