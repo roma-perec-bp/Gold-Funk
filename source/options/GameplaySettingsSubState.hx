@@ -31,6 +31,12 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'ghostTapping',
 			BOOL);
 		addOption(option);
+
+		var option:Option = new Option('Toggle Miss Sounds',
+			"If unchecked, miss sounds won't play in any way.",
+			'missSounds',
+			BOOL);
+		addOption(option);
 		
 		var option:Option = new Option('Auto Pause',
 			"If checked, the game automatically pauses if the screen isn't on focus.",
