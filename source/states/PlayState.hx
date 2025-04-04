@@ -1632,6 +1632,9 @@ class PlayState extends MusicBeatState
 			}
 			FlxTimer.globalManager.forEach(function(tmr:FlxTimer) if(!tmr.finished) tmr.active = false);
 			FlxTween.globalManager.forEach(function(twn:FlxTween) if(!twn.finished) twn.active = false);
+			#if VIDEOS_ALLOWED
+ 			if(videoCutscene != null) videoCutscene.pause();
+ 			#end
 		}
 
 		super.openSubState(SubState);
@@ -1651,6 +1654,9 @@ class PlayState extends MusicBeatState
 			}
 			FlxTimer.globalManager.forEach(function(tmr:FlxTimer) if(!tmr.finished) tmr.active = true);
 			FlxTween.globalManager.forEach(function(twn:FlxTween) if(!twn.finished) twn.active = true);
+			#if VIDEOS_ALLOWED
+ 			if(videoCutscene != null) videoCutscene.resume();
+ 			#end
 
 			paused = false;
 			callOnScripts('onResume');
