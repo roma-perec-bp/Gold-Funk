@@ -80,8 +80,10 @@ class TitleState extends MusicBeatState
 
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
+		#if (cpp && windows)
 		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
 		WindowColorMode.redrawWindowHeader();
+		#end
 
 		if(!initialized)
 		{

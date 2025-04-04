@@ -161,12 +161,14 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		#if (cpp && windows)
 		var option:Option = new Option('Window Dark Mode',
 			"If checked, will enable Window Dark Mode",
 			'windowDarkMode',
 			BOOL);
 		addOption(option);
 		option.onChange = onChangeWindowMode;
+		#end
 
 		super();
 		add(notes);
@@ -205,13 +207,15 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		}
 	}
 
-	var changedMusic:Bool = false;
+	#if (cpp && windows)
 	function onChangeWindowMode()
 	{
 		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
 		WindowColorMode.redrawWindowHeader();
 	}
+	#end
 
+	var changedMusic:Bool = false;
 	function onChangePauseMusic()
 	{
 		if(ClientPrefs.data.pauseMusic == 'None')
