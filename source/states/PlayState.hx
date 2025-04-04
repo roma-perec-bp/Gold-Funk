@@ -1,5 +1,6 @@
 package states;
 
+import states.editors.StageEditorState;
 import backend.Highscore;
 import backend.StageData;
 import backend.WeekData;
@@ -1765,6 +1766,8 @@ class PlayState extends MusicBeatState
 				openChartEditor();
 			else if (controls.justPressed('debug_2'))
 				openCharacterEditor();
+			else if (controls.justPressed('debug_3'))
+				openStageEditor();
 		}
 
 		if (healthBar.bounds.max != null && health > healthBar.bounds.max)
@@ -2045,6 +2048,24 @@ class PlayState extends MusicBeatState
 
 		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 		MusicBeatState.switchState(new CharacterEditorState(SONG.player2));
+	}
+
+	function openStageEditor()
+	{
+		canResync = false;
+		FlxG.camera.followLerp = 0;
+		persistentUpdate = false;
+		paused = true;
+
+		if(FlxG.sound.music != null)
+			FlxG.sound.music.stop();
+		if(vocals != null)
+			vocals.pause();
+		if(opponentVocals != null)
+			opponentVocals.pause();
+
+		#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
+		MusicBeatState.switchState(new StageEditorState(curStage, null, true));
 	}
 
 	public var isDead:Bool = false; //Don't mess with this on Lua!!!

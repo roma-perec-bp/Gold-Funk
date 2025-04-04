@@ -43,10 +43,14 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var UI_box:PsychUIBox;
 	var spriteList_box:PsychUIBox;
 	var stageSprites:Array<StageEditorMetaSprite> = [];
-	public function new(stageToLoad:String = 'stage', cachedJson:StageFile = null)
+
+	var _goToPlayState:Bool = false;
+
+	public function new(stageToLoad:String = 'stage', cachedJson:StageFile = null, goToPlayState:Bool = false)
 	{
 		lastLoadedStage = stageToLoad;
 		stageJson = cachedJson;
+		this._goToPlayState = goToPlayState;
 		super();
 	}
 
@@ -62,6 +66,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var unsavedProgress:Bool = false;
 	
 	var selectionSprites:FlxSpriteGroup = new FlxSpriteGroup();
+
 	override function create()
 	{
 		Paths.clearStoredMemory();
@@ -1351,8 +1356,16 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		{
 			if(!unsavedProgress)
 			{
-				MusicBeatState.switchState(new states.editors.MasterEditorMenu());
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				if(!_goToPlayState)
+				{
+					MusicBeatState.switchState(new states.editors.MasterEditorMenu());
+					FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				}
+				else
+				{
+					FlxG.mouse.visible = false;
+					MusicBeatState.switchState(new PlayState());
+				}
 			}
 			else openSubState(new ExitConfirmationPrompt());
 			return;

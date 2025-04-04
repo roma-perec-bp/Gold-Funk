@@ -41,6 +41,7 @@ class CreditsState extends MusicBeatState
 			["Gold Funk' Team"],
 			["ROMA PEREC",		    "rom",		        "Main Programmer and Head of Gold Funk\'",					"t.me/romcock",	                    "ff0000"],
 			["Ender69",				"ender",			"Programmer.",						                        "t.me/ender69bunker",	             "2fff00"],
+			["SMixell",				"null",			    "Additional Grafix.",						                "t.me/ender69bunker",	             "2fff00"],
 			[""],
 			["Gold Funk Contributors"],
 			["SantiagoCalebe",		"santiago",	        "Github Collaborator / Programmer.",	                    "https://santiagocalebe.github.io",	"ba05ff"],
