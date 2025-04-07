@@ -245,7 +245,7 @@ class PhillyStreets extends BaseStage
 	var cutsceneHandler:CutsceneHandler;
 	function darnellCutscene()
 	{
-		moveCamera(false);
+		//moveCamera(false);
 		camFollow.x += 250;
 		FlxG.camera.snapToTarget();
 		FlxG.camera.zoom = 1.3;
@@ -295,7 +295,7 @@ class PhillyStreets extends BaseStage
 		});
 		cutsceneHandler.timer(cutsceneDelay, function() //zoom out to show off everything
 		{
-			moveCamera(true);
+			//moveCamera(true);
 			camFollow.x += 100;
 			FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x + 100 - FlxG.width/2, y: camFollow.y - FlxG.height/2}, 2.5, {ease: FlxEase.quadInOut});
 			FlxTween.tween(FlxG.camera, {zoom: 0.66}, 2.5, {ease: FlxEase.quadInOut});

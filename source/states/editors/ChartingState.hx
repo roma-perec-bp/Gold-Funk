@@ -73,14 +73,20 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Hey!', "Plays the \"Hey!\" animation from Bopeebo,\nValue 1: BF = Only Boyfriend, GF = Only Girlfriend,\nSomething else = Both.\nValue 2: Custom animation duration,\nleave it blank for 0.6s"],
 		['Set GF Speed', "Sets GF head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\nUsed on Fresh during the beatbox parts.\n\nWarning: Value must be integer!"],
 		['Add Camera Zoom', "Used on MILF on that one \"hard\" part\nValue 1: Camera zoom add (Default: 0.015)\nValue 2: UI zoom add (Default: 0.03)\nLeave the values blank if you want to use Default."],
+		['Focus Camera', 'Value 1:\nChar (default dad) - Can be any character\nValue 2: "origin" Duration in steps (default 4.0)\nValue3: Ease - Any FlxEase, can be "INSTANT" or "CLASSIC"\n"CLASSIC" is by default.\nValue 4: Additional X and Y Camera Offsets'],
+		['Set Camera Bop', 'How often does the camera bop?\nValue 1 - The rate of camera bopping\nValue 2 - The intensity of camera bop'],
+		['Zoom Camera', 'Value 1:\nZoom Ease (it can be a FlxEase, or "INSTANT")\nValue 2: \nZoom (default 1.0)\nValue 3: Duration in steps (default 4.0)\nValue4: Mode (default "direct", anything else is "stage")'],
+		['Zoom Hud Camera', 'Value 1: \nZoom (default 1.0)\nValue 2: Duration in steps (default 4.0)\nValue 3:\nZoom Ease (it can be a FlxEase, or "INSTANT")'],
+		['Camera Angle', 'Value 1:\nZoom Ease (it can be a FlxEase)\nValue 2: \nAngle (default 0)\nValue 3: Duration in steps (default 4.0)\nValue4: Which Camera Angle (camGame or camHUD or camOther)'],
 		['Play Animation', "Plays an animation on a Character,\nonce the animation is completed,\nthe animation changes to Idle\n\nValue 1: Animation to play.\nValue 2: Character (Dad, BF, GF)"],
-		['Camera Follow Pos', "Value 1: X\nValue 2: Y\n\nThe camera won't change the follow point\nafter using this, for getting it back\nto normal, leave both values blank."],
 		['Alt Idle Animation', "Sets a specified postfix after the idle animation name.\nYou can use this to trigger 'idle-alt' if you set\nValue 2 to -alt\n\nValue 1: Character to set (Dad, BF or GF)\nValue 2: New postfix (Leave it blank to disable)"],
 		['Screen Shake', "Value 1: Camera shake\nValue 2: HUD shake\n\nEvery value works as the following example: \"1, 0.05\".\nThe first number (1) is the duration.\nThe second number (0.05) is the intensity."],
-		/*['Flash Camera', 'Value 1: Duration\nValue 2: Color (HEX)']*/
+		['Flash Camera', "Value 1: Color, Value 2: Duration, Value 3: Camera"],
+		['Fade Camera', "Value 1: Color, Value 2: Duration, Value 3: Camera, Value 4: Fade in or out (true/false)"],
 		['Change Character', "Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"],
 		['Change Scroll Speed', "Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in seconds."],
 		['Change Combo Camera', "Value 1: Is it should be on game camera or hud? (camHUD or camGame)\nValue 2: X, Y (650, 300)"],
+		['Change Note Camera Move Offset', "Value 1: Offset"],
 		['Set Property', "Value 1: Variable name\nValue 2: New value"],
 		#if VIDEOS_ALLOWED
 		['Play Video', 'Value 1: Video Name'],
@@ -394,7 +400,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		infoBox.getTab('Information').menu.add(infoText);
 		add(infoBox);
 
-		mainBox = new PsychUIBox(mainBoxPosition.x, mainBoxPosition.y, 300, 280, ['Charting', 'Data', 'Events', 'Note', 'Section', 'Song']);
+		mainBox = new PsychUIBox(mainBoxPosition.x, mainBoxPosition.y, 300, 310, ['Charting', 'Data', 'Events', 'Note', 'Section', 'Camera', 'Song']);
 		mainBox.selectedName = 'Song';
 		mainBox.scrollFactor.set();
 		mainBox.cameras = [camUI];
@@ -445,6 +451,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		addEventsTab();
 		addNoteTab();
 		addSectionTab();
+		addCameraTab();
 		addSongTab();
 		
 		////// for upper box
@@ -1403,7 +1410,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 							trace('Added event at time: $strumTime');
 							var didAdd:Bool = false;
 
-							var eventAdded:EventMetaNote = createEvent([strumTime, [[eventsList[Std.int(Math.max(eventDropDown.selectedIndex, 0))][0], value1InputText.text, value2InputText.text]]]);
+							var eventAdded:EventMetaNote = createEvent([strumTime, [[eventsList[Std.int(Math.max(eventDropDown.selectedIndex, 0))][0], value1InputText.text, value2InputText.text, value3InputText.text, value4InputText.text, value5InputText.text]]]);
 							for (num in sectionFirstEventID...events.length)
 							{
 								var event = events[num];
@@ -1718,6 +1725,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			eventDropDown.selectedLabel = '';
 			value1InputText.text = '';
 			value2InputText.text = '';
+			value3InputText.text = '';
+			value4InputText.text = '';
+			value5InputText.text = '';
 		}
 		forceDataUpdate = true;
 	}
@@ -1745,6 +1755,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				}
 				value1InputText.text = (myEvent[1] != null) ? myEvent[1] : '';
 				value2InputText.text = (myEvent[2] != null) ? myEvent[2] : '';
+				value3InputText.text = (myEvent[3] != null) ? myEvent[3] : '';
+				value4InputText.text = (myEvent[4] != null) ? myEvent[4] : '';
+				value5InputText.text = (myEvent[5] != null) ? myEvent[5] : '';
 			}
 		}
 		else selectedEventText.visible = false;
@@ -2092,6 +2105,18 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			var altAnimSec:Bool = lastSection != null ? lastSection.altAnim : false;
 			var gfSec:Bool = lastSection != null ? lastSection.gfSection : false;
 
+			var folCam:Bool = lastSection != null ? lastSection.followCam : false;
+			var zooCam:Bool = lastSection != null ? lastSection.zoomCam : false;
+			var zoomVal:Float = lastSection != null ? lastSection.zoom : 0.9;
+			var charFol:String = lastSection != null ? lastSection.charFollow : 'bf';
+			var tweenFol:String = lastSection != null ? lastSection.tweenFollow : 'CLASSIC';
+			var followDur:Float = lastSection != null ? lastSection.followTime : 4;
+			var camX:Float = lastSection != null ? lastSection.followX : 0;
+			var camY:Float = lastSection != null ? lastSection.followY : 0;
+			var zoomDur:Float = lastSection != null ? lastSection.zoomTime : 4;
+			var tweenZoo:String = lastSection != null ? lastSection.tweenZoom : 'linear';
+			var zoomStaging:Bool = lastSection != null ? lastSection.stgZoom : true;
+
 			while(!reachedLimit)
 			{
 				PlayState.SONG.notes.push({
@@ -2101,7 +2126,19 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					bpm: bpm,
 					changeBPM: changeBpmSec,
 					altAnim: altAnimSec,
-					gfSection: gfSec
+					gfSection: gfSec,
+
+					followCam: folCam,
+					zoomCam: zooCam,
+					zoom: zoomVal,
+					charFollow: charFol,
+					tweenFollow: tweenFol,
+					followTime: followDur,
+					followX: camX,
+					followY: camY,
+					zoomTime: zoomDur,
+					tweenZoom: tweenZoo,
+					stgZoom: zoomStaging,
 				});
 
 				cachedSectionRow.push(row);
@@ -2179,6 +2216,18 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			susLengthStepper.max = susLengthStepper.step * 128;
 			if(selectedNotes.length > 1) susLengthStepper.min = -susLengthStepper.max;
 			else susLengthStepper.min = 0;
+
+			cameraMove.checked = sec.followCam;
+			cameraZoom.checked = sec.zoomCam;
+			zoomValStep.value = sec.zoom;
+			charDrop.selectedLabel = sec.charFollow;
+			tweenDrop.selectedLabel = sec.tweenFollow;
+			timeValue.value = sec.followTime;
+			exX.value = sec.followX;
+			exY.value = sec.followY;
+			tweenDropZoom.selectedLabel = sec.tweenZoom;
+			timeValueZoom.value = sec.zoomTime;
+			stageZoom.checked = sec.stgZoom;
 		}
 		prevGridBg.vortexLineEnabled = gridBg.vortexLineEnabled = nextGridBg.vortexLineEnabled = vortexEnabled;
 		prevGridBg.vortexLineSpace = gridBg.vortexLineSpace = nextGridBg.vortexLineSpace = GRID_SIZE * 4 * curZoom;
@@ -2529,6 +2578,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var eventDropDown:PsychUIDropDownMenu;
 	var value1InputText:PsychUIInputText;
 	var value2InputText:PsychUIInputText;
+	var value3InputText:PsychUIInputText;
+	var value4InputText:PsychUIInputText;
+	var value5InputText:PsychUIInputText;
 	var selectedEventText:FlxText;
 	var eventDescriptionText:FlxText;
 
@@ -2609,7 +2661,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		{
 			genericEventButton(function(event:EventMetaNote)
 			{
-				event.events.push([eventsList[Std.int(Math.max(eventDropDown.selectedIndex, 0))][0], value1InputText.text, value2InputText.text]);
+				event.events.push([eventsList[Std.int(Math.max(eventDropDown.selectedIndex, 0))][0], value1InputText.text, value2InputText.text, value3InputText.text, value4InputText.text, value5InputText.text]);
 				event.updateEventText();
 				curEventSelected++;
 			});
@@ -2656,13 +2708,22 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		value1InputText.onChange = function(old:String, cur:String) changeEventsValue(cur, 1);
 		value2InputText = new PsychUIInputText(objX + 150, objY, 120, '', 8);
 		value2InputText.onChange = function(old:String, cur:String) changeEventsValue(cur, 2);
+		value3InputText = new PsychUIInputText(objX, objY + 50, 120, '', 8);
+		value3InputText.onChange = function(old:String, cur:String) changeEventsValue(cur, 3);
+		value4InputText = new PsychUIInputText(objX + 150, objY + 50, 120, '', 8);
+		value4InputText.onChange = function(old:String, cur:String) changeEventsValue(cur, 4);
+		value5InputText = new PsychUIInputText(objX, objY + 100, 120, '', 8);
+		value5InputText.onChange = function(old:String, cur:String) changeEventsValue(cur, 5);
 
 		objY += 40;
-		eventDescriptionText = new FlxText(objX, objY, 280, defaultEvents[0][1]);
+		eventDescriptionText = new FlxText(objX, objY + 100, 280, defaultEvents[0][1]);
 
 		tab_group.add(new FlxText(eventDropDown.x, eventDropDown.y - 15, 80, 'Event:'));
 		tab_group.add(new FlxText(value1InputText.x, value1InputText.y - 15, 80, 'Value 1:'));
 		tab_group.add(new FlxText(value2InputText.x, value2InputText.y - 15, 80, 'Value 2:'));
+		tab_group.add(new FlxText(value3InputText.x, value3InputText.y - 15, 80, 'Value 3:'));
+		tab_group.add(new FlxText(value4InputText.x, value4InputText.y - 15, 80, 'Value 4:'));
+		tab_group.add(new FlxText(value5InputText.x, value5InputText.y - 15, 80, 'Value 5:'));
 
 		tab_group.add(removeButton);
 		tab_group.add(addButton);
@@ -2672,6 +2733,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		tab_group.add(value1InputText);
 		tab_group.add(value2InputText);
+		tab_group.add(value3InputText);
+		tab_group.add(value4InputText);
+		tab_group.add(value5InputText);
 		tab_group.add(eventDescriptionText);
 		
 		tab_group.add(eventDropDown); //lowest priority to display properly
@@ -3039,6 +3103,134 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		tab_group.add(swapSectionButton);
 		tab_group.add(duetSectionButton);
 		tab_group.add(mirrorNotesButton);
+	}
+
+	var cameraMove:PsychUICheckBox;
+	var cameraZoom:PsychUICheckBox;
+
+	var zoomValStep:PsychUINumericStepper;
+
+	var charDrop:PsychUIDropDownMenu;
+	var tweenDrop:PsychUIDropDownMenu;
+
+	var timeValue:PsychUINumericStepper;
+	var exX:PsychUINumericStepper;
+	var exY:PsychUINumericStepper;
+
+	var tweenDropZoom:PsychUIDropDownMenu;
+	var timeValueZoom:PsychUINumericStepper;
+	var stageZoom:PsychUICheckBox;
+
+	function addCameraTab()
+	{
+		var objX = 10;
+		var objY = 10;
+		var tab_group = mainBox.getTab('Camera').menu;
+
+		cameraMove = new PsychUICheckBox(objX, objY, 'Should camera move?', 70, function()
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.followCam = cameraMove.checked;
+		});
+
+		cameraZoom = new PsychUICheckBox(objX + 100, objY, 'Should camera zoom?', 70, function()
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.zoomCam = cameraZoom.checked;
+		});
+
+		zoomValStep = new PsychUINumericStepper(objX + 200, objY + 20, 0.1, 1, 0.0, 10, 2);
+		zoomValStep.onValueChange = function()
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.zoom = zoomValStep.value;
+		};
+
+		objY += 50;
+
+		charDrop = new PsychUIDropDownMenu(objX, objY, ['dad', 'bf', 'gf'], function(id:Int, character:String)
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.charFollow = character;
+		});
+
+		tweenDrop = new PsychUIDropDownMenu(objX  + 140, objY, ['CLASSIC', 'INSTANT', 'linear', 'backIn', 'backInOut', 'backOut', 'bounceIn', 'bounceInOut', 'bounceOut',
+		'circIn', 'circInOut', 'circOut', 'cubeIn', 'cubeInOut', 'cubeOut', 'elasticIn', 'elasticInOut', 'elasticOut', 'expoIn', 'expoInOut', 'expoOut', 'quadIn', 'quadInOut', 'quadOut',
+		'quartIn', 'quartInOut', 'quartOut', 'sineIn', 'sineInOut', 'sineOut', 'smoothStepIn', 'smoothStepInOut', 'smoothStepOut', 'smootherStepIn', 'smootherStepInOut', 'smootherStepOut'], 
+		function(id:Int, character:String)
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.tweenFollow = character;
+		});
+
+		objY += 50;
+
+		timeValue = new PsychUINumericStepper(objX, objY, 1, 4, 0, 9999, 1);
+		timeValue.onValueChange = function()
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.followTime = timeValue.value;
+		};
+
+		exX = new PsychUINumericStepper(objX + 100, objY, 1, 0, 0, 9999, 1);
+		exX.onValueChange = function()
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.followX = exX.value;
+		};
+
+		exY = new PsychUINumericStepper(objX + 200, objY, 1, 0, 0, 9999, 1);
+		exY.onValueChange = function()
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.followY = exY.value;
+		};
+
+		objY += 50;
+
+		tweenDropZoom = new PsychUIDropDownMenu(objX, objY, ['INSTANT', 'linear', 'backIn', 'backInOut', 'backOut', 'bounceIn', 'bounceInOut', 'bounceOut',
+		'circIn', 'circInOut', 'circOut', 'cubeIn', 'cubeInOut', 'cubeOut', 'elasticIn', 'elasticInOut', 'elasticOut', 'expoIn', 'expoInOut', 'expoOut', 'quadIn', 'quadInOut', 'quadOut',
+		'quartIn', 'quartInOut', 'quartOut', 'sineIn', 'sineInOut', 'sineOut', 'smoothStepIn', 'smoothStepInOut', 'smoothStepOut', 'smootherStepIn', 'smootherStepInOut', 'smootherStepOut'],
+		function(id:Int, character:String)
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.tweenZoom = character;
+		});
+
+		timeValueZoom = new PsychUINumericStepper(objX + 120, objY, 1, 4, 0, 9999, 1);
+		timeValueZoom.onValueChange = function()
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.zoomTime = timeValueZoom.value;
+		};
+
+		stageZoom = new PsychUICheckBox(objX + 200, objY, 'Stage Zoom?', 70, function()
+		{
+			var sec = getCurChartSection();
+			if(sec != null) sec.stgZoom = stageZoom.checked;
+		});
+
+		objY += 50;
+
+		tab_group.add(cameraMove);
+		tab_group.add(cameraZoom);
+		tab_group.add(new FlxText(zoomValStep.x, zoomValStep.y - 15, 100, 'Zoom Value:'));
+		tab_group.add(zoomValStep);
+
+		tab_group.add(new FlxText(timeValue.x, timeValue.y - 15, 100, 'Time Value:'));
+		tab_group.add(new FlxText(exX.x, exX.y - 15, 100, 'Extra X position:'));
+		tab_group.add(new FlxText(exY.x, exY.y - 15, 100, 'Extra Y position:'));
+		tab_group.add(timeValue);
+		tab_group.add(exX);
+		tab_group.add(exY);
+
+		tab_group.add(timeValueZoom);
+		tab_group.add(stageZoom);
+
+		tab_group.add(tweenDropZoom);
+
+		tab_group.add(charDrop);
+		tab_group.add(tweenDrop);
 	}
 
 	function reloadNotesDropdowns()

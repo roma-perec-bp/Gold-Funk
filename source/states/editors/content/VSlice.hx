@@ -6,6 +6,8 @@ import backend.Difficulty;
 import flixel.math.FlxMath;
 import flixel.util.FlxSort;
 
+//TO-DO Add import of events from V-slice support
+
 // Chart
 typedef VSliceChart =
 {
@@ -324,7 +326,7 @@ class VSlice
 				var subEvents:Array<Array<Dynamic>> = cast event[1];
 				if(subEvents != null && subEvents.length > 0)
 					for (lilEvent in subEvents)
-						events.push({t: event[0], e: lilEvent[0], v: {value1: lilEvent[1], value2: lilEvent[2]}});
+						events.push({t: event[0], e: lilEvent[0], v: {value1: lilEvent[1], value2: lilEvent[2], value3: lilEvent[3], value4: lilEvent[4], value5: lilEvent[5]}});
 			}
 		}
 
@@ -463,6 +465,14 @@ class VSlice
 			sectionNotes: [],
 			sectionBeats: 4,
 			mustHitSection: true,
+			zoomTime: 1,
+			zoom: 1,
+			tweenZoom: 'Linear',
+			tweenFollow: 'Linear',
+			followCam: true,
+			stgZoom: true,
+			followTime: 1,
+			charFollow: 'bf',
 		};
 	}
 

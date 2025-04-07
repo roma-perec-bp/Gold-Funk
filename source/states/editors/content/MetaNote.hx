@@ -175,7 +175,7 @@ class EventMetaNote extends MetaNote
 		if(events.length == 1)
 		{
 			var event = events[0];
-			eventText.text = 'Event: ${event[0]} ($myTime ms)\nValue 1: ${event[1]}\nValue 2: ${event[2]}';
+			eventText.text = 'Event: ${event[0]} ($myTime ms)\nValue 1: ${event[1]}\nValue 2: ${event[2]}\nValue 3: ${event[3]}\nValue 4: ${event[4]}\nValue 5: ${event[5]}';
 		}
 		else if(events.length > 1)
 		{

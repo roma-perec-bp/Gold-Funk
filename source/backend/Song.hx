@@ -30,17 +30,48 @@ typedef SwagSong =
 
 	@:optional var arrowSkin:String;
 	@:optional var splashSkin:String;
+
+	@:optional var forceMiddleScroll:Bool;
+	@:optional var forceDisableOpponentStrums:Bool;
+
+	@:optional var skipCountdown:Bool;
+	@:optional var skipStrumTween:Bool;
+
+	@:optional var focusOn:String;
+	@:optional var offsetXcam:Float;
+	@:optional var offsetYcam:Float;
+
+	@:optional var vanillaHealthBar:Bool;
+	@:optional var ratingsOnCamGame:Bool;
+	@:optional var noteCameraMovement:Float;
+	@:optional var strumOffset:String;
 }
 
 typedef SwagSection =
 {
 	var sectionNotes:Array<Dynamic>;
 	var sectionBeats:Float;
-	var mustHitSection:Bool;
+	var mustHitSection:Bool; //might be deleted later
+
+	var followCam:Bool;
+	var charFollow:String;
+	var tweenFollow:String; 
+	var followTime:Float;
+
+	var zoom:Float;
+	var zoomTime:Float;
+	var tweenZoom:String;
+	var stgZoom:Bool;
+
 	@:optional var altAnim:Bool;
 	@:optional var gfSection:Bool;
 	@:optional var bpm:Float;
 	@:optional var changeBPM:Bool;
+
+	@:optional var zoomCam:Bool;
+
+	@:optional var followX:Float;
+	@:optional var followY:Float;
 }
 
 class Song
@@ -115,6 +146,19 @@ class Song
 
 				if(!Std.isOfType(note[3], String))
 					note[3] = Note.defaultNoteTypes[note[3]]; //compatibility with Week 7 and 0.1-0.3 psych charts
+			}
+
+			if(section.mustHitSection)
+			{
+				section.followCam = true;
+				section.charFollow = 'bf';
+				section.tweenFollow = 'CLASSIC'; 
+			}
+			else
+			{
+				section.followCam = true;
+				section.charFollow = 'dad';
+				section.tweenFollow = 'CLASSIC'; 
 			}
 		}
 	}
