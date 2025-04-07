@@ -95,8 +95,6 @@ class Song
 	public var gfVersion:String = 'gf';
 	public var format:String = 'psych_v1';
 
-	//TO DO
-	//FIX CAMERAS NOT MOVING ON NEWER CHARTS
 	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format
 	{
 		if(songJson.gfVersion == null)
@@ -150,6 +148,28 @@ class Song
 					note[3] = Note.defaultNoteTypes[note[3]]; //compatibility with Week 7 and 0.1-0.3 psych charts
 			}
 
+			if(section.mustHitSection)
+			{
+				section.followCam = true;
+				section.charFollow = 'bf';
+				section.tweenFollow = 'CLASSIC'; 
+			}
+			else
+			{
+				section.followCam = true;
+				section.charFollow = 'dad';
+				section.tweenFollow = 'CLASSIC'; 
+			}
+		}
+	}
+
+	public static function convertGold(songJson:Dynamic) // Convert psychs to gold
+	{
+		var sectionsData:Array<SwagSection> = songJson.notes;
+		if(sectionsData == null) return;
+
+		for (section in sectionsData)
+		{
 			if(section.mustHitSection)
 			{
 				section.followCam = true;
@@ -219,11 +239,17 @@ class Song
 			switch(convertTo)
 			{
 				case 'psych_v1':
-					if(!fmt.startsWith('psych_v1')) //Convert to Psych 1.0 format
+					if(!fmt.startsWith('psych_v1') && fmt.startsWith('gold_v1')) //Convert to Psych 1.0 format
 					{
 						trace('converting chart $nameForError with format $fmt to psych_v1 format...');
 						songJson.format = 'psych_v1_convert';
 						convert(songJson);
+					}
+					else if(!fmt.startsWith('gold_v1')) //IM GENIUS, IF IT IS PSYCH V1 THEN DO THE THING
+					{
+						trace('converting chart $nameForError with format $fmt to gold_v1 format...');
+						songJson.format = 'gold_v1_convert';
+						convertGold(songJson);
 					}
 			}
 		}
