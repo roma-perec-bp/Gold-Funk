@@ -239,17 +239,17 @@ class Song
 			switch(convertTo)
 			{
 				case 'psych_v1':
-					if(!fmt.startsWith('psych_v1') && fmt.startsWith('gold_v1')) //Convert to Psych 1.0 format
-					{
-						trace('converting chart $nameForError with format $fmt to psych_v1 format...');
-						songJson.format = 'psych_v1_convert';
-						convert(songJson);
-					}
-					else if(!fmt.startsWith('gold_v1')) //IM GENIUS, IF IT IS PSYCH V1 THEN DO THE THING
+					if(fmt.startsWith('psych_v1')) //IM GENIUS, IF IT IS PSYCH V1 THEN DO THE THING
 					{
 						trace('converting chart $nameForError with format $fmt to gold_v1 format...');
 						songJson.format = 'gold_v1_convert';
 						convertGold(songJson);
+					}
+					else if(!fmt.startsWith('gold_v1')) //Convert to Psych 1.0 format
+					{
+						trace('converting chart $nameForError with format $fmt to psych_v1 format...');
+						songJson.format = 'psych_v1_convert';
+						convert(songJson);
 					}
 			}
 		}
