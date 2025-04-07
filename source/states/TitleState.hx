@@ -342,7 +342,7 @@ class TitleState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-             if (backdrop != null)
+             if (checker != null)
              {
          	checker.x = 0;
                 checker.y -= 0.16;  
