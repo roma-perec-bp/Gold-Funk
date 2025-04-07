@@ -95,6 +95,8 @@ class Song
 	public var gfVersion:String = 'gf';
 	public var format:String = 'psych_v1';
 
+	//TO DO
+	//FIX CAMERAS NOT MOVING ON NEWER CHARTS
 	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format
 	{
 		if(songJson.gfVersion == null)
