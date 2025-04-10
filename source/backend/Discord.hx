@@ -52,12 +52,7 @@ class DiscordClient
 			message += '($user#$discriminator)';
 		else //New Discord IDs/Discriminator system
 			message += '($user)';
-
-		final buttonDownload:DiscordButton = DiscordButton.create();
-		buttonDownload.label = "Download";
-		buttonDownload.url = 'https://t.me/ender69bunker';
-		presence.buttons[0] = buttonDownload;
-
+		
 		trace(message);
 		changePresence();
 	}
