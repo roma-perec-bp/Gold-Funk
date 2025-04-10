@@ -7,6 +7,7 @@ import lime.app.Application;
 
 import hxdiscord_rpc.Discord;
 import hxdiscord_rpc.Types;
+import hxdiscord_rpc.Types.DiscordButton;
 
 import flixel.util.FlxStringUtil;
 
