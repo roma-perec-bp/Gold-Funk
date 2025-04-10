@@ -7,6 +7,7 @@ import lime.app.Application;
 
 import hxdiscord_rpc.Discord;
 import hxdiscord_rpc.Types;
+import hxdiscord_rpc.Types.DiscordButton;
 
 import flixel.util.FlxStringUtil;
 
@@ -51,6 +52,11 @@ class DiscordClient
 			message += '($user#$discriminator)';
 		else //New Discord IDs/Discriminator system
 			message += '($user)';
+
+		final buttonDownload:DiscordButton = DiscordButton.create();
+		buttonDownload.label = "Download";
+		buttonDownload.url = 'https://t.me/ender69bunker';
+		presence.buttons[0] = buttonDownload;
 
 		trace(message);
 		changePresence();
