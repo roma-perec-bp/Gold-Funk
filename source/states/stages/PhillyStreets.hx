@@ -13,6 +13,13 @@ import objects.Note;
 
 import cutscenes.CutsceneHandler;
 
+#if LUA_ALLOWED
+import psychlua.*;
+#else
+import psychlua.LuaUtils;
+import psychlua.HScript;
+#end
+
 enum NeneState
 {
 	STATE_DEFAULT;
@@ -896,11 +903,15 @@ class PhillyStreets extends BaseStage
 				dad.specialAnim = true;
 				lightCanSnd.play(true, sndTime - 65);
 				
-				game.isCameraOnForcedPos = true;
 				game.defaultCamZoom += 0.1;
-				game.moveCamera(true);
-				game.cameraSpeed = 2;
-				camFollow.x -= 100;
+
+				game.tweenCameraZoom(1.1, Conductor.stepCrochet * 8 / 1000, false, LuaUtils.getTweenEaseByString('expoout'));
+
+				game.tweenCameraToPosition(
+					dad.getMidpoint().x + dad.cameraPosition[0] + game.opponentCameraOffset[0] + 150, 
+					dad.getMidpoint().y + dad.cameraPosition[1] + game.opponentCameraOffset[1] - 100, 
+					Conductor.stepCrochet * 8 / 1000, LuaUtils.getTweenEaseByString('expoout'));
+
 			case 'weekend-1-kickcan':
 				dad.holdTimer = 0;
 				dad.playAnim('kickCan', true);
@@ -908,19 +919,24 @@ class PhillyStreets extends BaseStage
 				kickCanSnd.play(true, sndTime - 50);
 				spraycan.playCanStart();
 				camFollow.x += 250;
-				game.cameraSpeed = 1.5;
-				game.defaultCamZoom -= 0.1;
+
+				game.tweenCameraToPosition(
+					dad.getMidpoint().x + dad.cameraPosition[0] + game.opponentCameraOffset[0] + 150 + 150, 
+					dad.getMidpoint().y + dad.cameraPosition[1] + game.opponentCameraOffset[1] - 100 - 50, 
+					Conductor.stepCrochet * 12 / 1000, LuaUtils.getTweenEaseByString('expoout'));
+
+				game.tweenCameraZoom(0.65, Conductor.stepCrochet * 4 / 1000, true, LuaUtils.getTweenEaseByString('expoOut'));
 				
 				new FlxTimer().start(1.1, function(_) {
-					game.isCameraOnForcedPos = false;
+					game.tweenCameraZoom(1, Conductor.stepCrochet * 12 / 1000, false, LuaUtils.getTweenEaseByString('quadInOut'));
 					game.moveCameraSection();
-					game.cameraSpeed = 1;
 				});
 			case 'weekend-1-kneecan':
 				dad.holdTimer = 0;
 				dad.playAnim('kneeCan', true);
 				dad.specialAnim = true;
 				kneeCanSnd.play(true, sndTime - 22);
+				game.tweenCameraZoom(0.75, Conductor.stepCrochet * 4 / 1000, true, LuaUtils.getTweenEaseByString('elasticOut'));
 		}
 	}
 	
