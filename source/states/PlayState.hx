@@ -1756,6 +1756,7 @@ class PlayState extends MusicBeatState
 	var freezeCamera:Bool = false;
 	var allowDebugKeys:Bool = true;
 	var holdBonus:Float = 250;
+	var char:Character;
 
 	override public function update(elapsed:Float)
 	{
@@ -1853,6 +1854,26 @@ class PlayState extends MusicBeatState
 			camHudBopMult = FlxMath.lerp(1, camHudBopMult, 0.95 * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
 			var zoomHudPlusBop:Float = defaultHUDCameraZoom * camHudBopMult; // Apply camera bop multiplier.
 			camHUD.zoom = zoomHudPlusBop;  // Actually apply the zoom to the camera.
+		}
+
+		if (SONG.notes[curSection] != null)
+		{
+			if(SONG.notes[curSection].mustHitSection && boyfriend.getAnimationName() == "idle" || boyfriend.getAnimationName() == "danceLeft" || boyfriend.getAnimationName() == "danceRight")
+			{
+				FlxG.camera.targetOffset.x = 0;
+				FlxG.camera.targetOffset.y = 0;
+			}
+
+			if (SONG.notes[curSection].gfSection)
+				char = gf;
+			else
+				char = dad;
+
+			if(!SONG.notes[curSection].mustHitSection && (char.getAnimationName() == "idle" || char.getAnimationName() == "danceLeft" || char.getAnimationName() == "danceRight"))
+			{
+				FlxG.camera.targetOffset.x = 0;
+                FlxG.camera.targetOffset.y = 0;
+			}
 		}
 
 		FlxG.watch.addQuick("secShit", curSection);

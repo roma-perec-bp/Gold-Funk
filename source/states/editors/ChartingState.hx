@@ -160,7 +160,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var mainBox:PsychUIBox;
 	var mainBoxPosition:FlxPoint = FlxPoint.get(920, 40);
 	var infoBox:PsychUIBox;
-	var infoBoxPosition:FlxPoint = FlxPoint.get(1000, 360);
+	var infoBoxPosition:FlxPoint = FlxPoint.get(1000, 410);
 	var upperBox:PsychUIBox;
 	
 	var camUI:FlxCamera;
@@ -3182,7 +3182,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			if(sec != null) sec.zoomCam = cameraZoom.checked;
 		});
 
-		zoomValStep = new PsychUINumericStepper(objX + 200, objY + 20, 0.1, 1, 0.0, 10, 2);
+		zoomValStep = new PsychUINumericStepper(objX + 200, objY + 20, 0.1, 1, 0.0, 10, 120);
 		zoomValStep.onValueChange = function()
 		{
 			var sec = getCurChartSection();
@@ -3215,14 +3215,14 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			if(sec != null) sec.followTime = timeValue.value;
 		};
 
-		exX = new PsychUINumericStepper(objX + 100, objY, 1, 0, 0, 9999, 1);
+		exX = new PsychUINumericStepper(objX + 100, objY, 1, 0, -9999, 9999, 1);
 		exX.onValueChange = function()
 		{
 			var sec = getCurChartSection();
 			if(sec != null) sec.followX = exX.value;
 		};
 
-		exY = new PsychUINumericStepper(objX + 200, objY, 1, 0, 0, 9999, 1);
+		exY = new PsychUINumericStepper(objX + 200, objY, 1, 0, -9999, 9999, 1);
 		exY.onValueChange = function()
 		{
 			var sec = getCurChartSection();
