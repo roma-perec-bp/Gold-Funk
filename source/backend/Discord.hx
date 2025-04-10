@@ -52,6 +52,13 @@ class DiscordClient
 		else //New Discord IDs/Discriminator system
 			message += '($user)';
 
+		//TO DO: РУССКИЙ ЯЗЫК
+		//РЕКВЕСТ: модпак саппорт если будет
+		final button1:DiscordButton = DiscordButton.create();
+		button1.label = "Download";
+		button1.url = 'https://t.me/ender69bunker';
+		presence.buttons[0] = button1;
+
 		trace(message);
 		changePresence();
 	}
