@@ -206,7 +206,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	{
 		var lowQualityCheckbox:PsychUICheckBox = null;
 		var highQualityCheckbox:PsychUICheckBox = null;
-		var blendDropDown:PsychUIDropDownMenu;
 		
 		function visibilityFilterUpdate()
 		{
@@ -770,6 +769,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var flipYCheckBox:PsychUICheckBox;
 	var lowQualityCheckbox:PsychUICheckBox;
 	var highQualityCheckbox:PsychUICheckBox;
+	var blendDropDown:PsychUIDropDownMenu;
 
 	function getSelected(blockReserved:Bool = true)
 	{
