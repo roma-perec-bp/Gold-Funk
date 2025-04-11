@@ -1884,6 +1884,7 @@ class StageEditorMetaSprite
 	function set_alpha(v:Float) return (sprite.alpha = v);
 	function get_angle() return sprite.angle;
 	function set_angle(v:Float) return (sprite.angle = v);
+	
 	public var blend(default, set):String = 'normal';
 	function set_blend(v:String)
 	{
