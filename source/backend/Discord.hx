@@ -54,6 +54,12 @@ class DiscordClient
 			message += '($user)';
 		
 		trace(message);
+
+		final button:DiscordButton = DiscordButton.create();
+		button.label = "Github Page";
+		button.url = "https://github.com/Rom4chek/Gold-Funk";
+		presence.buttons[0] = button;
+		
 		changePresence();
 	}
 
