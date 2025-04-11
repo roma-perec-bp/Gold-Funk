@@ -62,6 +62,8 @@ class Character extends FlxSprite
 	public var danceIdle:Bool = false; //Character use "danceLeft" and "danceRight" instead of "idle"
 	public var skipDance:Bool = false;
 
+	public var uninterruptableAnim:Bool = false; //because psych didnt have this already?????
+
 	public var healthIcon:String = 'face';
 	public var animationsArray:Array<AnimArray> = [];
 
@@ -266,6 +268,11 @@ class Character extends FlxSprite
 			specialAnim = false;
 			dance();
 		}
+		else if(uninterruptableAnim && isAnimationFinished())
+		{
+			uninterruptableAnim = false;
+			dance();
+		}
 		else if (getAnimationName().endsWith('miss') && isAnimationFinished())
 		{
 			dance();
@@ -357,9 +364,9 @@ class Character extends FlxSprite
 	/**
 	 * FOR GF DANCING SHIT
 	 */
-	public function dance()
+	public function dance(?force:Bool = false)
 	{
-		if (!debugMode && !skipDance && !specialAnim)
+		if (!debugMode && !skipDance && !specialAnim && !uninterruptableAnim)
 		{
 			if(danceIdle)
 			{
@@ -371,12 +378,15 @@ class Character extends FlxSprite
 					playAnim('danceLeft' + idleSuffix);
 			}
 			else if(hasAnimation('idle' + idleSuffix))
-				playAnim('idle' + idleSuffix);
+				playAnim('idle' + idleSuffix, force);
 		}
 	}
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
+		if (uninterruptableAnim) //get fucked no anim 4 u
+			return;
+
 		specialAnim = false;
 		if(!isAnimateAtlas)
 		{

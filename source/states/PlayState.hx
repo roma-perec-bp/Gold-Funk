@@ -7,6 +7,9 @@ import backend.WeekData;
 import backend.Song;
 import backend.Rating;
 
+import flixel.addons.effects.FlxTrail;
+import flixel.addons.effects.FlxTrailArea;
+
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;
@@ -179,6 +182,9 @@ class PlayState extends MusicBeatState
 	var defaultHUDCameraZoom:Float = 1.0;
 	var camHudBopMult:Float = 1.0;
 
+	public var camZoomingDecay:Float = 1;
+	public var camZoomingDecayHud:Float = 1;
+
 	var cameraBopIntensity:Float = 1.015;
 	var hudCameraZoomIntensity:Float = 0.015 * 2.0;
 	var cameraZoomRate:Int = 4;
@@ -188,15 +194,23 @@ class PlayState extends MusicBeatState
 	public var playerStrums:FlxTypedGroup<StrumNote> = new FlxTypedGroup<StrumNote>();
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash> = new FlxTypedGroup<NoteSplash>();
 
-	public var camZooming:Bool = false;
-	public var camZoomingMult:Float = 1;
-	public var camZoomingDecay:Float = 1;
 	private var curSong:String = "";
 
 	var offsetX:Float = 650; // How far to the right of the player you want the combo to appear
 	var offsetY:Float = 300; // How far above the player you want the combo to appear
 	var playerX:Float;
 	var playerY:Float;
+
+	private var opponentHealthDrain:Bool = false;
+	private var opponentHealthDrainAmount:Float = 0.023;
+	private var singingShakeArray:Array<Bool> = [false, false];
+
+	public var shakeBeat = false;
+	public var shakeDec:Int = 1;
+
+	public var goHealthDamageBeat:Bool = false;
+	public var beatHealthDrain:Float = 0.023; //mb can be good???
+	public var beatHealthStep:Int = 4;
 
 	public var gfSpeed:Int = 1;
 
@@ -245,6 +259,11 @@ class PlayState extends MusicBeatState
 	public var songMisses:Int = 0;
 	public var scoreTxt:FlxText;
 	var timeTxt:FlxText;
+
+	var trailBf:FlxTrail;
+	var trailDad:FlxTrail;
+	var trailGf:FlxTrail;
+
 	var scoreTxtTween:FlxTween;
 
 	public static var campaignScore:Int = 0;
@@ -1007,10 +1026,18 @@ class PlayState extends MusicBeatState
 			for (i in 0...playerStrums.length) {
 				setOnScripts('defaultPlayerStrumX' + i, playerStrums.members[i].x);
 				setOnScripts('defaultPlayerStrumY' + i, playerStrums.members[i].y + ((!isStoryMode && !skipArrowStartTween) ? 0 : 25));
+
+				//same thing but can be updated any time for modcharts so it wont override default one if needs
+				setOnScripts('curPlayerStrumX' + i, playerStrums.members[i].x);
+				setOnScripts('curPlayerStrumY' + i, playerStrums.members[i].y + ((!isStoryMode && !skipArrowStartTween) ? 0 : 25));
 			}
 			for (i in 0...opponentStrums.length) {
 				setOnScripts('defaultOpponentStrumX' + i, opponentStrums.members[i].x);
 				setOnScripts('defaultOpponentStrumY' + i, opponentStrums.members[i].y + ((!isStoryMode && !skipArrowStartTween) ? 0 : 25));
+
+				//same thing but can be updated any time for modcharts so it wont override default one if needs
+				setOnScripts('curOpponentStrumX' + i, opponentStrums.members[i].x);
+				setOnScripts('curOpponentStrumY' + i, opponentStrums.members[i].y + ((!isStoryMode && !skipArrowStartTween) ? 0 : 25));
 				//if(ClientPrefs.data.middleScroll) opponentStrums.members[i].visible = false;
 			}
 
@@ -1847,11 +1874,11 @@ class PlayState extends MusicBeatState
 
 		if (cameraZoomRate > 0.0)
 		{
-			cameraBopMultiplier = FlxMath.lerp(1.0, cameraBopMultiplier, 0.95 * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
+			cameraBopMultiplier = FlxMath.lerp(1.0, cameraBopMultiplier, 0.95 * camZoomingDecay * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
 			var zoomPlusBop:Float = currentCameraZoom * cameraBopMultiplier; // Apply camera bop multiplier.
 			FlxG.camera.zoom = zoomPlusBop; // Actually apply the zoom to the camera.
 		
-			camHudBopMult = FlxMath.lerp(1, camHudBopMult, 0.95 * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
+			camHudBopMult = FlxMath.lerp(1, camHudBopMult, 0.95 * camZoomingDecayHud * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
 			var zoomHudPlusBop:Float = defaultHUDCameraZoom * camHudBopMult; // Apply camera bop multiplier.
 			camHUD.zoom = zoomHudPlusBop;  // Actually apply the zoom to the camera.
 		}
@@ -2221,6 +2248,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	//most of the new events are from that one fnf trollge mod and ddto bad ending
 	public function triggerEvent(eventName:String, value1:String, value2:String, value3:String, value4:String, value5:String, strumTime:Float) {
 		var flValue1:Null<Float> = Std.parseFloat(value1);
 		var flValue2:Null<Float> = Std.parseFloat(value2);
@@ -2324,6 +2352,7 @@ class PlayState extends MusicBeatState
 
 				if (char != null)
 				{
+					if(value3 == 'true') char.uninterruptableAnim = true;
 					char.playAnim(value1, true);
 					char.specialAnim = true;
 				}
@@ -2341,8 +2370,6 @@ class PlayState extends MusicBeatState
 				iconToSwitch.changeIcon(value2);
 
 			case 'Change Combo Camera':
-				//if(!onlyChart) return;
-				
 				var args:Array<String> = value2.split(",");
 				var bools:Bool = false;
 
@@ -2423,10 +2450,13 @@ class PlayState extends MusicBeatState
 
 			case "Set Camera Bop":
 				var rate:Int = Std.parseInt(value1);
-				var intensity:Float = Std.parseFloat(value2);
+				var intensity:Float = flValue2;
 
 				cameraBopIntensity = 0.015 * intensity + 1.0;
 				hudCameraZoomIntensity = 0.015 * intensity * 2.0;
+
+				camZoomingDecay = flValue3;
+				camZoomingDecayHud = flValue4;
 
 				cameraZoomRate = rate;
 
@@ -2489,7 +2519,7 @@ class PlayState extends MusicBeatState
 				}
 
 			case 'Change Note Camera Move Offset':
-				noteCamOffset = Std.parseFloat(value1);
+				noteCamOffset = flValue1;
 
 			case 'Alt Idle Animation':
 				var char:Character = dad;
@@ -2513,6 +2543,12 @@ class PlayState extends MusicBeatState
 					char.idleSuffix = value2;
 					char.recalculateDanceIdle();
 				}
+
+			case 'Shake Beat':
+				if(!ClientPrefs.data.flashing) return;
+
+				shakeBeat = !shakeBeat;
+				shakeDec = Std.parseInt(value2);
 
 			case 'Screen Shake':
 				var valuesArray:Array<String> = [value1, value2];
@@ -2669,19 +2705,78 @@ class PlayState extends MusicBeatState
 				}
 
 			case 'Set Health':
-				health = flValue1;
+				if(value2 != null)
+				{
+					var ease = LuaUtils.getTweenEaseByString(value2);
+					FlxTween.tween(this, {health: flValue1}, flValue3, {ease: ease});
+				}
+				else
+					health = flValue1;
 
 			case 'Add Health':
-				health += flValue1;
+				var newhealth:Float = (health + flValue1);
 
-			case 'Set Health Tween':
-				var ease = LuaUtils.getTweenEaseByString(value3);
-				FlxTween.tween(this, {health: flValue1}, flValue2, {ease: ease});
+				if(value2 != null)
+				{
+					var ease = LuaUtils.getTweenEaseByString(value2);
+					FlxTween.tween(this, {health: newhealth}, flValue3, {ease: ease});
+				}
+				else
+					health += newhealth;
 
-			case 'Add Health Tween':
-				var ease = LuaUtils.getTweenEaseByString(value3);
-				var newhealth:Float = health + flValue1;
-				FlxTween.tween(this, {health: newhealth}, flValue2, {ease: ease});
+			case 'Singing Shakes':
+				if (!ClientPrefs.data.flashing) return;
+				
+				var charType:Int = 0;
+				switch(value2.toLowerCase().trim())
+				{
+					case 'dad' | 'opponent':
+						charType = 1;
+					default:
+						charType = Std.parseInt(value1);
+						if(Math.isNaN(charType))
+							charType = 0;
+				}
+				switch (value1.toLowerCase().trim())
+				{
+					case 'on' | 'true':
+						singingShakeArray[charType] = true;
+					case 'off' | 'false':
+						singingShakeArray[charType] = false;
+				}
+
+			case 'Opponent Drain':
+				switch (value1.toLowerCase().trim())
+				{
+					case 'on' | 'true':
+						opponentHealthDrain = true;
+					case 'off' | 'false':
+						opponentHealthDrain = false;
+				}
+
+				var drain:Float = flValue2;
+				if (Math.isNaN(drain) || value2 == null)
+					drain = 0.030;
+				
+				opponentHealthDrainAmount = drain;
+
+			case 'Beat Drain':
+				if(flValue2 == null || flValue2 < 1) flValue2 = 8;
+				switch (value1.toLowerCase().trim())
+				{
+					case 'on' | 'true':
+						goHealthDamageBeat = true;
+					case 'off' | 'false':
+						goHealthDamageBeat = false;
+				}
+
+				var drain:Float = flValue2;
+				if (Math.isNaN(drain) || value2 == null)
+					drain = 0.030;
+
+				beatHealthStep = Math.round(flValue3);
+				
+				beatHealthDrain = drain;
 
 			case 'Set Char Position':
 				var charType:Int = 0;
@@ -2891,13 +2986,73 @@ class PlayState extends MusicBeatState
 				
 				FlxTween.tween(char.colorTransform, {redOffset: redOff, greenOffset: greenOff, blueOffset: blueOff, alphaOffset: alphaOff, redMultiplier: redMult, greenMultiplier: greenMult, blueMultiplier: blueMult, alphaMultiplier: alphaMult}, flValue4, {ease: ease});
 
+			case 'Add trail':
+				var charType:Int = 0;
+				var val3:Int = Std.parseInt(value3);
+
+				var split:Array<String> = value1.split(',');
+				var length:Int = 0;
+				var delay:Int = 0;
+				var alpha:Float = 0;
+				var diff:Float = 0;
+
+				if(split[0] != null) length = Std.parseInt(split[0].trim());
+				if(split[1] != null) delay = Std.parseInt(split[1].trim());
+				if(split[2] != null) alpha = Std.parseFloat(split[2].trim());
+				if(split[3] != null) diff = Std.parseFloat(split[3].trim());
+				if(Math.isNaN(length)) length = 4;
+				if(Math.isNaN(delay)) delay = 24;
+				if(Math.isNaN(alpha)) alpha = 0.3;
+				if(Math.isNaN(diff)) diff = 0.069;
+
+				switch (value2)
+				{
+					case 'dad' | 'Dad' | 'DAD':
+						charType = 1;
+					case 'gf' | 'GF' | 'girlfriend' | 'Girlfriend':
+						charType = 2;
+					default:
+						charType = 0;
+				}
+
+				var blendValue = LuaUtils.blendModeFromString(value4);
+
+				switch (charType)
+				{
+					case 1:
+						trailDad = new FlxTrail(dad, null, length, delay, alpha, diff);
+						trailDad.blend = blendValue;
+						if (!Math.isNaN(val3)) trailDad.color = val3;
+						addBehindDad(trailDad);
+					case 2:
+						trailGf = new FlxTrail(gf, null, length, delay, alpha, diff);
+						trailGf.blend = blendValue;
+						if (!Math.isNaN(val3)) trailGf.color = val3;
+						addBehindGF(trailGf);
+					default:
+						trailBf = new FlxTrail(boyfriend, null, length, delay, alpha, diff);
+						trailBf.blend = blendValue;
+						if (!Math.isNaN(val3)) trailBf.color = val3;
+						addBehindBF(trailBf);
+				}
+
+			case 'Remove trail':
+				switch(value1.toLowerCase().trim()) {
+					case 'gf' | 'girlfriend':
+						remove(trailGf);
+						trailGf.destroy();
+					case 'dad' | 'opponent':
+						remove(trailDad);
+						trailDad.destroy();
+					default:
+						remove(trailBf);
+						trailBf.destroy();
+				}
 			case 'Update Vocals':
-				vocals.volume = 1;
-				opponentVocals.volume = 1;
+				vocals.volume = flValue1;
+				opponentVocals.volume = flValue2;
 
 			case 'Character Visibility':
-
-
 				var char:Character = boyfriend;
 				var val2:Int = Std.parseInt(value2);
 
@@ -3144,7 +3299,6 @@ class PlayState extends MusicBeatState
 		timeTxt.visible = false;
 		canPause = false;
 		endingSong = true;
-		camZooming = false;
 		inCutscene = false;
 		updateTime = false;
 
@@ -3866,9 +4020,6 @@ class PlayState extends MusicBeatState
 
 		if(result == LuaUtils.Function_Stop) return;
 
-		if (songName != 'tutorial')
-			camZooming = true;
-
 		if(note.noteType == 'Hey!' && dad.hasAnimation('hey'))
 		{
 			dad.playAnim('hey', true);
@@ -3899,6 +4050,15 @@ class PlayState extends MusicBeatState
 		if(opponentVocals.length <= 0) vocals.volume = 1;
 		strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate, note);
 		note.hitByOpponent = true;
+
+		if (opponentHealthDrain && health >= opponentHealthDrainAmount && !note.gfNote && note.noteType != 'GF Sing')
+			health -= opponentHealthDrainAmount;
+
+		if (singingShakeArray[1])
+		{
+			camGame.shake(0.005, 0.2);
+			camHUD.shake(0.005, 0.2);
+		}
 
 		if(!note.noAnimation)
 		{
@@ -4059,6 +4219,12 @@ class PlayState extends MusicBeatState
 			}
 		}
 
+		if (singingShakeArray[0])
+		{
+			camGame.shake(0.005, 0.2);
+			camHUD.shake(0.005, 0.2);
+		}
+
 		stagesFunc(function(stage:BaseStage) stage.goodNoteHit(note));
 		var result:Dynamic = callOnLuas('goodNoteHit', [notes.members.indexOf(note), leData, leType, isSus]);
 		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('goodNoteHit', [note]);
@@ -4186,6 +4352,10 @@ class PlayState extends MusicBeatState
 	{
 		super.stepHit();
 
+		if (goHealthDamageBeat && curStep % Math.round(beatHealthStep) == 0) // :3 fuck my ass
+			if (health >= beatHealthDrain)
+				health -= beatHealthDrain;
+
 		if(curStep == lastStepHit) {
 			return;
 		}
@@ -4221,6 +4391,12 @@ class PlayState extends MusicBeatState
 			cameraBopMultiplier = cameraBopIntensity;
 			// HUD camera zoom still uses old system. To change. (+3%)
 			camHudBopMult += hudCameraZoomIntensity;
+
+			if(shakeBeat)
+			{
+				camGame.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+				camHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+			}
 		}
 
 		super.beatHit();
