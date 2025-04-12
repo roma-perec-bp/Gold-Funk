@@ -271,6 +271,8 @@ class PlayState extends MusicBeatState
 
 	var scoreTxtTween:FlxTween;
 
+	var solidColBeh:FlxSprite;
+
 	public static var campaignScore:Int = 0;
 	public static var campaignMisses:Int = 0;
 	public static var seenCutscene:Bool = false;
@@ -1594,8 +1596,17 @@ class PlayState extends MusicBeatState
 				var newCharacter:String = event.value2;
 				addCharacterToList(newCharacter, charType);
 
+			case "Solid Graphic Behind Characters":
+				solidColBeh = new FlxSprite(FlxG.width * -0.5, FlxG.height * -0.5).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.WHITE);
+				solidColBeh.scale.set(5,5);
+				solidColBeh.alpha = 0.001;
+				addBehindGF(solidColBeh);
+
 			case 'Play Sound':
 				Paths.sound(event.value1); //Precache sound
+
+			case 'Play Video':
+				startVideo(event.value1, true, true, false, false); //Precache video
 		}
 		stagesFunc(function(stage:BaseStage) stage.eventPushedUnique(event));
 	}
@@ -2451,6 +2462,17 @@ class PlayState extends MusicBeatState
 						tweenCameraToPosition(targetX, targetY, durSeconds, LuaUtils.getTweenEaseByString(ease));
 				}
 
+			case 'Change Object Layer':
+				var leObj:FlxBasic = LuaUtils.getObjectDirectly(value1);
+				if(leObj != null)
+				{
+					var groupOrArray:Dynamic = CustomSubstate.instance != null ? CustomSubstate.instance : LuaUtils.getTargetInstance();
+					groupOrArray.remove(leObj, true);
+					groupOrArray.insert(Std.parseInt(value2), leObj);
+					return;
+				}
+				addTextToDebug('Change Object Layer event: Object $value3 doesn\'t exist!', FlxColor.RED);
+
 			case 'Update Strum Position Variable':
 				for (i in 0...playerStrums.length) {
 					setOnScripts('curPlayerStrumX' + i, playerStrums.members[i].x);
@@ -2743,6 +2765,23 @@ class PlayState extends MusicBeatState
 					default:
 						FlxG.camera.fade(color, flValue2, fade, null, true);
 				}
+
+			case "Solid Graphic Behind Characters": //BLAMMED LI-
+				var color:FlxColor = 0xFF000000;
+	
+				if (value3 == null || value3 == '')
+					color = 0xFF000000;
+
+				color = Std.parseInt(value3);
+
+				if (flValue1 == null)
+					flValue1 = 0;
+
+				if (flValue2 == null)
+					flValue2 = 1;
+
+				FlxTween.tween(solidColBeh, {alpha: flValue1}, flValue2);
+				solidColBeh.color = color;
 
 			case 'Set Health':
 				if(value2 != null)
@@ -4458,18 +4497,21 @@ class PlayState extends MusicBeatState
 	public function characterBopper(beat:Int):Void
 	{
 		if (gf != null && beat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.getAnimationName().startsWith('sing') && !gf.stunned)
-			gf.dance();
+			gf.dance(true);
 		if (boyfriend != null && beat % boyfriend.danceEveryNumBeats == 0 && !boyfriend.getAnimationName().startsWith('sing') && !boyfriend.stunned)
-			boyfriend.dance();
+			boyfriend.dance(true);
 		if (dad != null && beat % dad.danceEveryNumBeats == 0 && !dad.getAnimationName().startsWith('sing') && !dad.stunned)
-			dad.dance();
+			dad.dance(true);
 	}
 
 	public function playerDance():Void
 	{
 		var anim:String = boyfriend.getAnimationName();
 		if(boyfriend.holdTimer > Conductor.stepCrochet * (0.0011 #if FLX_PITCH / FlxG.sound.music.pitch #end) * boyfriend.singDuration && anim.startsWith('sing') && !anim.endsWith('miss'))
+		{
 			boyfriend.dance();
+			boyfriend.finishAnimation();
+		}
 	}
 
 	override function sectionHit()

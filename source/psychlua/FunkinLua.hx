@@ -165,6 +165,11 @@ class FunkinLua {
 				set('defaultPlayerStrumY' + i, 0);
 				set('defaultOpponentStrumX' + i, 0);
 				set('defaultOpponentStrumY' + i, 0);
+
+				set('curPlayerStrumX' + i, 0);
+				set('curPlayerStrumY' + i, 0);
+				set('curOpponentStrumX' + i, 0);
+				set('curOpponentStrumY' + i, 0);
 			}
 	
 			// Default character data

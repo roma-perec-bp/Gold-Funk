@@ -96,6 +96,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Add Health', 'Value 1: Health value to add or drain\nValue 2: Ease (can be empty if no need)\nValue 3: Duration if Value 2 is not null'],
 		['Opponent Drain', "Opponent singing causes health drain\n\nValue 1: On/Off\nValue 2: Amount, 0.023 is default (same health you gain from hitting a 'sick' note)"],
 		['Beat Drain', "Beat causes health drain lmaooo\n\nValue 1: On/Off\nValue 2: Amount, 0.023 is default (same health you gain from hitting a 'sick' note)\nValue 3: Step Number"],
+		['Solid Graphic Behind Characters', "Value 1: Alpha, Value 2: Duration, Value 3: Color in hex"],
 		['Set Char Position', 'Value 1: Char\nValue 2: X Y'],
 		['Set Char Position Tween', 'Value 2: Char\nValue 2: X Y\n Value 3: Duration\n Value 4: Ease'],
 		['Set Char Color', 'Value 1: Char\nValue 2: Color in hex'],
@@ -117,6 +118,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Singing Shakes', 'Value 1: Turn on (true or false)\nValue 2: Which character shake'],
 		['Change Note Camera Move Offset', "Value 1: Offset"],
 		['Update Strum Position Variable', "Sets current note position for variable curPlayerStrumX, curPlayerStrumY\nand curOpponentStrumX, curOpponentStrumY\nNeeds for modchart scripts things if needs"],
+		['Change Object Layer', "Changes object's layer\nValue 1: Object name (boyfriend, dad, gf or etc)\nValue 2: Position layer number"],
 		['Set Property', "Value 1: Variable name\nValue 2: New value"],
 		#if VIDEOS_ALLOWED
 		['Play Video', 'Value 1: Video Name'],

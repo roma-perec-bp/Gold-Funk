@@ -141,6 +141,7 @@ class Character extends FlxSprite
 		hasMissAnimations = hasAnimation('singLEFTmiss') || hasAnimation('singDOWNmiss') || hasAnimation('singUPmiss') || hasAnimation('singRIGHTmiss');
 		recalculateDanceIdle();
 		dance();
+		finishAnimation();
 	}
 
 	public function loadCharacterFile(json:Dynamic)
@@ -259,6 +260,7 @@ class Character extends FlxSprite
 				{
 					specialAnim = false;
 					dance();
+					finishAnimation();
 				}
 				heyTimer = 0;
 			}
@@ -267,11 +269,13 @@ class Character extends FlxSprite
 		{
 			specialAnim = false;
 			dance();
+			finishAnimation();
 		}
 		else if(uninterruptableAnim && isAnimationFinished())
 		{
 			uninterruptableAnim = false;
 			dance();
+			finishAnimation();
 		}
 		else if (getAnimationName().endsWith('miss') && isAnimationFinished())
 		{
@@ -300,6 +304,7 @@ class Character extends FlxSprite
 		if (!isPlayer && holdTimer >= Conductor.stepCrochet * (0.0011 #if FLX_PITCH / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1) #end) * singDuration)
 		{
 			dance();
+			finishAnimation();
 			holdTimer = 0;
 		}
 
