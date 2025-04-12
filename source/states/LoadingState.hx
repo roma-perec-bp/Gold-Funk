@@ -1,5 +1,6 @@
 package states;
 
+import objects.SustainSplash;
 import lime.app.Future;
 import sys.thread.FixedThreadPool;
 import haxe.Json;
@@ -22,6 +23,7 @@ import sys.thread.Mutex;
 
 import objects.Note;
 import objects.NoteSplash;
+import objects.SustainSplash;
 
 #if HSCRIPT_ALLOWED
 import psychlua.HScript;
@@ -471,6 +473,12 @@ class LoadingState extends MusicBeatState
 			if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) noteSplash = PlayState.SONG.splashSkin;
 			else noteSplash += NoteSplash.getSplashSkinPostfix();
 			imagesToPrepare.push(noteSplash);
+
+			// LOAD NOTE HOLD SPLASH IMAGE
+			var holdSplash:String = SustainSplash.defaultNoteSplash;
+			/*if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) noteSplash = PlayState.SONG.splashSkin;
+			else noteSplash += NoteSplash.getSplashSkinPostfix();*/
+			imagesToPrepare.push(holdSplash);
 
 			try
 			{
