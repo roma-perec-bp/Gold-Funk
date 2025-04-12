@@ -2621,7 +2621,7 @@ class PlayState extends MusicBeatState
 					if(Math.isNaN(intensity)) intensity = 0;
 
 					if(duration > 0 && intensity != 0) {
-						targetsArray[i].shake(intensity, duration);
+						targetsArray[i].shake(intensity, Conductor.stepCrochet * duration / 1000);
 					}
 				}
 
@@ -2706,7 +2706,7 @@ class PlayState extends MusicBeatState
 					if(flValue2 <= 0)
 						songSpeed = newValue;
 					else
-						songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, flValue2 / playbackRate, {ease: ease, onComplete:
+						songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, Conductor.stepCrochet * flValue2 / 1000 / playbackRate, {ease: ease, onComplete:
 							function (twn:FlxTween)
 							{
 								songSpeedTween = null;
@@ -2722,19 +2722,19 @@ class PlayState extends MusicBeatState
 
 				color = Std.parseInt(value1);
 
-				if (flValue2 == null) flValue2 = 1;
+				if (flValue2 == null) flValue2 = 4;
 
 				if(!ClientPrefs.data.flashing && value1 != '0xFF000000') return;
 	
 				switch(value3.toLowerCase().trim()) {
 					case 'camhud' | 'HUD' | 'hud':
-						camHUD.flash(color, flValue2, null, true);
+						camHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 					case 'camnotes' | 'NOTES' | 'notes':
-						camHUD.flash(color, flValue2, null, true);
+						camHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 					case 'camother' | 'camOther' | 'other':
-						camOther.flash(color, flValue2, null, true);
+						camOther.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 					default:
-						FlxG.camera.flash(color, flValue2, null, true);
+						FlxG.camera.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 				}
 
 			case 'Fade Camera':
@@ -2747,7 +2747,7 @@ class PlayState extends MusicBeatState
 
 				color = Std.parseInt(value1);
 
-				if (flValue2 == null) flValue2 = 1;
+				if (flValue2 == null) flValue2 = 4;
 
 				var fade:Bool;
 				if(value4 == 'true')
@@ -2757,13 +2757,13 @@ class PlayState extends MusicBeatState
 	
 				switch(value3.toLowerCase().trim()) {
 					case 'camhud' | 'hud':
-						camHUD.fade(color, flValue2, fade, null, true);
+						camHUD.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 					case 'camnotes' | 'notes':
-						camNotes.fade(color, flValue2, fade, null, true);
+						camNotes.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 					case 'camother' | 'other':
-						camOther.fade(color, flValue2, fade, null, true);
+						camOther.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 					default:
-						FlxG.camera.fade(color, flValue2, fade, null, true);
+						FlxG.camera.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 				}
 
 			case "Solid Graphic Behind Characters": //BLAMMED LI-
@@ -2778,16 +2778,16 @@ class PlayState extends MusicBeatState
 					flValue1 = 0;
 
 				if (flValue2 == null)
-					flValue2 = 1;
+					flValue2 = 4;
 
-				FlxTween.tween(solidColBeh, {alpha: flValue1}, flValue2);
+				FlxTween.tween(solidColBeh, {alpha: flValue1}, Conductor.stepCrochet * flValue2 / 1000);
 				solidColBeh.color = color;
 
 			case 'Set Health':
 				if(value2 != null)
 				{
 					var ease = LuaUtils.getTweenEaseByString(value2);
-					FlxTween.tween(this, {health: flValue1}, flValue3, {ease: ease});
+					FlxTween.tween(this, {health: flValue1}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 				else
 					health = flValue1;
@@ -2798,7 +2798,7 @@ class PlayState extends MusicBeatState
 				if(value2 != null)
 				{
 					var ease = LuaUtils.getTweenEaseByString(value2);
-					FlxTween.tween(this, {health: newhealth}, flValue3, {ease: ease});
+					FlxTween.tween(this, {health: newhealth}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 				else
 					health += newhealth;
@@ -2908,7 +2908,7 @@ class PlayState extends MusicBeatState
 				var ease = LuaUtils.getTweenEaseByString(value4);
 
 				if (flValue3 == null)
-					flValue3 = 1;
+					flValue3 = 4;
 
 				switch (value1)
 				{
@@ -2927,21 +2927,21 @@ class PlayState extends MusicBeatState
 						if(Math.isNaN(yMove)) yMove = DAD_Y;
 
 						FlxTween.cancelTweensOf(dadGroup);
-						FlxTween.tween(dadGroup, {x: xMove, y: yMove}, flValue3, {ease: ease});
+						FlxTween.tween(dadGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 
 					case 2:
 						if(Math.isNaN(xMove)) xMove = GF_X;
 						if(Math.isNaN(yMove)) yMove = GF_Y;
 
 						FlxTween.cancelTweensOf(gfGroup);
-						FlxTween.tween(gfGroup, {x: xMove, y: yMove}, flValue3, {ease: ease});
+						FlxTween.tween(gfGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 
 					default:
 						if(Math.isNaN(xMove)) xMove = BF_X;
 						if(Math.isNaN(yMove)) yMove = BF_Y;
 
 						FlxTween.cancelTweensOf(boyfriendGroup);
-						FlxTween.tween(boyfriendGroup, {x: xMove, y: yMove}, flValue3, {ease: ease});
+						FlxTween.tween(boyfriendGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 
 			case 'Set Char Color':
@@ -2967,7 +2967,7 @@ class PlayState extends MusicBeatState
 				var char:Character = boyfriend;
 
 				if (flValue3 == null)
-					flValue3 = 1;
+					flValue3 = 4;
 
 				var ease = LuaUtils.getTweenEaseByString(value4);
 				switch (value1.toLowerCase().trim())
@@ -2983,7 +2983,7 @@ class PlayState extends MusicBeatState
 				var curColor:FlxColor = char.color;
 				curColor.alphaFloat = char.alpha;
 				
-				FlxTween.color(char, flValue3, curColor, CoolUtil.colorFromString(value2), {ease: ease});
+				FlxTween.color(char, Conductor.stepCrochet * flValue3 / 1000, curColor, CoolUtil.colorFromString(value2), {ease: ease});
 
 			case 'Set Char Color Transform':
 				var char:Character = boyfriend;
@@ -3049,7 +3049,7 @@ class PlayState extends MusicBeatState
 				if(splitAlpha[3] != null) alphaMult = Std.parseInt(splitAlpha[3].trim());
 
 				if (flValue4 == null || flValue4 == 0)
-					flValue4 = 1;
+					flValue4 = 4;
 
 				var ease = LuaUtils.getTweenEaseByString(value5);
 
@@ -3063,7 +3063,7 @@ class PlayState extends MusicBeatState
 						char = boyfriend;
 				}
 				
-				FlxTween.tween(char.colorTransform, {redOffset: redOff, greenOffset: greenOff, blueOffset: blueOff, alphaOffset: alphaOff, redMultiplier: redMult, greenMultiplier: greenMult, blueMultiplier: blueMult, alphaMultiplier: alphaMult}, flValue4, {ease: ease});
+				FlxTween.tween(char.colorTransform, {redOffset: redOff, greenOffset: greenOff, blueOffset: blueOff, alphaOffset: alphaOff, redMultiplier: redMult, greenMultiplier: greenMult, blueMultiplier: blueMult, alphaMultiplier: alphaMult}, Conductor.stepCrochet * flValue4 / 1000, {ease: ease});
 
 			case 'Add trail':
 				var charType:Int = 0;
@@ -3136,7 +3136,7 @@ class PlayState extends MusicBeatState
 				var val2:Int = Std.parseInt(value2);
 
 				if (flValue3 == null)
-					flValue3 = 1;
+					flValue3 = 4;
 
 				var ease = LuaUtils.getTweenEaseByString(value4);
 				switch (value1.toLowerCase().trim())
@@ -3153,7 +3153,7 @@ class PlayState extends MusicBeatState
 					val2 = 0xFFFFFFFF;
 
 				FlxTween.cancelTweensOf(char);
-				FlxTween.tween(char, {alpha: flValue2}, flValue3, {ease: ease});
+				FlxTween.tween(char, {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 
 			case 'Strumline Visibility':
 				var strum:FlxTypedGroup<StrumNote>;
@@ -3166,7 +3166,7 @@ class PlayState extends MusicBeatState
 					flValue2 = 0.0001;
 						
 				if (Math.isNaN(flValue3) || flValue3 <= 0)
-					flValue3 = 0.01;
+					flValue3 = 4;
 						
 				switch (value1)
 					{
@@ -3175,7 +3175,7 @@ class PlayState extends MusicBeatState
 							strum = opponentStrums;
 						
 							if (ClientPrefs.data.middleScroll)
-								flValue3 *= 0.35;
+								flValue2 *= 0.35;
 						}
 						default:
 							strum = playerStrums;
@@ -3184,18 +3184,16 @@ class PlayState extends MusicBeatState
 				for (i in 0...strum.members.length)
 				{
 					FlxTween.cancelTweensOf(strum.members[i]);
-					FlxTween.tween(strum.members[i], {alpha: flValue2}, flValue3, {ease: ease});
+					FlxTween.tween(strum.members[i], {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 
 			case 'UI visibilty':
-				var val2:Int = Std.parseInt(value2);
 				var ease = LuaUtils.getTweenEaseByString(value3);
-				FlxTween.tween(camHUD, {alpha: value1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+				FlxTween.tween(camHUD, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
 
 			case 'Notes visibilty':
-				var val2:Int = Std.parseInt(value2);
 				var ease = LuaUtils.getTweenEaseByString(value3);
-				FlxTween.tween(camNotes, {alpha: value1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+				FlxTween.tween(camNotes, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
 
 			case 'Force Dance':
 				var char:Character = dad;
