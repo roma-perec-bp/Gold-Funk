@@ -1,12 +1,6 @@
 {
 	"events": [
 		[
-			18800,
-			[
-				["Play Animation", "cheer", "bf", "false", "", ""]
-			]
-		],
-		[
 			44400,
 			[
 				["Play Animation", "cheer", "bf", "false", "", ""]
