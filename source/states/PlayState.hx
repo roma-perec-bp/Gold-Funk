@@ -2497,6 +2497,9 @@ class PlayState extends MusicBeatState
 				var rate:Int = Std.parseInt(value1);
 				var intensity:Float = flValue2;
 
+				if (flValue3 == null) flValue3 = 1;
+				if (flValue4 == null) flValue4 = 1;
+
 				cameraBopIntensity = 0.015 * intensity + 1.0;
 				hudCameraZoomIntensity = 0.015 * intensity * 2.0;
 
