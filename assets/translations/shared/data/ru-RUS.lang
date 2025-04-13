@@ -277,7 +277,7 @@ images/Menu_Tracks: "images/ru-RUS/Menu_Tracks"
 
 images/ready: "images/ru-RUS/ready"
 images/set: "images/ru-RUS/set"
-//images/go: "images/ru-RUS/go"
+images/go: "images/ru-RUS/go"
 
 images/ratingPopUps/sick: "images/ru-RUS/ratingPopUps/sick"
 images/ratingPopUps/good: "images/ru-RUS/ratingPopUps/good"

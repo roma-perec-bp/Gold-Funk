@@ -1140,23 +1140,11 @@ class PlayState extends MusicBeatState
 	{
 		var spr:FlxSprite = new FlxSprite();
 
-		if(stageUI == "normal" && image == "go")
+		if(Assets.exists(Paths.getSharedPath(Language.getFileTranslation('images/$image') + '.xml')))
 		{
 			spr.frames = Paths.getSparrowAtlas(image);
 			spr.animation.addByPrefix(image, image, 24, false);
 			spr.animation.play(image);
-
-			new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
-			{
-				FlxTween.tween(spr.scale, {x: 0, y: 0}, Conductor.stepCrochet * 2 / 1000, {
-					ease: FlxEase.expoIn,
-					onComplete: function(twn:FlxTween)
-					{
-						remove(spr);
-						spr.destroy();
-					}
-				});
-			});
 		}
 		else
 		{
@@ -1182,7 +1170,21 @@ class PlayState extends MusicBeatState
 				spr.destroy();
 			});
 		}
-		else if(stageUI == "normal" && image != "go")
+		else if(stageUI == "normal" && image == "go")
+		{
+			new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
+			{
+				FlxTween.tween(spr.scale, {x: 0, y: 0}, Conductor.stepCrochet * 2 / 1000, {
+					ease: FlxEase.expoIn,
+					onComplete: function(twn:FlxTween)
+					{
+						remove(spr);
+						spr.destroy();
+					}
+				});
+			});
+		}
+		else
 		{
 			FlxTween.tween(spr, {y: spr.y + 50, alpha: 0}, Conductor.crochet / 1000, {
 				ease: FlxEase.cubeIn,
