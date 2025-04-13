@@ -15,10 +15,6 @@ import openfl.display.BitmapData;
 
 import shaders.ColorSwap;
 
-#if (cpp && windows)
-import hxwindowmode.WindowColorMode;
-#end
-
 import states.StoryMenuState;
 import states.MainMenuState;
 
@@ -41,10 +37,6 @@ typedef TitleData =
 
 class TitleState extends MusicBeatState
 {
-	public static var muteKeys:Array<FlxKey> = [FlxKey.ZERO];
-	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
-	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
-
 	public static var initialized:Bool = false;
 
 	var credGroup:FlxGroup = new FlxGroup();
@@ -74,33 +66,12 @@ class TitleState extends MusicBeatState
 		super.create();
 		Paths.clearUnusedMemory();
 
-		if(!initialized)
-		{
-			ClientPrefs.loadPrefs();
-			Language.reloadPhrases();
-		}
-
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
-		#if (cpp && windows)
-		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
-		WindowColorMode.redrawWindowHeader();
-		#end
-
 		if(!initialized)
 		{
-			if(FlxG.save.data != null && FlxG.save.data.fullscreen)
-			{
-				FlxG.fullscreen = FlxG.save.data.fullscreen;
-				//trace('LOADED FULLSCREEN SETTING!!');
-			}
 			persistentUpdate = true;
 			persistentDraw = true;
-		}
-
-		if (FlxG.save.data.weekCompleted != null)
-		{
-			StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
 		}
 
 		FlxG.mouse.visible = false;

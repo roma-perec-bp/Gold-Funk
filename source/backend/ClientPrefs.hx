@@ -248,16 +248,16 @@ class ClientPrefs {
 
 	public static function reloadVolumeKeys()
 	{
-		TitleState.muteKeys = keyBinds.get('volume_mute').copy();
-		TitleState.volumeDownKeys = keyBinds.get('volume_down').copy();
-		TitleState.volumeUpKeys = keyBinds.get('volume_up').copy();
+		InitState.muteKeys = keyBinds.get('volume_mute').copy();
+		InitState.volumeDownKeys = keyBinds.get('volume_down').copy();
+		InitState.volumeUpKeys = keyBinds.get('volume_up').copy();
 		toggleVolumeKeys(true);
 	}
 	public static function toggleVolumeKeys(?turnOn:Bool = true)
 	{
 		final emptyArray = [];
-		FlxG.sound.muteKeys = turnOn ? TitleState.muteKeys : emptyArray;
-		FlxG.sound.volumeDownKeys = turnOn ? TitleState.volumeDownKeys : emptyArray;
-		FlxG.sound.volumeUpKeys = turnOn ? TitleState.volumeUpKeys : emptyArray;
+		FlxG.sound.muteKeys = turnOn ? InitState.muteKeys : emptyArray;
+		FlxG.sound.volumeDownKeys = turnOn ? InitState.volumeDownKeys : emptyArray;
+		FlxG.sound.volumeUpKeys = turnOn ? InitState.volumeUpKeys : emptyArray;
 	}
 }
