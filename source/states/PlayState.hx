@@ -175,12 +175,16 @@ class PlayState extends MusicBeatState
 	var cameraFollowTween:FlxTween;
 	var cameraZoomTween:FlxTween;
 	var cameraHudZoomTween:FlxTween;
+	var cameraNotesZoomTween:FlxTween;
 
 	public var currentCameraZoom:Float = 1.0;
 	var cameraBopMultiplier:Float = 1.0;
 
 	var defaultHUDCameraZoom:Float = 1.0;
 	var camHudBopMult:Float = 1.0;
+
+	var defaultNotesCameraZoom:Float = 0.95;
+	var camNotesBopMult:Float = 1.0;
 
 	public var camZoomingDecay:Float = 1;
 	public var camZoomingDecayHud:Float = 1;
@@ -192,6 +196,7 @@ class PlayState extends MusicBeatState
 	public var strumLineNotes:FlxTypedGroup<StrumNote> = new FlxTypedGroup<StrumNote>();
 	public var opponentStrums:FlxTypedGroup<StrumNote> = new FlxTypedGroup<StrumNote>();
 	public var playerStrums:FlxTypedGroup<StrumNote> = new FlxTypedGroup<StrumNote>();
+	public var grpHoldSplashes:FlxTypedGroup<SustainSplash> = new FlxTypedGroup<SustainSplash>();
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash> = new FlxTypedGroup<NoteSplash>();
 
 	private var curSong:String = "";
@@ -251,6 +256,7 @@ class PlayState extends MusicBeatState
 	public var iconP2:HealthIcon;
 	public var camHUD:FlxCamera;
 	public var camGame:FlxCamera;
+	public var camNotes:FlxCamera;
 	public var camOther:FlxCamera;
 	public var cameraSpeed:Float = 1;
 
@@ -265,6 +271,8 @@ class PlayState extends MusicBeatState
 	var trailGf:FlxTrail;
 
 	var scoreTxtTween:FlxTween;
+
+	var solidColBeh:FlxSprite;
 
 	public static var campaignScore:Int = 0;
 	public static var campaignMisses:Int = 0;
@@ -359,11 +367,14 @@ class PlayState extends MusicBeatState
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = initPsychCamera();
 		camHUD = new FlxCamera();
+		camNotes = new FlxCamera();
 		camOther = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
+		camNotes.bgColor.alpha = 0;
 		camOther.bgColor.alpha = 0;
 
 		FlxG.cameras.add(camHUD, false);
+		FlxG.cameras.add(camNotes, false);
 		FlxG.cameras.add(camOther, false);
 
 		persistentUpdate = true;
@@ -531,8 +542,8 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
 		var showTime:Bool = (ClientPrefs.data.timeBarType != 'Disabled');
-		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 19, 400, "", 32);
-		timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 21, 400, "", 20);
+		timeTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		timeTxt.scrollFactor.set();
 		timeTxt.alpha = 0;
 		timeTxt.borderSize = 2;
@@ -540,7 +551,7 @@ class PlayState extends MusicBeatState
 		if(ClientPrefs.data.downScroll) timeTxt.y = FlxG.height - 44;
 		if(ClientPrefs.data.timeBarType == 'Song Name') timeTxt.text = SONG.song;
 
-		timeBar = new Bar(0, timeTxt.y + (timeTxt.height / 4), 'timeBar', function() return songPercent, 0, 1);
+		timeBar = new Bar(0, timeTxt.y + (timeTxt.height / 6), 'timeBar', function() return songPercent, 0, 1);
 		timeBar.scrollFactor.set();
 		timeBar.screenCenter(X);
 		timeBar.alpha = 0;
@@ -558,6 +569,7 @@ class PlayState extends MusicBeatState
 
 		generateSong();
 
+		noteGroup.add(grpHoldSplashes);
 		noteGroup.add(grpNoteSplashes);
 
 		camFollow = new FlxObject();
@@ -576,9 +588,9 @@ class PlayState extends MusicBeatState
 		moveCameraSection();
 
 		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.89 : 0.11), 'healthBar', function() return isPixelStage ? health : lerpHealth, 0, 2);
+		healthBar.scale.set(0.85, 0.85);
 		healthBar.screenCenter(X);
 		healthBar.leftToRight = false;
-		healthBar.scrollFactor.set();
 		healthBar.visible = !ClientPrefs.data.hideHud;
 		healthBar.alpha = ClientPrefs.data.healthBarAlpha;
 		reloadHealthBarColors();
@@ -596,8 +608,8 @@ class PlayState extends MusicBeatState
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
 		uiGroup.add(iconP2);
 
-		scoreTxt = new FlxText(0, healthBar.y + 40, FlxG.width, "", 20);
-		scoreTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		scoreTxt = new FlxText(0, healthBar.y + 35, FlxG.width, "", 16);
+		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
@@ -613,7 +625,7 @@ class PlayState extends MusicBeatState
 			botplayTxt.y = healthBar.y + 70;
 
 		uiGroup.cameras = [camHUD];
-		noteGroup.cameras = [camHUD];
+		noteGroup.cameras = [camNotes];
 		comboGroup.cameras = [camHUD];
 
 		//if(SONG.comboCamGame && !onlyChart) comboOnCamGame(true);
@@ -685,7 +697,12 @@ class PlayState extends MusicBeatState
 		
 		var splash:NoteSplash = new NoteSplash();
 		grpNoteSplashes.add(splash);
-		splash.alpha = 0.000001; //cant make it invisible or it won't allow precaching
+		splash.alpha = 0.0001; //cant make it invisible or it won't allow precaching
+
+		SustainSplash.startCrochet = Conductor.stepCrochet;
+		var splashHold:SustainSplash = new SustainSplash();
+		grpHoldSplashes.add(splashHold);
+		splashHold.alpha = 0.0001;
 
 		super.create();
 		Paths.clearUnusedMemory();
@@ -1586,8 +1603,17 @@ class PlayState extends MusicBeatState
 				var newCharacter:String = event.value2;
 				addCharacterToList(newCharacter, charType);
 
+			case "Solid Graphic Behind Characters":
+				solidColBeh = new FlxSprite(FlxG.width * -0.5, FlxG.height * -0.5).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.WHITE);
+				solidColBeh.scale.set(5,5);
+				solidColBeh.alpha = 0.001;
+				addBehindGF(solidColBeh);
+
 			case 'Play Sound':
 				Paths.sound(event.value1); //Precache sound
+
+			case 'Play Video':
+				startVideo(event.value1, true, true, false, false); //Precache video
 		}
 		stagesFunc(function(stage:BaseStage) stage.eventPushedUnique(event));
 	}
@@ -1881,6 +1907,10 @@ class PlayState extends MusicBeatState
 			camHudBopMult = FlxMath.lerp(1, camHudBopMult, 0.95 * camZoomingDecayHud * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
 			var zoomHudPlusBop:Float = defaultHUDCameraZoom * camHudBopMult; // Apply camera bop multiplier.
 			camHUD.zoom = zoomHudPlusBop;  // Actually apply the zoom to the camera.
+
+			camNotesBopMult = FlxMath.lerp(1, camNotesBopMult, 0.95 * camZoomingDecayHud * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
+			var zoomNotesPlusBop:Float = defaultNotesCameraZoom * camNotesBopMult; // Apply camera bop multiplier.
+			camNotes.zoom = zoomNotesPlusBop;  // Actually apply the zoom to the camera.
 		}
 
 		if (SONG.notes[curSection] != null)
@@ -2032,11 +2062,11 @@ class PlayState extends MusicBeatState
 	// Health icon updaters
 	public dynamic function updateIconsScale(elapsed:Float)
 	{
-		var mult:Float = FlxMath.lerp(1, iconP1.scale.x, Math.exp(-elapsed * 9 * playbackRate));
+		var mult:Float = FlxMath.lerp(0.85, iconP1.scale.x, Math.exp(-elapsed * 9 * playbackRate));
 		iconP1.scale.set(mult, mult);
 		iconP1.updateHitbox();
 
-		var mult:Float = FlxMath.lerp(1, iconP2.scale.x, Math.exp(-elapsed * 9 * playbackRate));
+		var mult:Float = FlxMath.lerp(0.85, iconP2.scale.x, Math.exp(-elapsed * 9 * playbackRate));
 		iconP2.scale.set(mult, mult);
 		iconP2.updateHitbox();
 	}
@@ -2046,6 +2076,9 @@ class PlayState extends MusicBeatState
 		var iconOffset:Int = 26;
 		iconP1.x = healthBar.barCenter + (150 * iconP1.scale.x - 150) / 2 - iconOffset;
 		iconP2.x = healthBar.barCenter - (150 * iconP2.scale.x) / 2 - iconOffset * 2;
+
+		iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0; //If health is under 20%, change player icon to frame 1 (losing icon), otherwise, frame 0 (normal)
+		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0; //If health is over 80%, change opponent icon to frame 1 (losing icon), otherwise, frame 0 (normal)
 	}
 
 	var iconsAnimations:Bool = true;
@@ -2063,8 +2096,6 @@ class PlayState extends MusicBeatState
 		var newPercent:Null<Float> = FlxMath.remapToRange(FlxMath.bound(healthBar.valueFunction(), healthBar.bounds.min, healthBar.bounds.max), healthBar.bounds.min, healthBar.bounds.max, 0, 100);
 		healthBar.percent = (newPercent != null ? newPercent : 0);
 
-		iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : 0; //If health is under 20%, change player icon to frame 1 (losing icon), otherwise, frame 0 (normal)
-		iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : 0; //If health is over 80%, change opponent icon to frame 1 (losing icon), otherwise, frame 0 (normal)
 		return health;
 	}
 
@@ -2332,6 +2363,7 @@ class PlayState extends MusicBeatState
 
 					cameraBopMultiplier += flValue1;
 					camHudBopMult += flValue2;
+					camNotesBopMult += flValue2;
 				}
 
 			case 'Play Animation':
@@ -2437,6 +2469,17 @@ class PlayState extends MusicBeatState
 						tweenCameraToPosition(targetX, targetY, durSeconds, LuaUtils.getTweenEaseByString(ease));
 				}
 
+			case 'Change Object Layer':
+				var leObj:FlxBasic = LuaUtils.getObjectDirectly(value1);
+				if(leObj != null)
+				{
+					var groupOrArray:Dynamic = CustomSubstate.instance != null ? CustomSubstate.instance : LuaUtils.getTargetInstance();
+					groupOrArray.remove(leObj, true);
+					groupOrArray.insert(Std.parseInt(value2), leObj);
+					return;
+				}
+				addTextToDebug('Change Object Layer event: Object $value3 doesn\'t exist!', FlxColor.RED);
+
 			case 'Update Strum Position Variable':
 				for (i in 0...playerStrums.length) {
 					setOnScripts('curPlayerStrumX' + i, playerStrums.members[i].x);
@@ -2478,11 +2521,12 @@ class PlayState extends MusicBeatState
 						var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
 						tweenCameraZoom(zoom, durSeconds, isDirectMode, LuaUtils.getTweenEaseByString(value1));
 				}
+
 			case "Zoom Hud Camera":
 				if (cameraHudZoomTween != null)
 					cameraHudZoomTween.cancel();
 
-				if (flValue2 == 0)
+				if (value3 == 'INSTANT')
 					// Instant zoom. No tween needed.
 				    defaultHUDCameraZoom = flValue1;
 				else
@@ -2494,6 +2538,24 @@ class PlayState extends MusicBeatState
 						flValue2 / playbackRate,
 						{ease: LuaUtils.getTweenEaseByString(value3)},
 						function(num:Float) {defaultHUDCameraZoom = num;}
+					);
+
+			case "Zoom Notes Camera":
+				if (cameraNotesZoomTween != null)
+					cameraNotesZoomTween.cancel();
+
+				if (value3 == 'INSTANT')
+					// Instant zoom. No tween needed.
+				    defaultNotesCameraZoom = flValue1;
+				else
+					var durSeconds:Float = Conductor.stepCrochet * flValue2 / 1000;
+					// Zoom tween! Caching it so we can cancel/pause it later if needed.
+					cameraNotesZoomTween = FlxTween.num(
+						defaultNotesCameraZoom,
+						flValue1,
+						flValue2 / playbackRate,
+						{ease: LuaUtils.getTweenEaseByString(value3)},
+						function(num:Float) {defaultNotesCameraZoom = num;}
 					);
 
 			case "Camera Angle":
@@ -2513,6 +2575,9 @@ class PlayState extends MusicBeatState
 					case 'camhud' | 'camHUD' | 'hud':
 						FlxTween.cancelTweensOf(camHUD.angle);
 						FlxTween.tween(camHUD, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
+					case 'camnotes' | 'camNotes' | 'notes':
+						FlxTween.cancelTweensOf(camNotes.angle);
+						FlxTween.tween(camNotes, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
 					case 'camOther' | 'camother' | 'other':
 						FlxTween.cancelTweensOf(camOther.angle);
 						FlxTween.tween(camOther, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
@@ -2551,8 +2616,8 @@ class PlayState extends MusicBeatState
 				shakeDec = Std.parseInt(value2);
 
 			case 'Screen Shake':
-				var valuesArray:Array<String> = [value1, value2];
-				var targetsArray:Array<FlxCamera> = [camGame, camHUD];
+				var valuesArray:Array<String> = [value1, value2, value3];
+				var targetsArray:Array<FlxCamera> = [camGame, camHUD, camNotes];
 				for (i in 0...targetsArray.length) {
 					var split:Array<String> = valuesArray[i].split(',');
 					var duration:Float = 0;
@@ -2563,7 +2628,7 @@ class PlayState extends MusicBeatState
 					if(Math.isNaN(intensity)) intensity = 0;
 
 					if(duration > 0 && intensity != 0) {
-						targetsArray[i].shake(intensity, duration);
+						targetsArray[i].shake(intensity, Conductor.stepCrochet * duration / 1000);
 					}
 				}
 
@@ -2648,7 +2713,7 @@ class PlayState extends MusicBeatState
 					if(flValue2 <= 0)
 						songSpeed = newValue;
 					else
-						songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, flValue2 / playbackRate, {ease: ease, onComplete:
+						songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, Conductor.stepCrochet * flValue2 / 1000 / playbackRate, {ease: ease, onComplete:
 							function (twn:FlxTween)
 							{
 								songSpeedTween = null;
@@ -2664,17 +2729,19 @@ class PlayState extends MusicBeatState
 
 				color = Std.parseInt(value1);
 
-				if (flValue2 == null) flValue2 = 1;
+				if (flValue2 == null) flValue2 = 4;
 
 				if(!ClientPrefs.data.flashing && value1 != '0xFF000000') return;
 	
 				switch(value3.toLowerCase().trim()) {
 					case 'camhud' | 'HUD' | 'hud':
-						camHUD.flash(color, flValue2, null, true);
+						camHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
+					case 'camnotes' | 'NOTES' | 'notes':
+						camHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 					case 'camother' | 'camOther' | 'other':
-						camOther.flash(color, flValue2, null, true);
+						camOther.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 					default:
-						FlxG.camera.flash(color, flValue2, null, true);
+						FlxG.camera.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 				}
 
 			case 'Fade Camera':
@@ -2687,7 +2754,7 @@ class PlayState extends MusicBeatState
 
 				color = Std.parseInt(value1);
 
-				if (flValue2 == null) flValue2 = 1;
+				if (flValue2 == null) flValue2 = 4;
 
 				var fade:Bool;
 				if(value4 == 'true')
@@ -2697,18 +2764,37 @@ class PlayState extends MusicBeatState
 	
 				switch(value3.toLowerCase().trim()) {
 					case 'camhud' | 'hud':
-						camHUD.fade(color, flValue2, fade, null, true);
+						camHUD.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
+					case 'camnotes' | 'notes':
+						camNotes.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 					case 'camother' | 'other':
-						camOther.fade(color, flValue2, fade, null, true);
+						camOther.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 					default:
-						FlxG.camera.fade(color, flValue2, fade, null, true);
+						FlxG.camera.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 				}
+
+			case "Solid Graphic Behind Characters": //BLAMMED LI-
+				var color:FlxColor = 0xFF000000;
+	
+				if (value3 == null || value3 == '')
+					color = 0xFF000000;
+
+				color = Std.parseInt(value3);
+
+				if (flValue1 == null)
+					flValue1 = 0;
+
+				if (flValue2 == null)
+					flValue2 = 4;
+
+				FlxTween.tween(solidColBeh, {alpha: flValue1}, Conductor.stepCrochet * flValue2 / 1000);
+				solidColBeh.color = color;
 
 			case 'Set Health':
 				if(value2 != null)
 				{
 					var ease = LuaUtils.getTweenEaseByString(value2);
-					FlxTween.tween(this, {health: flValue1}, flValue3, {ease: ease});
+					FlxTween.tween(this, {health: flValue1}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 				else
 					health = flValue1;
@@ -2719,7 +2805,7 @@ class PlayState extends MusicBeatState
 				if(value2 != null)
 				{
 					var ease = LuaUtils.getTweenEaseByString(value2);
-					FlxTween.tween(this, {health: newhealth}, flValue3, {ease: ease});
+					FlxTween.tween(this, {health: newhealth}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 				else
 					health += newhealth;
@@ -2829,7 +2915,7 @@ class PlayState extends MusicBeatState
 				var ease = LuaUtils.getTweenEaseByString(value4);
 
 				if (flValue3 == null)
-					flValue3 = 1;
+					flValue3 = 4;
 
 				switch (value1)
 				{
@@ -2848,21 +2934,21 @@ class PlayState extends MusicBeatState
 						if(Math.isNaN(yMove)) yMove = DAD_Y;
 
 						FlxTween.cancelTweensOf(dadGroup);
-						FlxTween.tween(dadGroup, {x: xMove, y: yMove}, flValue3, {ease: ease});
+						FlxTween.tween(dadGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 
 					case 2:
 						if(Math.isNaN(xMove)) xMove = GF_X;
 						if(Math.isNaN(yMove)) yMove = GF_Y;
 
 						FlxTween.cancelTweensOf(gfGroup);
-						FlxTween.tween(gfGroup, {x: xMove, y: yMove}, flValue3, {ease: ease});
+						FlxTween.tween(gfGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 
 					default:
 						if(Math.isNaN(xMove)) xMove = BF_X;
 						if(Math.isNaN(yMove)) yMove = BF_Y;
 
 						FlxTween.cancelTweensOf(boyfriendGroup);
-						FlxTween.tween(boyfriendGroup, {x: xMove, y: yMove}, flValue3, {ease: ease});
+						FlxTween.tween(boyfriendGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 
 			case 'Set Char Color':
@@ -2888,7 +2974,7 @@ class PlayState extends MusicBeatState
 				var char:Character = boyfriend;
 
 				if (flValue3 == null)
-					flValue3 = 1;
+					flValue3 = 4;
 
 				var ease = LuaUtils.getTweenEaseByString(value4);
 				switch (value1.toLowerCase().trim())
@@ -2904,7 +2990,7 @@ class PlayState extends MusicBeatState
 				var curColor:FlxColor = char.color;
 				curColor.alphaFloat = char.alpha;
 				
-				FlxTween.color(char, flValue3, curColor, CoolUtil.colorFromString(value2), {ease: ease});
+				FlxTween.color(char, Conductor.stepCrochet * flValue3 / 1000, curColor, CoolUtil.colorFromString(value2), {ease: ease});
 
 			case 'Set Char Color Transform':
 				var char:Character = boyfriend;
@@ -2970,7 +3056,7 @@ class PlayState extends MusicBeatState
 				if(splitAlpha[3] != null) alphaMult = Std.parseInt(splitAlpha[3].trim());
 
 				if (flValue4 == null || flValue4 == 0)
-					flValue4 = 1;
+					flValue4 = 4;
 
 				var ease = LuaUtils.getTweenEaseByString(value5);
 
@@ -2984,7 +3070,7 @@ class PlayState extends MusicBeatState
 						char = boyfriend;
 				}
 				
-				FlxTween.tween(char.colorTransform, {redOffset: redOff, greenOffset: greenOff, blueOffset: blueOff, alphaOffset: alphaOff, redMultiplier: redMult, greenMultiplier: greenMult, blueMultiplier: blueMult, alphaMultiplier: alphaMult}, flValue4, {ease: ease});
+				FlxTween.tween(char.colorTransform, {redOffset: redOff, greenOffset: greenOff, blueOffset: blueOff, alphaOffset: alphaOff, redMultiplier: redMult, greenMultiplier: greenMult, blueMultiplier: blueMult, alphaMultiplier: alphaMult}, Conductor.stepCrochet * flValue4 / 1000, {ease: ease});
 
 			case 'Add trail':
 				var charType:Int = 0;
@@ -3057,7 +3143,7 @@ class PlayState extends MusicBeatState
 				var val2:Int = Std.parseInt(value2);
 
 				if (flValue3 == null)
-					flValue3 = 1;
+					flValue3 = 4;
 
 				var ease = LuaUtils.getTweenEaseByString(value4);
 				switch (value1.toLowerCase().trim())
@@ -3074,7 +3160,7 @@ class PlayState extends MusicBeatState
 					val2 = 0xFFFFFFFF;
 
 				FlxTween.cancelTweensOf(char);
-				FlxTween.tween(char, {alpha: flValue2}, flValue3, {ease: ease});
+				FlxTween.tween(char, {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 
 			case 'Strumline Visibility':
 				var strum:FlxTypedGroup<StrumNote>;
@@ -3087,7 +3173,7 @@ class PlayState extends MusicBeatState
 					flValue2 = 0.0001;
 						
 				if (Math.isNaN(flValue3) || flValue3 <= 0)
-					flValue3 = 0.01;
+					flValue3 = 4;
 						
 				switch (value1)
 					{
@@ -3096,7 +3182,7 @@ class PlayState extends MusicBeatState
 							strum = opponentStrums;
 						
 							if (ClientPrefs.data.middleScroll)
-								flValue3 *= 0.35;
+								flValue2 *= 0.35;
 						}
 						default:
 							strum = playerStrums;
@@ -3105,13 +3191,16 @@ class PlayState extends MusicBeatState
 				for (i in 0...strum.members.length)
 				{
 					FlxTween.cancelTweensOf(strum.members[i]);
-					FlxTween.tween(strum.members[i], {alpha: flValue2}, flValue3, {ease: ease});
+					FlxTween.tween(strum.members[i], {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 
 			case 'UI visibilty':
-				var val2:Int = Std.parseInt(value2);
 				var ease = LuaUtils.getTweenEaseByString(value3);
-				FlxTween.tween(camHUD, {alpha: value1}, val2, {ease: FlxEase.linear, onComplete: function(twn:FlxTween){}});
+				FlxTween.tween(camHUD, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
+
+			case 'Notes visibilty':
+				var ease = LuaUtils.getTweenEaseByString(value3);
+				FlxTween.tween(camNotes, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
 
 			case 'Force Dance':
 				var char:Character = dad;
@@ -3135,7 +3224,7 @@ class PlayState extends MusicBeatState
 				if(!char.stunned)
 				{
 					char.specialAnim = false;
-					char.dance();		
+					char.dance(true);		
 				}
 			
 			#if VIDEOS_ALLOWED
@@ -3860,6 +3949,11 @@ class PlayState extends MusicBeatState
 				invalidateNote(note);
 		});
 
+		final end:Note = daNote.isSustainNote ? daNote.parent.tail[daNote.parent.tail.length - 1] : daNote.tail[daNote.tail.length - 1];
+		if (end != null && end.extraData['holdSplash'] != null) {
+			end.extraData['holdSplash'].visible = false;
+		}
+
 		noteMissCommon(daNote.noteData, daNote);
 		stagesFunc(function(stage:BaseStage) stage.noteMiss(daNote));
 		var result:Dynamic = callOnLuas('noteMiss', [notes.members.indexOf(daNote), daNote.noteData, daNote.noteType, daNote.isSustainNote]);
@@ -4051,6 +4145,8 @@ class PlayState extends MusicBeatState
 		strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate, note);
 		note.hitByOpponent = true;
 
+		spawnHoldSplashOnNote(note);
+
 		if (opponentHealthDrain && health >= opponentHealthDrainAmount && !note.gfNote && note.noteType != 'GF Sing')
 			health -= opponentHealthDrainAmount;
 
@@ -4058,6 +4154,7 @@ class PlayState extends MusicBeatState
 		{
 			camGame.shake(0.005, 0.2);
 			camHUD.shake(0.005, 0.2);
+			camNotes.shake(0.005, 0.2);
 		}
 
 		if(!note.noAnimation)
@@ -4153,6 +4250,7 @@ class PlayState extends MusicBeatState
 			else strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate, note);
 			vocals.volume = 1;
 
+			spawnHoldSplashOnNote(note);
 			if (!note.isSustainNote)
 			{
 				var whichAnim:String = '';
@@ -4223,6 +4321,7 @@ class PlayState extends MusicBeatState
 		{
 			camGame.shake(0.005, 0.2);
 			camHUD.shake(0.005, 0.2);
+			camNotes.shake(0.005, 0.2);
 		}
 
 		stagesFunc(function(stage:BaseStage) stage.goodNoteHit(note));
@@ -4277,6 +4376,29 @@ class PlayState extends MusicBeatState
 		note.kill();
 		notes.remove(note, true);
 		note.destroy();
+	}
+
+	public function spawnHoldSplashOnNote(note:Note) {
+		if (!note.isSustainNote && note.tail.length != 0 && note.tail[note.tail.length - 1].extraData['holdSplash'] == null) {
+			spawnHoldSplash(note);
+		} else if (note.isSustainNote) {
+			final end:Note = StringTools.endsWith(note.animation.curAnim.name, 'end') ? note : note.parent.tail[note.parent.tail.length - 1];
+			if (end != null) {
+				var leSplash:SustainSplash = end.extraData['holdSplash'];
+				if (leSplash == null && !end.parent.wasGoodHit) {
+					spawnHoldSplash(end);
+				} else if (leSplash != null) {
+					leSplash.visible = true;
+				}
+			}
+		}
+	}
+
+	public function spawnHoldSplash(note:Note) {
+		var end:Note = note.isSustainNote ? note.parent.tail[note.parent.tail.length - 1] : note.tail[note.tail.length - 1];
+		var splash:SustainSplash = grpHoldSplashes.recycle(SustainSplash);
+		splash.setupSusSplash(strumLineNotes.members[note.noteData + (note.mustPress ? 4 : 0)], note, playbackRate);
+		grpHoldSplashes.add(end.extraData['holdSplash'] = splash);
 	}
 
 	public function spawnNoteSplashOnNote(note:Note) {
@@ -4377,8 +4499,8 @@ class PlayState extends MusicBeatState
 		if (generatedMusic)
 			notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 
-		iconP1.scale.set(1.2, 1.2);
-		iconP2.scale.set(1.2, 1.2);
+		iconP1.scale.set(1.05);
+		iconP2.scale.set(1.05);
 
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
@@ -4391,11 +4513,13 @@ class PlayState extends MusicBeatState
 			cameraBopMultiplier = cameraBopIntensity;
 			// HUD camera zoom still uses old system. To change. (+3%)
 			camHudBopMult += hudCameraZoomIntensity;
+			camNotesBopMult += hudCameraZoomIntensity;
 
 			if(shakeBeat)
 			{
 				camGame.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
 				camHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+				camNotes.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
 			}
 		}
 
@@ -4409,18 +4533,21 @@ class PlayState extends MusicBeatState
 	public function characterBopper(beat:Int):Void
 	{
 		if (gf != null && beat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.getAnimationName().startsWith('sing') && !gf.stunned)
-			gf.dance();
+			gf.dance(true);
 		if (boyfriend != null && beat % boyfriend.danceEveryNumBeats == 0 && !boyfriend.getAnimationName().startsWith('sing') && !boyfriend.stunned)
-			boyfriend.dance();
+			boyfriend.dance(true);
 		if (dad != null && beat % dad.danceEveryNumBeats == 0 && !dad.getAnimationName().startsWith('sing') && !dad.stunned)
-			dad.dance();
+			dad.dance(true);
 	}
 
 	public function playerDance():Void
 	{
 		var anim:String = boyfriend.getAnimationName();
 		if(boyfriend.holdTimer > Conductor.stepCrochet * (0.0011 #if FLX_PITCH / FlxG.sound.music.pitch #end) * boyfriend.singDuration && anim.startsWith('sing') && !anim.endsWith('miss'))
+		{
 			boyfriend.dance();
+			boyfriend.finishAnimation();
+		}
 	}
 
 	override function sectionHit()

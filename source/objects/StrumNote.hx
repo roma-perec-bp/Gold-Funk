@@ -10,10 +10,22 @@ class StrumNote extends FlxSprite
 	public var rgbShader:RGBShaderReference;
 	public var resetAnim:Float = 0;
 	private var noteData:Int = 0;
-	public var direction:Float = 90;
+	public var direction(default, set):Float;
 	public var downScroll:Bool = false;
 	public var sustainReduce:Bool = true;
 	private var player:Int;
+
+	private var _dirSin:Float;
+	private var _dirCos:Float;
+
+	private function set_direction(_fDir:Float):Float
+	{
+		// 0.01745329251 = Math.PI / 180
+		_dirSin = Math.sin(_fDir * 0.01745329251);
+		_dirCos = Math.cos(_fDir * 0.01745329251);
+
+		return direction = _fDir;
+	}
 	
 	public var texture(default, set):String = null;
 	private function set_texture(value:String):String {
@@ -26,6 +38,8 @@ class StrumNote extends FlxSprite
 
 	public var useRGBShader:Bool = true;
 	public function new(x:Float, y:Float, leData:Int, player:Int) {
+		direction = 90;
+		
 		animation = new PsychAnimationController(this);
 
 		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
@@ -87,11 +101,11 @@ class StrumNote extends FlxSprite
 				case 0:
 					animation.add('static', [0]);
 					animation.add('pressed', [4, 8], 12, false);
-					animation.add('confirm', [12, 16], 24, false);
+					animation.add('confirm', [12, 16], 12, false);
 				case 1:
 					animation.add('static', [1]);
 					animation.add('pressed', [5, 9], 12, false);
-					animation.add('confirm', [13, 17], 24, false);
+					animation.add('confirm', [13, 17], 12, false);
 				case 2:
 					animation.add('static', [2]);
 					animation.add('pressed', [6, 10], 12, false);
@@ -99,7 +113,7 @@ class StrumNote extends FlxSprite
 				case 3:
 					animation.add('static', [3]);
 					animation.add('pressed', [7, 11], 12, false);
-					animation.add('confirm', [15, 19], 24, false);
+					animation.add('confirm', [15, 19], 12, false);
 			}
 		}
 		else
