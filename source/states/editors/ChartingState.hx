@@ -81,7 +81,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Set BF Speed', "Sets BF head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\n\nWarning: Value must be integer!"],
 		['Add Camera Zoom', "Used on MILF on that one \"hard\" part\nValue 1: Camera zoom add (Default: 0.015)\nValue 2: UI zoom add (Default: 0.03)\nLeave the values blank if you want to use Default."],
 		['Focus Camera', 'Value 1:\nChar (default dad) - Can be any character\nValue 2: "origin" Duration in steps (default 4.0)\nValue3: Ease - Any FlxEase, can be "INSTANT" or "CLASSIC"\n"CLASSIC" is by default.\nValue 4: Additional X and Y Camera Offsets'],
-		['Set Camera Bop', 'How often does the camera bop?\nValue 1 - The rate of camera bopping\nValue 2 - The intensity of camera bop'],
+		['Set Camera Bop', 'How often does the camera bop?\nValue 1 - The rate of camera bopping\nValue 2 - The intensity of camera bop\nValue 3 - Speed of Camera Bop (not in a beat way)'],
 		['Shake Beat', 'Makes camera shakes at beat, rate is same as camera bop one'],
 		['Zoom Camera', 'Value 1:\nZoom Ease (it can be a FlxEase, or "INSTANT")\nValue 2: \nZoom (default 1.0)\nValue 3: Duration in steps (default 4.0)\nValue4: Mode (default "direct", anything else is "stage")'],
 		['Zoom Hud Camera', 'Value 1: \nZoom (default 1.0)\nValue 2: Duration in steps (default 4.0)\nValue 3:\nZoom Ease (it can be a FlxEase, or "INSTANT")'],
