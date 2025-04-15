@@ -264,6 +264,7 @@ class PlayState extends MusicBeatState
 	public var songHits:Int = 0;
 	public var songMisses:Int = 0;
 	public var scoreTxt:FlxText;
+	public var subtitlesTxt:FlxText;
 	var timeTxt:FlxText;
 
 	var trailBf:FlxTrail;
@@ -271,6 +272,7 @@ class PlayState extends MusicBeatState
 	var trailGf:FlxTrail;
 
 	var scoreTxtTween:FlxTween;
+	var subtitlesTxtTween:FlxTween;
 
 	var solidColBeh:FlxSprite;
 
@@ -615,6 +617,14 @@ class PlayState extends MusicBeatState
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
 		uiGroup.add(scoreTxt);
 
+		subtitlesTxt = new FlxText(0, healthBar.y + 50, FlxG.width, "", 24);
+		subtitlesTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		subtitlesTxt.scrollFactor.set();
+		subtitlesTxt.borderSize = 1.25;
+		subtitlesTxt.alpha = 0;
+		subtitlesTxt.cameras = [camOther];
+		add(subtitlesTxt);
+
 		botplayTxt = new FlxText(400, healthBar.y - 90, FlxG.width - 800, Language.getPhrase("Botplay").toUpperCase(), 32);
 		botplayTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		botplayTxt.scrollFactor.set();
@@ -623,6 +633,7 @@ class PlayState extends MusicBeatState
 		uiGroup.add(botplayTxt);
 		if(ClientPrefs.data.downScroll)
 			botplayTxt.y = healthBar.y + 70;
+			subtitlesTxt.y = healthBar.y + 85;
 
 		uiGroup.cameras = [camHUD];
 		noteGroup.cameras = [camNotes];
@@ -2618,6 +2629,16 @@ class PlayState extends MusicBeatState
 
 				shakeBeat = !shakeBeat;
 				shakeDec = Std.parseInt(value2);
+
+			case 'Subtitles':
+				if (subtitlesTxt != null)
+					{
+						if (value1.length > 0)
+						{
+							subtitlesTxt.text = value1;
+						}
+					}
+
 
 			case 'Screen Shake':
 				var valuesArray:Array<String> = [value1, value2, value3];
