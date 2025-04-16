@@ -617,10 +617,11 @@ class PlayState extends MusicBeatState
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
 		uiGroup.add(scoreTxt);
 
-		subtitlesTxt = new FlxText(0, healthBar.y + 50, FlxG.width, "", 24);
+		subtitlesTxt = new FlxText(0, healthBar.y - 90, FlxG.width, "", 24);
 		subtitlesTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		subtitlesTxt.scrollFactor.set();
 		subtitlesTxt.borderSize = 1.25;
+		subtitlesTxt.screenCenter();
 		subtitlesTxt.alpha = 0;
 		subtitlesTxt.cameras = [camOther];
 		add(subtitlesTxt);
@@ -633,7 +634,6 @@ class PlayState extends MusicBeatState
 		uiGroup.add(botplayTxt);
 		if(ClientPrefs.data.downScroll)
 			botplayTxt.y = healthBar.y + 70;
-			subtitlesTxt.y = healthBar.y + 85;
 
 		uiGroup.cameras = [camHUD];
 		noteGroup.cameras = [camNotes];
@@ -1318,6 +1318,19 @@ class PlayState extends MusicBeatState
 		scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
 			onComplete: function(twn:FlxTween) {
 				scoreTxtTween = null;
+			}
+		});
+	}
+
+	public function doSubtitlesBop():Void {
+		if(subtitlesTween != null)
+			subtitlesTween.cancel();
+
+		subtitlesTxt.scale.x = 1.075;
+		subtitlesTxt.scale.y = 1.075;
+		scoreTxtTween = FlxTween.tween(subtitlesTxt.scale, {x: 1, y: 1}, 0.2, {
+			onComplete: function(twn:FlxTween) {
+				subtitlesTween = null;
 			}
 		});
 	}
@@ -2631,14 +2644,39 @@ class PlayState extends MusicBeatState
 				shakeDec = Std.parseInt(value2);
 
 			case 'Subtitles':
+			var duration:Float = flValue2 ?? 4.0;
+			var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
+
 				if (subtitlesTxt != null)
 					{
 						if (value1.length > 0)
 						{
 							subtitlesTxt.text = value1;
+							subtitlesTxt.alpha = 1;
+				
+							FlxTween.cancelTweensOf(subtitlesTxt);
+							FlxTween.tween(subtitlesTxt, {alpha: 0}, 1, {
+								startDelay: durSeconds;
+								onComplete: function(twn:FlxTween)
+								{
+									subtitlesTxt.text = "";
+								}
+							});
+
+							doSubtitlesBop();
+						}
+						else
+						{
+							subtitlesTxt.text = null;
+							subtitlesTxt.alpha = 0;
 						}
 					}
 
+				switch(value4)
+				{
+					case 'bop':
+						doSubtitlesBop();
+				}
 
 			case 'Screen Shake':
 				var valuesArray:Array<String> = [value1, value2, value3];
