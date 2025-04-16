@@ -617,11 +617,11 @@ class PlayState extends MusicBeatState
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
 		uiGroup.add(scoreTxt);
 
-		subtitlesTxt = new FlxText(0, healthBar.y - 90, FlxG.width, "", 24);
+		subtitlesTxt = new FlxText(0, FlxG.height * 0.75, FlxG.width - 800, "", 24);
 		subtitlesTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		subtitlesTxt.scrollFactor.set();
 		subtitlesTxt.borderSize = 1.25;
-		subtitlesTxt.screenCenter();
+		subtitlesTxt.screenCenter(X);
 		subtitlesTxt.alpha = 0;
 		subtitlesTxt.cameras = [camOther];
 		add(subtitlesTxt);
@@ -1323,14 +1323,14 @@ class PlayState extends MusicBeatState
 	}
 
 	public function doSubtitlesBop():Void {
-		if(subtitlesTween != null)
-			subtitlesTween.cancel();
+		if(subtitlesTxtTween != null)
+			subtitlesTxtTween.cancel();
 
 		subtitlesTxt.scale.x = 1.075;
 		subtitlesTxt.scale.y = 1.075;
 		scoreTxtTween = FlxTween.tween(subtitlesTxt.scale, {x: 1, y: 1}, 0.2, {
 			onComplete: function(twn:FlxTween) {
-				subtitlesTween = null;
+				subtitlesTxtTween = null;
 			}
 		});
 	}
@@ -2656,14 +2656,8 @@ class PlayState extends MusicBeatState
 				
 							FlxTween.cancelTweensOf(subtitlesTxt);
 							FlxTween.tween(subtitlesTxt, {alpha: 0}, 1, {
-								startDelay: durSeconds;
-								onComplete: function(twn:FlxTween)
-								{
-									subtitlesTxt.text = "";
-								}
+								startDelay: durSeconds / playbackRate
 							});
-
-							doSubtitlesBop();
 						}
 						else
 						{
