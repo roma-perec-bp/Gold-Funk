@@ -2670,17 +2670,17 @@ class PlayState extends MusicBeatState
 				color = Std.parseInt(value3);
 				subtitlesTxt.color = color;
 
-				switch(value4)
+				if (value4 == null || value4 == '')
+					size = 24;
+
+				size = Std.parseInt(value4);
+				subtitlesTxt.size = size;
+			
+				switch(value5)
 				{
 					case 'bop':
 						doSubtitlesBop();
 				}
-
-				if (value5 == null || value5 == '')
-					size = 24;
-
-				size = Std.parseInt(value5);
-				subtitlesTxt.size = size;
 
 			case 'Screen Shake':
 				var valuesArray:Array<String> = [value1, value2, value3];
