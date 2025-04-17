@@ -124,7 +124,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Play Video', 'Value 1: Video Name'],
 		#end
 		['Play Sound', "Value 1: Sound file name\nValue 2: Volume (Default: 1), ranges from 0 to 1"],
-		['Subtitles', "v1: text\nv2: duration (after rime text will be hided)\nv3: color (default: ffffff)\nv4: anim (Bop, fade in)\nv5: size (default: 24)"],
+		['Subtitles', "Value 1: Text\nValue 2: Duration (after time text will be hided, Default: 4 step)\nValue 3: Color (Example: 0xFF0000, Default: 0xFFFFFF)\nValue 4: Animation (Bop, fade in)\nValue 5: Size (Default: 24)"],
 		//ORIGINAL WEEKS EVENTS
 		#if BASE_GAME_FILES
 		['Dadbattle Spotlight', "Used in Dad Battle,\nValue 1: 0/1 = ON/OFF,\n2 = Target Dad\n3 = Target BF"],

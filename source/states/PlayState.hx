@@ -2644,33 +2644,43 @@ class PlayState extends MusicBeatState
 				shakeDec = Std.parseInt(value2);
 
 			case 'Subtitles':
-			var duration:Float = flValue2 ?? 4.0;
-			var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
+				var duration:Float = flValue2 ?? 4.0;
+				var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
+				var color:FlxColor = 0xFFFFFFFF;
+				var size:Int = 24; //терминал так 
 
-				if (subtitlesTxt != null)
-					{
-						if (value1.length > 0)
-						{
-							subtitlesTxt.text = value1;
-							subtitlesTxt.alpha = 1;
-				
-							FlxTween.cancelTweensOf(subtitlesTxt);
-							FlxTween.tween(subtitlesTxt, {alpha: 0}, 1, {
-								startDelay: durSeconds / playbackRate
-							});
-						}
-						else
-						{
-							subtitlesTxt.text = null;
-							subtitlesTxt.alpha = 0;
-						}
+				if (subtitlesTxt != null) {
+					if (value1.length > 0) {
+						subtitlesTxt.text = value1;
+						subtitlesTxt.alpha = 1;
+
+						FlxTween.cancelTweensOf(subtitlesTxt);
+						FlxTween.tween(subtitlesTxt, {alpha: 0}, 1, {
+							startDelay: durSeconds / playbackRate
+						});
+					} else {
+						subtitlesTxt.text = null;
+						subtitlesTxt.alpha = 0;
 					}
+				}
+	
+				if (value3 == null || value3 == '') // todo: icon bar colors
+					color = 0xFFFFFFFF;
+
+				color = Std.parseInt(value3);
+				subtitlesTxt.color = color;
 
 				switch(value4)
 				{
 					case 'bop':
 						doSubtitlesBop();
 				}
+
+				if (value5 == null || value5 == '')
+					size = 24;
+
+				size = Std.parseInt(value5);
+				subtitlesTxt.size = size;
 
 			case 'Screen Shake':
 				var valuesArray:Array<String> = [value1, value2, value3];
