@@ -97,7 +97,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Opponent Drain', "Opponent singing causes health drain\n\nValue 1: On/Off\nValue 2: Amount, 0.023 is default (same health you gain from hitting a 'sick' note)"],
 		['Beat Drain', "Beat causes health drain lmaooo\n\nValue 1: On/Off\nValue 2: Amount, 0.023 is default (same health you gain from hitting a 'sick' note)\nValue 3: Step Number"],
 		['Solid Graphic Behind Characters', "Value 1: Alpha, Value 2: Duration in steps, Value 3: Color in hex"],
-		['Subtitles', "Value 1: Text\nValue 2: Duration in steps (Default: 4 step)\nValue 3: Color (by hex: 0xFFFF0000 or by icon character (dad, bf, gf))\nValue 4: Size (Default: 24)\nValue 5: Intro (bop, fade in, fly away), End (fade out or nothing), Font (default: vcr)"],
+		['Subtitles', "Value 1: Text\nValue 2: Duration in steps (Default: 4 step)\nValue 3: Color (by hex: 0xFFFF0000 or by icon character (dad, bf, gf))\nValue 4: Size (Default: 24), Outline size (Default: 1.25)\nValue 5: Intro (bop, fade in, fly away), End (fade out or nothing), Font (default: vcr)"],
 		['Set Char Position', 'Value 1: Char\nValue 2: X Y'],
 		['Set Char Position Tween', 'Value 2: Char\nValue 2: X Y\n Value 3: Duration in steps\n Value 4: Ease'],
 		['Set Char Color', 'Value 1: Char\nValue 2: Color in hex'],
