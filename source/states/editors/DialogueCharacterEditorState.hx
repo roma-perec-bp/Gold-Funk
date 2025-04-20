@@ -60,6 +60,8 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 		camHUD = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD, false);
+
+		FlxG.sound.playMusic(Paths.music('chartEditorLoop'), 1);
 		
 		mainGroup = new FlxSpriteGroup();
 		mainGroup.cameras = [camGame];

@@ -81,6 +81,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		DiscordClient.changePresence('Stage Editor', 'Stage: ' + lastLoadedStage);
 		#end
 
+		FlxG.sound.playMusic(Paths.music('chartEditorLoop'), 1);
+
 		if(stageJson == null) stageJson = StageData.getStageFile(lastLoadedStage);
 		FlxG.camera.follow(null, LOCKON, 0);
 

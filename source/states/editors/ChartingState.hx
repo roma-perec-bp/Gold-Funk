@@ -236,6 +236,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var vocals:FlxSound = new FlxSound();
 	var opponentVocals:FlxSound = new FlxSound();
 
+	var chartTheme:FlxSound;
+
 	var timeLine:FlxSprite;
 	var infoText:FlxText;
 
@@ -265,6 +267,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var fullTipText:FlxText;
 	
 	var vortexEnabled:Bool = false;
+	var chartLoopEnabled:Bool = true;
 	var waveformEnabled:Bool = false;
 	var waveformTarget:WaveformTarget = INST;
 
@@ -279,6 +282,17 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		FlxG.mouse.visible = true;
 		FlxG.sound.list.add(vocals);
 		FlxG.sound.list.add(opponentVocals);
+
+		chartTheme = new FlxSound();
+		chartTheme.loadEmbedded(Paths.music('chartEditorLoop'), true, true);
+		if(chartLoopEnabled)
+		{
+			chartTheme.volume = 0;
+			chartTheme.play(false);
+			chartTheme.fadeIn(4, 0, 1);
+		}
+		
+		FlxG.sound.list.add(chartTheme);
 
 		vocals.autoDestroy = false;
 		vocals.looped = true;
@@ -301,6 +315,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		if(chartEditorSave.data.autoSave != null) autoSaveCap = chartEditorSave.data.autoSave;
 		if(chartEditorSave.data.backupLimit != null) backupLimit = chartEditorSave.data.backupLimit;
 		if(chartEditorSave.data.vortex != null) vortexEnabled = chartEditorSave.data.vortex;
+		if(chartEditorSave.data.chartTheme != null) chartLoopEnabled = chartEditorSave.data.chartTheme;
 
 		if(chartEditorSave.data.customBgColor == null) chartEditorSave.data.customBgColor = '303030';
 		if(chartEditorSave.data.customGridColors == null || chartEditorSave.data.customGridColors.length < 2)
@@ -936,7 +951,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				else if(FlxG.keys.justPressed.A != FlxG.keys.justPressed.D && !holdingAlt)
 				{
 					if(FlxG.sound.music.playing)
+					{
+						setChartTheme(true);
 						setSongPlaying(false);
+					}
 
 					var shiftAdd:Int = FlxG.keys.pressed.SHIFT ? 4 : 1;
 
@@ -964,12 +982,14 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				else if(FlxG.keys.justPressed.HOME)
 				{
 					setSongPlaying(false);
+					setChartTheme(true);
 					Conductor.songPosition = FlxG.sound.music.time = 0;
 					loadSection(0);
 				}
 				else if(FlxG.keys.justPressed.END)
 				{
 					setSongPlaying(false);
+					setChartTheme(true);
 					Conductor.songPosition = FlxG.sound.music.time = FlxG.sound.music.length - 1;
 					loadSection(PlayState.SONG.notes.length - 1);
 				}
@@ -993,7 +1013,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				else if(FlxG.keys.pressed.W != FlxG.keys.pressed.S || FlxG.mouse.wheel != 0)
 				{
 					if(FlxG.sound.music.playing)
+					{
 						setSongPlaying(false);
+						setChartTheme(true);
+					}
 
 					if(mouseSnapCheckBox.checked && FlxG.mouse.wheel != 0)
 					{
@@ -1013,11 +1036,16 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					}
 
 					FlxG.sound.music.time = FlxMath.bound(FlxG.sound.music.time, 0, FlxG.sound.music.length - 1);
-					if(FlxG.sound.music.playing) setSongPlaying(!FlxG.sound.music.playing);
+					if(FlxG.sound.music.playing)
+					{
+						setSongPlaying(!FlxG.sound.music.playing);
+						setChartTheme(!FlxG.sound.music.playing);
+					}
 				}
 				if(FlxG.keys.justPressed.SPACE)
 				{
 					setSongPlaying(!FlxG.sound.music.playing);
+					setChartTheme(!FlxG.sound.music.playing);
 				}
 			}
 
@@ -1873,6 +1901,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	function loadMusic(?killAudio:Bool = false)
 	{
 		setSongPlaying(false);
+		setChartTheme(true);
 		var time:Float = Conductor.songPosition;
 
 		if(killAudio)
@@ -1948,6 +1977,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	{
 		trace('song completed');
 		setSongPlaying(false);
+		setChartTheme(true);
 		Conductor.songPosition = FlxG.sound.music.time = vocals.time = opponentVocals.time = FlxG.sound.music.length - 1;
 		curSec = PlayState.SONG.notes.length - 1;
 		forceDataUpdate = true;
@@ -1972,6 +2002,23 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		vocals.pitch = value;
 		opponentVocals.pitch = value;
 		#end
+	}
+
+	function setChartTheme(doPlay:Bool)
+	{
+		if(!chartLoopEnabled) return;
+		
+		if(doPlay)
+		{
+			chartTheme.volume = 0;
+			chartTheme.play();
+			chartTheme.fadeIn(4, 0, 1);
+		}
+		else
+		{
+			chartTheme.pause();
+			chartTheme.volume = 0;
+		}
 	}
 
 	function setSongPlaying(doPlay:Bool)
@@ -4531,6 +4578,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var showNextGridButton:PsychUIButton;
 	var noteTypeLabelsButton:PsychUIButton;
 	var vortexEditorButton:PsychUIButton;
+	var chartThemeButton:PsychUIButton;
 	function addViewTab()
 	{
 		var tab = upperBox.getTab('View');
@@ -4593,6 +4641,28 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		}, btnWid);
 		vortexEditorButton.text.alignment = LEFT;
 		tab_group.add(vortexEditorButton);
+
+		btnY += 20;
+		chartThemeButton = new PsychUIButton(btnX, btnY, vortexEnabled ? '  Chart theme ON' : '  Chart theme OFF', function()
+		{
+			chartLoopEnabled = !chartLoopEnabled;
+			chartEditorSave.data.chartTheme = chartLoopEnabled;
+			chartThemeButton.text.text = chartLoopEnabled ? '  Chart theme ON' : '  Chart theme OFF';
+
+			if(chartLoopEnabled)
+			{
+				chartTheme.volume = 0;
+				chartTheme.play();
+				chartTheme.fadeIn(4, 0, 1);
+			}
+			else
+			{
+				chartTheme.pause();
+				chartTheme.volume = 0;
+			}
+		}, btnWid);
+		chartThemeButton.text.alignment = LEFT;
+		tab_group.add(chartThemeButton);
 		
 		btnY++;
 		btnY += 20;
@@ -5008,6 +5078,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	{
 		undoActions = [];
 		setSongPlaying(false);
+		setChartTheme(true);
 		var gridLerp:Float = FlxMath.bound((scrollY + FlxG.height/2 - gridBg.y) / gridBg.height, 0.000001, 0.999999);
 		notes.sort(PlayState.sortByTime);
 		_cacheSections();
@@ -5141,6 +5212,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			return;
 		}
 		setSongPlaying(false);
+		setChartTheme(false);
 		chartEditorSave.flush(); //just in case a random crash happens before loading
 
 		openSubState(new EditorPlayState(cast notes, [vocals, opponentVocals]));
@@ -5154,7 +5226,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		FlxG.mouse.visible = false;
 		chartEditorSave.flush();
 
+		chartTheme.stop();
+
 		setSongPlaying(false);
+		setChartTheme(false);
 		updateChartData();
 		StageData.loadDirectory(PlayState.SONG);
 		LoadingState.loadAndSwitchState(new PlayState());

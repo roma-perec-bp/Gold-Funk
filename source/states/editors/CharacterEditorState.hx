@@ -77,6 +77,8 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD, false);
 
+		FlxG.sound.playMusic(Paths.music('chartEditorLoop'), 1); //why was this even removed? (breakfast ver)
+
 		loadBG();
 
 		silhouettes = new FlxSpriteGroup();

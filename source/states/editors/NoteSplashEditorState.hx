@@ -45,6 +45,8 @@ class NoteSplashEditorState extends MusicBeatState
         DiscordClient.changePresence('Note Splash Editor');
         #end
 
+        FlxG.sound.playMusic(Paths.music('chartEditorLoop'), 1);
+
         var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
         bg.scrollFactor.set();
         bg.color = 0xFF505050;

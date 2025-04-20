@@ -36,6 +36,8 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		DiscordClient.changePresence("Menu Character Editor", "Editting: " + characterFile.image);
 		#end
 
+		FlxG.sound.playMusic(Paths.music('chartEditorLoop'), 1);
+
 		grpWeekCharacters = new FlxTypedGroup<MenuCharacter>();
 		for (char in 0...3)
 		{

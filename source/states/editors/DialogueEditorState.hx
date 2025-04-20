@@ -29,6 +29,8 @@ class DialogueEditorState extends MusicBeatState implements PsychUIEventHandler.
 		persistentUpdate = persistentDraw = true;
 		FlxG.camera.bgColor = FlxColor.fromHSL(0, 0, 0.5);
 
+		FlxG.sound.playMusic(Paths.music('chartEditorLoop'), 1);
+
 		defaultLine = {
 			portrait: DialogueCharacter.DEFAULT_CHARACTER,
 			expression: 'talk',
