@@ -97,6 +97,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Opponent Drain', "Opponent singing causes health drain\n\nValue 1: On/Off\nValue 2: Amount, 0.023 is default (same health you gain from hitting a 'sick' note)"],
 		['Beat Drain', "Beat causes health drain lmaooo\n\nValue 1: On/Off\nValue 2: Amount, 0.023 is default (same health you gain from hitting a 'sick' note)\nValue 3: Step Number"],
 		['Solid Graphic Behind Characters', "Value 1: Alpha, Value 2: Duration in steps, Value 3: Color in hex"],
+		['Subtitles', "Value 1: Text\nValue 2: Duration in steps (Default: 4 step)\nValue 3: Color (by hex: 0xFFFF0000 or by icon character (dad, bf, gf))\nValue 4: Size (Default: 24)\nValue 5: Intro (bop, fade in, fly away), End (fade out or nothing), Font (default: vcr)"],
 		['Set Char Position', 'Value 1: Char\nValue 2: X Y'],
 		['Set Char Position Tween', 'Value 2: Char\nValue 2: X Y\n Value 3: Duration in steps\n Value 4: Ease'],
 		['Set Char Color', 'Value 1: Char\nValue 2: Color in hex'],
@@ -109,6 +110,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Strumline Visibility', "Value 1: Strumline to affect (dad, bf)\nValue 2: How transparent the strum is\nValue 3: Duration in steps\nValue 4: Ease"],
 		['UI visibilty', "Self explanitory\nValue 1: Alpha\nValue 2: Duration in steps\nValue 3: ease"],
 		['Notes visibilty', "Self explanitory\nValue 1: Alpha\nValue 2: Duration in steps\nValue 3: ease"],
+		['Overlay visibilty', "Self explanitory\nValue 1: Alpha\nValue 2: Duration in steps\nValue 3: ease"],
 		['Force Dance',"Value 1: Character to force dance on"],
 		['Update Vocals', "Value 1: Bf (main) vocal volume\nValue 2 Dad vocal volume (if exists)"],
 		['Change Character', "Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"],
@@ -124,7 +126,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Play Video', 'Value 1: Video Name'],
 		#end
 		['Play Sound', "Value 1: Sound file name\nValue 2: Volume (Default: 1), ranges from 0 to 1"],
-		['Subtitles', "Value 1: Text\nValue 2: Duration (Default: 4 step)\nValue 3: Color (Example: 0xFF0000, Default: 0xFFFFFF)\nValue 6: Size (Default: 24)\nValue 5: Animation (Bop, fade in)"],
 		//ORIGINAL WEEKS EVENTS
 		#if BASE_GAME_FILES
 		['Dadbattle Spotlight', "Used in Dad Battle,\nValue 1: 0/1 = ON/OFF,\n2 = Target Dad\n3 = Target BF"],

@@ -255,6 +255,7 @@ class PlayState extends MusicBeatState
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
 	public var camHUD:FlxCamera;
+	public var camOverlayHUD:FlxCamera; //does same as camHUD but above notes ye
 	public var camGame:FlxCamera;
 	public var camNotes:FlxCamera;
 	public var camOther:FlxCamera;
@@ -273,6 +274,8 @@ class PlayState extends MusicBeatState
 
 	var scoreTxtTween:FlxTween;
 	var subtitlesTxtTween:FlxTween;
+	var prevTxt:String;
+	var subTimer:FlxTimer;
 
 	var solidColBeh:FlxSprite;
 
@@ -370,13 +373,16 @@ class PlayState extends MusicBeatState
 		camGame = initPsychCamera();
 		camHUD = new FlxCamera();
 		camNotes = new FlxCamera();
+		camOverlayHUD = new FlxCamera();
 		camOther = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
+		camOverlayHUD.bgColor.alpha = 0;
 		camNotes.bgColor.alpha = 0;
 		camOther.bgColor.alpha = 0;
 
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camNotes, false);
+		FlxG.cameras.add(camOverlayHUD, false);
 		FlxG.cameras.add(camOther, false);
 
 		persistentUpdate = true;
@@ -538,9 +544,11 @@ class PlayState extends MusicBeatState
 		uiGroup = new FlxSpriteGroup();
 		comboGroup = new FlxSpriteGroup();
 		noteGroup = new FlxTypedGroup<FlxBasic>();
+		uiPostGroup = new FlxSpriteGroup();
 		add(comboGroup);
 		add(uiGroup);
 		add(noteGroup);
+		add(uiPostGroup);
 
 		Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
 		var showTime:Bool = (ClientPrefs.data.timeBarType != 'Disabled');
@@ -617,27 +625,19 @@ class PlayState extends MusicBeatState
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
 		uiGroup.add(scoreTxt);
 
-		subtitlesTxt = new FlxText(0, FlxG.height * 0.75, FlxG.width - 800, "", 24);
-		subtitlesTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		subtitlesTxt.scrollFactor.set();
-		subtitlesTxt.borderSize = 1.25;
-		subtitlesTxt.screenCenter(X);
-		subtitlesTxt.alpha = 0;
-		subtitlesTxt.cameras = [camOther];
-		add(subtitlesTxt);
-
 		botplayTxt = new FlxText(400, healthBar.y - 90, FlxG.width - 800, Language.getPhrase("Botplay").toUpperCase(), 32);
 		botplayTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		botplayTxt.scrollFactor.set();
 		botplayTxt.borderSize = 1.25;
 		botplayTxt.visible = cpuControlled;
-		uiGroup.add(botplayTxt);
+		uiPostGroup.add(botplayTxt);
 		if(ClientPrefs.data.downScroll)
 			botplayTxt.y = healthBar.y + 70;
 
 		uiGroup.cameras = [camHUD];
 		noteGroup.cameras = [camNotes];
 		comboGroup.cameras = [camHUD];
+		uiPostGroup.cameras = [camOverlayHUD];
 
 		//if(SONG.comboCamGame && !onlyChart) comboOnCamGame(true);
 
@@ -1606,6 +1606,24 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
+		switch(event.event)
+		{
+			case "Solid Graphic Behind Characters":
+				solidColBeh = new FlxSprite(FlxG.width * -0.5, FlxG.height * -0.5).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.WHITE);
+				solidColBeh.scale.set(5,5);
+				solidColBeh.alpha = 0.001;
+				addBehindGF(solidColBeh);
+
+			case 'Subtitles': //creates at event so 
+				subtitlesTxt = new FlxText(0, FlxG.height * 0.75, FlxG.width - 800, "", 24);
+				subtitlesTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				subtitlesTxt.scrollFactor.set();
+				subtitlesTxt.borderSize = 1.25;
+				subtitlesTxt.screenCenter(X);
+				subtitlesTxt.alpha = 0;
+				uiPostGroup.add(subtitlesTxt); //might add another camHUD overlay or backlay or whatever :p
+		}
+
 		stagesFunc(function(stage:BaseStage) stage.eventPushed(event));
 		eventsPushed.push(event.event);
 	}
@@ -1628,12 +1646,6 @@ class PlayState extends MusicBeatState
 
 				var newCharacter:String = event.value2;
 				addCharacterToList(newCharacter, charType);
-
-			case "Solid Graphic Behind Characters":
-				solidColBeh = new FlxSprite(FlxG.width * -0.5, FlxG.height * -0.5).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.WHITE);
-				solidColBeh.scale.set(5,5);
-				solidColBeh.alpha = 0.001;
-				addBehindGF(solidColBeh);
 
 			case 'Play Sound':
 				Paths.sound(event.value1); //Precache sound
@@ -1933,6 +1945,7 @@ class PlayState extends MusicBeatState
 			camHudBopMult = FlxMath.lerp(1, camHudBopMult, 0.95 * camZoomingDecayHud * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
 			var zoomHudPlusBop:Float = defaultHUDCameraZoom * camHudBopMult; // Apply camera bop multiplier.
 			camHUD.zoom = zoomHudPlusBop;  // Actually apply the zoom to the camera.
+			camOverlayHUD.zoom = zoomHudPlusBop;  // ditto
 
 			camNotesBopMult = FlxMath.lerp(1, camNotesBopMult, 0.95 * camZoomingDecayHud * playbackRate / (ClientPrefs.data.framerate / 60)); // Lerp bop multiplier back to 1.0x
 			var zoomNotesPlusBop:Float = defaultNotesCameraZoom * camNotesBopMult; // Apply camera bop multiplier.
@@ -2606,6 +2619,9 @@ class PlayState extends MusicBeatState
 					case 'camnotes' | 'camNotes' | 'notes':
 						FlxTween.cancelTweensOf(camNotes.angle);
 						FlxTween.tween(camNotes, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
+					case 'camoverlayhud' | 'camOverlayHUD' | 'overlay':
+						FlxTween.cancelTweensOf(camOverlayHUD.angle);
+						FlxTween.tween(camOverlayHUD, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
 					case 'camOther' | 'camother' | 'other':
 						FlxTween.cancelTweensOf(camOther.angle);
 						FlxTween.tween(camOther, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
@@ -2646,29 +2662,60 @@ class PlayState extends MusicBeatState
 			case 'Subtitles':
 				var duration:Float = flValue2 ?? 4.0;
 				var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
-				var color:FlxColor = 0xFFFFFFFF;
 				var size:Int = 24; //терминал так 
+				var textCache:FlxText = subtitlesTxt;
+				
+				var metadata:Array<String> = value5.split(',');
+
+				var intro:String = metadata[0];
+				var fade:String = metadata[1];
+				var font:String = metadata[2];
 
 				if (subtitlesTxt != null) {
 					if (value1.length > 0) {
 						subtitlesTxt.text = value1;
 						subtitlesTxt.alpha = 1;
+						if(font != null)
+							subtitlesTxt.font = Paths.font(font);
+						else
+							subtitlesTxt.font = Paths.font('vcr.ttf');
 
-						FlxTween.cancelTweensOf(subtitlesTxt);
-						FlxTween.tween(subtitlesTxt, {alpha: 0}, 1, {
-							startDelay: durSeconds / playbackRate
-						});
+						if(fade == 'true' || fade == 'fadeOut' || fade == 'fade out' || fade == 'fade') //WE FADING WITH THIS ONE
+						{
+							//FlxTween.cancelTweensOf(subtitlesTxt);
+							FlxTween.tween(subtitlesTxt, {alpha: 0}, 1, {
+								startDelay: durSeconds / playbackRate
+							});
+						}
+						else
+						{
+							if(subTimer != null) subTimer.cancel();
+							subTimer = new FlxTimer().start(durSeconds / playbackRate, function(tmr:FlxTimer) {
+								subtitlesTxt.alpha = 0;
+							});
+						}
 					} else {
 						subtitlesTxt.text = null;
 						subtitlesTxt.alpha = 0;
 					}
 				}
 	
-				if (value3 == null || value3 == '') // todo: icon bar colors
-					color = 0xFFFFFFFF;
-
-				color = Std.parseInt(value3);
-				subtitlesTxt.color = color;
+				if (value3 == null || value3 == '')
+					subtitlesTxt.color = 0xFFFFFFFF;
+				else
+				{
+					switch(value3)
+					{
+						case 'dad':
+							subtitlesTxt.color = FlxColor.fromRGB(dad.healthColorArray[0], dad.healthColorArray[1], dad.healthColorArray[2]);
+						case 'gf':
+							subtitlesTxt.color = FlxColor.fromRGB(gf.healthColorArray[0], gf.healthColorArray[1], gf.healthColorArray[2]);
+						case 'bf':
+							subtitlesTxt.color = FlxColor.fromRGB(boyfriend.healthColorArray[0], boyfriend.healthColorArray[1], boyfriend.healthColorArray[2]);
+						default:
+							subtitlesTxt.color = Std.parseInt(value3);
+					}
+				}
 
 				if (value4 == null || value4 == '')
 					size = 24;
@@ -2676,10 +2723,40 @@ class PlayState extends MusicBeatState
 				size = Std.parseInt(value4);
 				subtitlesTxt.size = size;
 			
-				switch(value5)
+				switch(intro)
 				{
 					case 'bop':
 						doSubtitlesBop();
+					case 'fade in':
+						subtitlesTxt.alpha = 0;
+						FlxTween.tween(subtitlesTxt, {alpha: 1}, 0.3 / playbackRate, {ease: FlxEase.circOut});
+					case 'fly away':
+						subtitlesTxt.alpha = 0;
+						FlxTween.cancelTweensOf(subtitlesTxt);
+
+						var subtitlesCache:FlxText = new FlxText(0, FlxG.height * 0.75, FlxG.width - 800, prevTxt, textCache.size);
+						subtitlesCache.setFormat(Paths.font("vcr.ttf"), 24, textCache.color, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+						subtitlesCache.scrollFactor.set();
+						subtitlesCache.borderSize = 1.25;
+						subtitlesCache.screenCenter(X);
+						subtitlesCache.alpha = 1;
+						uiPostGroup.add(subtitlesCache);
+
+						FlxTween.tween(subtitlesCache, {alpha: 0, y: subtitlesCache.y - 100}, 1, {
+							ease: FlxEase.expoOut,
+							onComplete:
+							function (twn:FlxTween)
+							{
+								subtitlesCache.destroy();
+							}
+						});
+
+						prevTxt = subtitlesTxt.text;
+
+						subtitlesTxt.y = FlxG.height;
+						FlxTween.tween(subtitlesTxt, {alpha: 1, y: FlxG.height * 0.75}, 1, {
+							ease: FlxEase.expoOut,
+						});
 				}
 
 			case 'Screen Shake':
@@ -2805,6 +2882,8 @@ class PlayState extends MusicBeatState
 						camHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 					case 'camnotes' | 'NOTES' | 'notes':
 						camHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
+					case 'camoverlayhud' | 'OVERLAY' | 'overlay':
+						camOverlayHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 					case 'camother' | 'camOther' | 'other':
 						camOther.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 					default:
@@ -2834,6 +2913,8 @@ class PlayState extends MusicBeatState
 						camHUD.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 					case 'camnotes' | 'notes':
 						camNotes.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
+					case 'camoverlayhud' | 'OVERLAY' | 'overlay':
+						camOverlayHUD.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 					case 'camother' | 'other':
 						camOther.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
 					default:
@@ -3269,6 +3350,10 @@ class PlayState extends MusicBeatState
 				var ease = LuaUtils.getTweenEaseByString(value3);
 				FlxTween.tween(camNotes, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
 
+			case 'Overlay visibilty':
+				var ease = LuaUtils.getTweenEaseByString(value3);
+				FlxTween.tween(camOverlayHUD, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
+
 			case 'Force Dance':
 				var char:Character = dad;
 				switch (value1.toLowerCase().trim())
@@ -3568,6 +3653,8 @@ class PlayState extends MusicBeatState
 	public var uiGroup:FlxSpriteGroup;
 	// Stores Note Objects in a Group
 	public var noteGroup:FlxTypedGroup<FlxBasic>;
+	// Stores HUD Objects after notes in a Group
+	public var uiPostGroup:FlxSpriteGroup;
 
 	private function cachePopUpScore()
 	{
@@ -4221,6 +4308,7 @@ class PlayState extends MusicBeatState
 		{
 			camGame.shake(0.005, 0.2);
 			camHUD.shake(0.005, 0.2);
+			camOverlayHUD.shake(0.005, 0.2);
 			camNotes.shake(0.005, 0.2);
 		}
 
@@ -4388,6 +4476,7 @@ class PlayState extends MusicBeatState
 		{
 			camGame.shake(0.005, 0.2);
 			camHUD.shake(0.005, 0.2);
+			camOverlayHUD.shake(0.005, 0.2);
 			camNotes.shake(0.005, 0.2);
 		}
 
@@ -4586,6 +4675,7 @@ class PlayState extends MusicBeatState
 			{
 				camGame.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
 				camHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+				camOverlayHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
 				camNotes.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
 			}
 		}
