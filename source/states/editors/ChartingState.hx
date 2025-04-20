@@ -1756,11 +1756,13 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				{
 					susLengthLastVal = susLengthStepper.value = note.sustainLength;
 					noteTypeDropDown.selectedIndex = Std.int(Math.max(0, noteTypes.indexOf(note.noteType)));
+					sustainDropDown.selectedIndex = Std.int(Math.max(0, sustainTypes.indexOf(note.sustainType)));
 				}
 				else
 				{
 					susLengthLastVal = susLengthStepper.value = 0;
 					noteTypeDropDown.selectedLabel = '';
+					sustainDropDown.selectedLabel = '';
 				}
 			}
 			else //Event note
@@ -1774,6 +1776,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			susLengthStepper.min = -susLengthStepper.max;
 			susLengthLastVal = susLengthStepper.value = 0;
 			strumTimeStepper.value = selectedNotes[0].strumTime;
+			sustainDropDown.selectedLabel = '';
 			noteTypeDropDown.selectedLabel = '';
 			eventDropDown.selectedLabel = '';
 			value1InputText.text = '';
@@ -2044,6 +2047,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		swagNote.setSustainLength(note[2], cachedSectionCrochets[secNum] / 4, curZoom);
 		swagNote.gfNote = (section.gfSection && gottaHitNote == section.mustHitSection);
 		swagNote.noteType = note[3];
+		swagNote.sustainType = note[4];
 		swagNote.scrollFactor.x = 0;
 		var txt:FlxText = swagNote.findNoteTypeText(swagNote.noteType != null ? noteTypes.indexOf(swagNote.noteType) : 0);
 		if(txt != null) txt.visible = showNoteTypeLabels;
@@ -2815,9 +2819,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	var susLengthLastVal:Float = 0; //used for multiple notes selected
 	var susLengthStepper:PsychUINumericStepper;
+	var sustainDropDown:PsychUIDropDownMenu;
 	var strumTimeStepper:PsychUINumericStepper;
 	var noteTypeDropDown:PsychUIDropDownMenu;
 	var noteTypes:Array<String>;
+	var sustainTypes:Array<String> = ['', 'stutter', 'freeze'];
 	function addNoteTab()
 	{
 		var tab_group = mainBox.getTab('Note').menu;
@@ -2845,6 +2851,32 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				susLengthLastVal = susLengthStepper.value;
 			}
 		};
+
+		sustainDropDown = new PsychUIDropDownMenu(objX + 200, objY, [], function(id:Int, changeToType:String)
+		{
+			var newSelected:Array<MetaNote> = [];
+			var typeSelected:String = sustainTypes[id].trim();
+			for (note in selectedNotes)
+			{
+				if(note == null && !note.isEvent) continue;
+
+				if(typeSelected != null && typeSelected.length > 0)
+					note.songData[4] = typeSelected;
+				else
+					note.songData.remove(note.songData[4]);
+
+				var id:Int = notes.indexOf(note);
+				if(id > -1)
+				{
+					notes[id] = createNote(note.songData, curSec);
+					actionReplaceNotes(note, notes[id]);
+					newSelected.push(notes[id]);
+					note.destroy();
+				}
+			}
+			selectedNotes = newSelected;
+			softReloadNotes();
+		}, 100);
 
 		objY += 40;
 		strumTimeStepper = new PsychUINumericStepper(objX, objY, Conductor.stepCrochet, 0, -5000, Math.POSITIVE_INFINITY, 3, 120);
@@ -2898,7 +2930,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		tab_group.add(new FlxText(susLengthStepper.x, susLengthStepper.y - 15, 80, 'Sustain length:'));
 		tab_group.add(new FlxText(strumTimeStepper.x, strumTimeStepper.y - 15, 100, 'Note Hit time (ms):'));
 		tab_group.add(new FlxText(noteTypeDropDown.x, noteTypeDropDown.y - 15, 80, 'Note Type:'));
+		tab_group.add(new FlxText(sustainDropDown.x, sustainDropDown.y - 15, 80, 'Sustain Type:'));
 		tab_group.add(susLengthStepper);
+		tab_group.add(sustainDropDown);
 		tab_group.add(strumTimeStepper);
 		tab_group.add(noteTypeDropDown);
 	}
@@ -3307,6 +3341,22 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	function reloadNotesDropdowns()
 	{
+		// Sustain type drop down
+		if(sustainDropDown != null)
+		{
+			var displaySusTypes:Array<String> = sustainTypes.copy();
+
+			for (id => key in displaySusTypes)
+			{
+				if(id == 0) continue;
+				displaySusTypes[id] = '$id. $key';
+			}
+
+			var lastSelected:String = sustainDropDown.selectedLabel;
+			sustainDropDown.list = displaySusTypes;
+			sustainDropDown.selectedLabel = lastSelected;
+		}
+		
 		// Event drop down
 		if(eventDropDown != null)
 		{

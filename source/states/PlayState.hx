@@ -7,6 +7,8 @@ import backend.WeekData;
 import backend.Song;
 import backend.Rating;
 
+import haxe.ds.ObjectMap;
+
 import flixel.addons.effects.FlxTrail;
 import flixel.addons.effects.FlxTrailArea;
 
@@ -238,6 +240,8 @@ class PlayState extends MusicBeatState
 	private var updateTime:Bool = true;
 	public static var changedDifficulty:Bool = false;
 	public static var chartingMode:Bool = false;
+
+	public var frozenCharacters:ObjectMap<Character, Bool> = new ObjectMap();
 
 	//Gameplay settings
 	public var healthGain:Float = 1;
@@ -1490,6 +1494,7 @@ class PlayState extends MusicBeatState
 				var noteColumn: Int = Std.int(songNotes[1] % totalColumns);
 				var holdLength: Float = songNotes[2];
 				var noteType: String = !Std.isOfType(songNotes[3], String) ? Note.defaultNoteTypes[songNotes[3]] : songNotes[3];
+				var sustainType: String = songNotes[4];
 				if (Math.isNaN(holdLength))
 					holdLength = 0.0;
 
@@ -1521,7 +1526,8 @@ class PlayState extends MusicBeatState
 				swagNote.mustPress = gottaHitNote;
 				swagNote.sustainLength = holdLength;
 				swagNote.noteType = noteType;
-	
+				swagNote.sustainType = sustainType;
+				
 				swagNote.scrollFactor.set();
 				unspawnNotes.push(swagNote);
 
@@ -1538,6 +1544,7 @@ class PlayState extends MusicBeatState
 						sustainNote.mustPress = swagNote.mustPress;
 						sustainNote.gfNote = swagNote.gfNote;
 						sustainNote.noteType = swagNote.noteType;
+						sustainNote.sustainType = swagNote.sustainType;
 						sustainNote.scrollFactor.set();
 						sustainNote.parent = swagNote;
 						unspawnNotes.push(sustainNote);
@@ -2080,6 +2087,10 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
+
+		for (char in frozenCharacters.keys())
+			if (frozenCharacters.get(char)) char.animPaused = true;
+			else char.animPaused = false;
 
 		#if debug
 		if(!endingSong && !startingSong) {
@@ -4112,6 +4123,9 @@ class PlayState extends MusicBeatState
 		stagesFunc(function(stage:BaseStage) stage.noteMiss(daNote));
 		var result:Dynamic = callOnLuas('noteMiss', [notes.members.indexOf(daNote), daNote.noteData, daNote.noteType, daNote.isSustainNote]);
 		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('noteMiss', [daNote]);
+
+		var charMiss:Character = daNote.gfNote ? gf : boyfriend;
+		if (charMiss != null) frozenCharacters.set(charMiss, false);
 	}
 
 	function noteMissPress(direction:Int = 1):Void //You pressed a key when there was no notes to press for this key
@@ -4121,6 +4135,8 @@ class PlayState extends MusicBeatState
 		noteMissCommon(direction, null);
 		stagesFunc(function(stage:BaseStage) stage.noteMissPress(direction));
 		callOnScripts('noteMissPress', [direction]);
+
+		frozenCharacters.set(boyfriend, false);
 	}
 
 	function noteMissCommon(direction:Int, note:Note = null)
@@ -4268,6 +4284,9 @@ class PlayState extends MusicBeatState
 
 		if(result == LuaUtils.Function_Stop) return;
 
+		var charPlay:Character = note.gfNote ? gf : dad;
+		if (charPlay != null) preNoteHitCheck(note, charPlay);
+
 		if(note.noteType == 'Hey!' && dad.hasAnimation('hey'))
 		{
 			dad.playAnim('hey', true);
@@ -4282,15 +4301,15 @@ class PlayState extends MusicBeatState
 
 			if(char != null)
 			{
-				var canPlay:Bool = true;
-				if(note.isSustainNote)
-				{
-					var holdAnim:String = animToPlay + '-hold';
-					if(char.animation.exists(holdAnim)) animToPlay = holdAnim;
-					if(char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop') canPlay = false;
-				}
+				var holdAnim:String = animToPlay + '-hold';
+				if(note.sustainLength != 0 && char.hasAnimation(holdAnim)) 
+					animToPlay = holdAnim;
 
-				if(canPlay) char.playAnim(animToPlay, true);
+				if(!note.isSustainNote) char.playAnim(animToPlay, true);
+
+				if(note.isSustainNote && note.sustainType == 'stutter') //mm optimized way to do this?
+					char.playAnim(animToPlay, true);
+
 				char.holdTimer = 0;
 			}
 		}
@@ -4335,6 +4354,9 @@ class PlayState extends MusicBeatState
 		var result:Dynamic = callOnLuas('opponentNoteHit', [notes.members.indexOf(note), Math.abs(note.noteData), note.noteType, note.isSustainNote]);
 		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('opponentNoteHit', [note]);
 
+		var charSus:Character = note.gfNote ? gf : dad;
+		if (charSus != null) noteHitCheck(note, charSus);
+
 		if (!note.isSustainNote) invalidateNote(note);
 	}
 
@@ -4351,6 +4373,9 @@ class PlayState extends MusicBeatState
 		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) result = callOnHScript('goodNoteHitPre', [note]);
 
 		if(result == LuaUtils.Function_Stop) return;
+
+		var charPlay:Character = note.gfNote ? gf : boyfriend;
+		if (charPlay != null) preNoteHitCheck(note, charPlay);
 
 		note.wasGoodHit = true;
 		note.noteWasHit = true; //пиздец что эту переменную не использовали
@@ -4374,18 +4399,18 @@ class PlayState extends MusicBeatState
 
 				if(char != null)
 				{
-					var canPlay:Bool = true;
-					if(note.isSustainNote)
-					{
-						var holdAnim:String = animToPlay + '-hold';
-						if(char.animation.exists(holdAnim)) animToPlay = holdAnim;
-						if(char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop') canPlay = false;
-					}
-	
-					if(canPlay) char.playAnim(animToPlay, true);
+					var holdAnim:String = animToPlay + '-hold';
+					if(note.sustainLength != 0 && char.hasAnimation(holdAnim)) 
+						animToPlay = holdAnim;
+					
+					if(!note.isSustainNote) char.playAnim(animToPlay, true);
+					
+					if(note.isSustainNote && note.sustainType == 'stutter') //mm optimized way to do this?
+						char.playAnim(animToPlay, true);
+				
 					char.holdTimer = 0;
 
-					if(note.noteType == 'Hey!')
+					if(note.noteType == 'Hey!') //ill handle this later
 					{
 						if(char.hasAnimation(animCheck))
 						{
@@ -4484,6 +4509,9 @@ class PlayState extends MusicBeatState
 		var result:Dynamic = callOnLuas('goodNoteHit', [notes.members.indexOf(note), leData, leType, isSus]);
 		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('goodNoteHit', [note]);
 
+		var charSus:Character = note.gfNote ? gf : boyfriend;
+		if (charSus != null) noteHitCheck(note, charSus);
+
 		if(!note.isSustainNote && !note.badassed) invalidateNote(note);
 	}
 
@@ -4526,6 +4554,41 @@ class PlayState extends MusicBeatState
 		note.blockHit = true;
 		note.badassed = true;
 		note.active = false;
+	}
+
+	// checks
+	function preNoteHitCheck(note:Note, char:Character):Void {
+		var charAnim:String = StringTools.startsWith(char.getAnimationName(), 'sing') ? char.getAnimationName() : singAnimations[note.noteData] + note.animSuffix;
+		charAnim = StringTools.replace(StringTools.replace(charAnim, '-loop', ''), '-hold', '');
+		var hasHoldAnim:Bool = char.hasAnimation(charAnim + '-hold');
+		var hasLoopAnim:Bool = char.hasAnimation(charAnim + '-loop');
+		var hasHoldLoopAnim:Bool = char.hasAnimation(charAnim + '-hold-loop');
+
+		note.extraData.set('continueAnimation', false);
+		if (note.isSustainNote && note.sustainType == 'freeze')
+			if (hasHoldAnim) {
+				note.animSuffix += '-hold';
+				note.extraData.set('continueAnimation', note.noAnimation = true);
+			} else if (hasLoopAnim) {
+				note.animSuffix += '-loop';
+				note.extraData.set('continueAnimation', note.noAnimation = true);
+			}
+	}
+
+	function noteHitCheck(note:Note, char:Character):Void {
+		var prev:Bool = note.noAnimation;
+		if (note.extraData.get('continueAnimation')) {
+			note.noAnimation = false;
+			char.holdTimer = 0;
+		}
+		if (!prev) {
+			if (note.isSustainNote && note.sustainType == 'freeze')
+				frozenCharacters.set(char, true);
+			if (StringTools.endsWith(note.animation.name, 'end'))
+				frozenCharacters.set(char, false);
+		}
+		if (StringTools.endsWith(char.getAnimationName(), '-hold') || StringTools.endsWith(char.getAnimationName(), '-loop'))
+			frozenCharacters.set(char, false);
 	}
 
 	public function invalidateNote(note:Note):Void {

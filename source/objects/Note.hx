@@ -82,12 +82,14 @@ class Note extends FlxSprite
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
+	public var sustainType:String = ''; //[stutter, freeze, nothing]
+
 	public var noteType(default, set):String = null;
 
 	public var eventName:String = '';
 	public var eventLength:Int = 0;
-	public var eventVal1:String = '';
-	public var eventVal2:String = '';
+	//public var eventVal1:String = '';
+	//public var eventVal2:String = '';
 
 	public var rgbShader:RGBShaderReference;
 	public static var globalRgbShaders:Array<RGBPalette> = [];
