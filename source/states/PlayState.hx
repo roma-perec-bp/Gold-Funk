@@ -2678,8 +2678,8 @@ class PlayState extends MusicBeatState
 				var metadata:Array<String> = value5.split(',');
 				var sizes:Array<String> = value4.split(',');
 
-				var size:Int = sizes[0];
-				var outlineSize:Int = sizes[1];
+				var size:Int = Std.parseInt(sizes[0]);
+				var outlineSize:Float = Std.parseFloat(sizes[1]);
 
 				var intro:String = metadata[0];
 				var fade:String = metadata[1];
@@ -2737,9 +2737,7 @@ class PlayState extends MusicBeatState
 				if (sizes[1] == null || sizes[1] == '')
 					outlineSize = 1.25;
 
-				size = Std.parseInt(value4);
 				subtitlesTxt.size = size;
-				
 				subtitlesTxt.borderSize = outlineSize;
 			
 				switch(intro)
