@@ -4556,7 +4556,7 @@ class PlayState extends MusicBeatState
 		note.active = false;
 	}
 
-	// checks
+	//so originally this was port of @vechett codename engine script, port by goat @rodney528
 	function preNoteHitCheck(note:Note, char:Character):Void {
 		var charAnim:String = StringTools.startsWith(char.getAnimationName(), 'sing') ? char.getAnimationName() : singAnimations[note.noteData] + note.animSuffix;
 		charAnim = StringTools.replace(StringTools.replace(charAnim, '-loop', ''), '-hold', '');
