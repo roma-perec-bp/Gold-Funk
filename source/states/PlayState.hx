@@ -3012,7 +3012,7 @@ class PlayState extends MusicBeatState
 				opponentHealthDrainAmount = drain;
 
 			case 'Beat Drain':
-				if(flValue2 == null || flValue2 < 1) flValue2 = 8;
+				if(flValue3 == null || flValue3 < 1) flValue3 = 8;
 				switch (value1.toLowerCase().trim())
 				{
 					case 'on' | 'true':
