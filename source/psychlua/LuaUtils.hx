@@ -4,6 +4,8 @@ import backend.WeekData;
 import objects.Character;
 import backend.StageData;
 
+import flxgif.FlxGifSprite;
+
 import openfl.display.BlendMode;
 import Type.ValueType;
 
@@ -355,6 +357,17 @@ class LuaUtils
 	public static function destroyObject(tag:String) {
 		var variables = MusicBeatState.getVariables();
 		var obj:FlxSprite = variables.get(tag);
+		if(obj == null || obj.destroy == null)
+			return;
+
+		LuaUtils.getTargetInstance().remove(obj, true);
+		obj.destroy();
+		variables.remove(tag);
+	}
+
+	public static function destroyGifObject(tag:String) { //is it nessesary?
+		var variables = MusicBeatState.getVariables();
+		var obj:FlxGifSprite = variables.get(tag);
 		if(obj == null || obj.destroy == null)
 			return;
 

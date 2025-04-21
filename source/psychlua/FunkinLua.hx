@@ -11,6 +11,7 @@ import openfl.display.BitmapData;
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxState;
+import flxgif.FlxGifSprite;
 
 #if (!flash && sys)
 import flixel.addons.display.FlxRuntimeShader;
@@ -37,6 +38,7 @@ import psychlua.HScript;
 #end
 import psychlua.DebugLuaText;
 import psychlua.ModchartSprite;
+import psychlua.ModchartGifSprite;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
@@ -938,6 +940,17 @@ class FunkinLua {
 			MusicBeatState.getVariables().set(tag, leSprite);
 			leSprite.active = true;
 		});
+		Lua_helper.add_callback(lua, "makeLuaGifSprite", function(tag:String, ?image:String = null, ?x:Float = 0, ?y:Float = 0) {
+			tag = tag.replace('.', '');
+			LuaUtils.destroyGifObject(tag);
+			var leSprite:ModchartGifSprite = new ModchartGifSprite(x, y);
+			if(image != null && image.length > 0)
+			{
+				leSprite.loadGif(Paths.gif(image));
+			}
+			MusicBeatState.getVariables().set(tag, leSprite);
+			leSprite.active = true;
+		});
 		Lua_helper.add_callback(lua, "makeAnimatedLuaSprite", function(tag:String, ?image:String = null, ?x:Float = 0, ?y:Float = 0, ?spriteType:String = 'auto') {
 			tag = tag.replace('.', '');
 			LuaUtils.destroyObject(tag);
@@ -1030,6 +1043,21 @@ class FunkinLua {
 					GameOverSubstate.instance.insert(GameOverSubstate.instance.members.indexOf(GameOverSubstate.instance.boyfriend), mySprite);
 			}
 		});
+		Lua_helper.add_callback(lua, "addLuaGifSprite", function(tag:String, ?inFront:Bool = false) {
+			var mySprite:FlxGifSprite = MusicBeatState.getVariables().get(tag);
+			if(mySprite == null) return;
+
+			var instance = LuaUtils.getTargetInstance();
+			if(inFront)
+				instance.add(mySprite);
+			else
+			{
+				if(PlayState.instance == null || !PlayState.instance.isDead)
+					instance.insert(instance.members.indexOf(LuaUtils.getLowestCharacterGroup()), mySprite);
+				else
+					GameOverSubstate.instance.insert(GameOverSubstate.instance.members.indexOf(GameOverSubstate.instance.boyfriend), mySprite);
+			}
+		});
 		Lua_helper.add_callback(lua, "setGraphicSize", function(obj:String, x:Float, y:Float = 0, updateHitbox:Bool = true) {
 			if(game.getLuaObject(obj)!=null) {
 				var shit:FlxSprite = game.getLuaObject(obj);
@@ -1109,9 +1137,93 @@ class FunkinLua {
 			}
 		});
 
+		//OMFG IM GONNA KILL MYSELF FOR THIS
+		Lua_helper.add_callback(lua, "setGifGraphicSize", function(obj:String, x:Float, y:Float = 0, updateHitbox:Bool = true) {
+			if(game.getLuaObject(obj)!=null) {
+				var shit:FlxGifSprite = game.getLuaObject(obj);
+				shit.setGraphicSize(x, y);
+				if(updateHitbox) shit.updateHitbox();
+				return;
+			}
+
+			var split:Array<String> = obj.split('.');
+			var poop:FlxGifSprite = LuaUtils.getObjectDirectly(split[0]);
+			if(split.length > 1) {
+				poop = LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1]);
+			}
+
+			if(poop != null) {
+				poop.setGraphicSize(x, y);
+				if(updateHitbox) poop.updateHitbox();
+				return;
+			}
+			luaTrace('setGifGraphicSize: Couldnt find object: ' + obj, false, false, FlxColor.RED);
+		});
+		Lua_helper.add_callback(lua, "scaleGifObject", function(obj:String, x:Float, y:Float, updateHitbox:Bool = true) {
+			if(game.getLuaObject(obj)!=null) {
+				var shit:FlxGifSprite = game.getLuaObject(obj);
+				shit.scale.set(x, y);
+				if(updateHitbox) shit.updateHitbox();
+				return;
+			}
+
+			var split:Array<String> = obj.split('.');
+			var poop:FlxGifSprite = LuaUtils.getObjectDirectly(split[0]);
+			if(split.length > 1) {
+				poop = LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1]);
+			}
+
+			if(poop != null) {
+				poop.scale.set(x, y);
+				if(updateHitbox) poop.updateHitbox();
+				return;
+			}
+			luaTrace('scaleGifObject: Couldnt find object: ' + obj, false, false, FlxColor.RED);
+		});
+		Lua_helper.add_callback(lua, "updateGifHitbox", function(obj:String) {
+			if(game.getLuaObject(obj)!=null) {
+				var shit:FlxGifSprite = game.getLuaObject(obj);
+				shit.updateHitbox();
+				return;
+			}
+
+			var split:Array<String> = obj.split('.');
+			var poop:FlxGifSprite = LuaUtils.getObjectDirectly(split[0]);
+			if(split.length > 1) {
+				poop = LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split), split[split.length-1]);
+			}
+
+			if(poop != null) {
+				poop.updateHitbox();
+				return;
+			}
+			luaTrace('updateGifHitbox: Couldnt find object: ' + obj, false, false, FlxColor.RED);
+		});
+
+		Lua_helper.add_callback(lua, "removeLuaGifSprite", function(tag:String, destroy:Bool = true, ?group:String = null) {
+			var obj:FlxGifSprite = LuaUtils.getObjectDirectly(tag);
+			if(obj == null || obj.destroy == null)
+				return;
+			
+			var groupObj:Dynamic = null;
+			if(group == null) groupObj = LuaUtils.getTargetInstance();
+			else groupObj = LuaUtils.getObjectDirectly(group);
+
+			groupObj.remove(obj, true);
+			if(destroy)
+			{
+				MusicBeatState.getVariables().remove(tag);
+				obj.destroy();
+			}
+		});
+
 		Lua_helper.add_callback(lua, "luaSpriteExists", function(tag:String) {
 			var obj:FlxSprite = MusicBeatState.getVariables().get(tag);
 			return (obj != null && (Std.isOfType(obj, ModchartSprite) || Std.isOfType(obj, ModchartAnimateSprite)));
+		});
+		Lua_helper.add_callback(lua, "luaGifSpriteExists", function(tag:String) {
+			var obj:FlxGifSprite = MusicBeatState.getVariables().get(tag);
+			return (obj != null && (Std.isOfType(obj, ModchartGifSprite)));
 		});
 		Lua_helper.add_callback(lua, "luaTextExists", function(tag:String) {
 			var obj:FlxText = MusicBeatState.getVariables().get(tag);

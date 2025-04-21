@@ -184,6 +184,15 @@ class Paths
 	inline static public function xml(key:String, ?folder:String)
 		return getPath('data/$key.xml', TEXT, folder, true);
 
+	static public function gif(key:String, ?folder:String)
+	{
+		#if MODS_ALLOWED
+		var file:String = modsGifs(key);
+		if(FileSystem.exists(file)) return file;
+		#end
+		return getPath('gifs/$key.gif', BINARY, folder, true);
+	}
+
 	inline static public function json(key:String, ?folder:String)
 		return getPath('data/$key.json', TEXT, folder, true);
 
@@ -455,6 +464,9 @@ class Paths
 
 	inline static public function modsVideo(key:String)
 		return modFolders('videos/' + key + '.' + VIDEO_EXT);
+
+	inline static public function modsGifs(key:String)
+		return modFolders('gifs/' + key + '.gif');
 
 	inline static public function modsSounds(path:String, key:String)
 		return modFolders(path + '/' + key + '.' + SOUND_EXT);

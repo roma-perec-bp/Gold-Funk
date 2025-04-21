@@ -23,6 +23,7 @@ class Mods
 		'sounds',
 		'shaders',
 		'videos',
+		'gifs',
 		'images',
 		'stages',
 		'weeks',
