@@ -28,6 +28,7 @@ class Paths
 {
 	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
 	inline public static var VIDEO_EXT = "mp4";
+	inline public static var GIF_EXT = "gif";
 
 	public static function excludeAsset(key:String) {
 		if (!dumpExclusions.contains(key))
@@ -190,7 +191,7 @@ class Paths
 		var file:String = modsGifs(key);
 		if(FileSystem.exists(file)) return file;
 		#end
-		return getPath('gifs/$key.gif', BINARY, folder, true);
+		return getPath('gifs/$key.$GIF_EXT', BINARY, folder, true); //TO DO: find a way to cache it
 	}
 
 	inline static public function json(key:String, ?folder:String)
@@ -466,7 +467,7 @@ class Paths
 		return modFolders('videos/' + key + '.' + VIDEO_EXT);
 
 	inline static public function modsGifs(key:String)
-		return modFolders('gifs/' + key + '.gif');
+		return modFolders('gifs/' + key + '.' + GIF_EXT);
 
 	inline static public function modsSounds(path:String, key:String)
 		return modFolders(path + '/' + key + '.' + SOUND_EXT);

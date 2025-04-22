@@ -946,7 +946,7 @@ class FunkinLua {
 			var leSprite:ModchartGifSprite = new ModchartGifSprite(x, y);
 			if(image != null && image.length > 0)
 			{
-				leSprite.loadGif(Paths.gif(image));
+				leSprite.loadGif(File.getBytes(Paths.gif(image))); //shoutout to soushi0210 for solving mod folder issue!!!
 			}
 			MusicBeatState.getVariables().set(tag, leSprite);
 			leSprite.active = true;
