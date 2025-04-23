@@ -14,7 +14,7 @@ import flixel.util.FlxStringUtil;
 class DiscordClient
 {
 	public static var isInitialized:Bool = false;
-	private inline static final _defaultID:String = "863222024192262205";
+	private inline static final _defaultID:String = "1364566042839355537";
 	public static var clientID(default, set):String = _defaultID;
 	private static var presence:DiscordPresence = new DiscordPresence();
 	// hides this field from scripts and reflection in general
@@ -54,6 +54,7 @@ class DiscordClient
 			message += '($user)';
 		
 		trace(message);
+
 		changePresence();
 	}
 
@@ -113,6 +114,17 @@ class DiscordClient
 		// Obtained times are in milliseconds so they are divided so Discord can use it
 		presence.startTimestamp = Std.int(startTimestamp / 1000);
 		presence.endTimestamp = Std.int(endTimestamp / 1000);
+
+		final button:DiscordButton = DiscordButton.create();
+        button.label = "Download";
+        button.url = "https://github.com/ShadowMario/FNF-PsychEngine/blob/main/source/backend/Discord.hx";
+		presence.__presence.buttons[0] = button;
+
+		final button2:DiscordButton = DiscordButton.create();
+        button2.label = "GitHub link";
+        button2.url = "https://github.com/Rom4chek/Gold-Funk";
+        presence.__presence.buttons[1] = button2;
+
 		updatePresence();
 
 		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp, $largeImageKey');
