@@ -37,6 +37,10 @@ import substates.GameOverSubstate;
 
 #if !flash
 import openfl.filters.ShaderFilter;
+import openfl.filters.BitmapFilter;
+import shaders.Shaders; //idk why but that worked
+import shaders.*;
+import flixel.addons.display.FlxRuntimeShader;
 #end
 
 import shaders.ErrorHandledShader;
@@ -227,6 +231,15 @@ class PlayState extends MusicBeatState
 	public var combo:Int = 0;
 	public var comboGot:Int = 10;
 	public var comboIsInCamGame:Bool = false;
+
+	public var shaderUpdates:Array<Float->Void> = [];
+
+	//omg
+	public var camGameShaders:Array<Dynamic> = [];
+	public var camHUDShaders:Array<Dynamic> = [];
+	public var camNotesShaders:Array<Dynamic> = [];
+	public var camHudOverlayShaders:Array<Dynamic> = [];
+	public var camOtherShaders:Array<Dynamic> = [];
 
 	public var healthBar:Bar;
 	public var timeBar:Bar;
@@ -2107,6 +2120,8 @@ class PlayState extends MusicBeatState
 
 		setOnScripts('botPlay', cpuControlled);
 		callOnScripts('onUpdatePost', [elapsed]);
+
+		for (i in shaderUpdates) i(elapsed);
 	}
 
 	// Health icon updaters
@@ -4692,6 +4707,144 @@ class PlayState extends MusicBeatState
 		NoteSplash.configs.clear();
 		instance = null;
 		super.destroy();
+	}
+
+	public function addShaderToCamera(cam:String,effect:ShaderEffect){//GOT FROM ANDROMEDA ENGIN
+		if(!ClientPrefs.data.shaders) return;
+
+		switch(cam.toLowerCase()) {
+			case 'camhud' | 'hud':
+				camHUDShaders.push(effect);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camHUDShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camHUD.setFilters(newCamEffects);
+
+			case 'camnotes' | 'notes':
+				camNotesShaders.push(effect);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camNotesShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camNotes.setFilters(newCamEffects);
+				
+			case 'camhudoverlay' | 'overlay':
+				camHudOverlayShaders.push(effect);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camHudOverlayShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camOverlayHUD.setFilters(newCamEffects);
+
+			case 'camother' | 'other':
+				camOtherShaders.push(effect);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camOtherShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camOther.setFilters(newCamEffects);
+
+			default:
+				camGameShaders.push(effect);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camGameShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camGame.setFilters(newCamEffects);
+		}
+	}
+
+	public function addRuntimeShaderToCamera(cam:String,effect:String){//GOT FROM ANY HSCRIPT LMAOOOOOO
+		if(!ClientPrefs.data.shaders) return;
+
+		initLuaShader(effect);
+		var newShader:FlxRuntimeShader = createRuntimeShader(effect);
+
+		switch(cam.toLowerCase()) {
+			case 'camhud' | 'hud':
+				camHUDShaders.push(newShader);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camHUDShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camHUD.setFilters(newCamEffects);
+
+			case 'camnotes' | 'notes':
+				camNotesShaders.push(newShader);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camNotesShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camNotes.setFilters(newCamEffects);
+				
+			case 'camhudoverlay' | 'overlay':
+				camHudOverlayShaders.push(newShader);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camHudOverlayShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camOverlayHUD.setFilters(newCamEffects);
+
+			case 'camother' | 'other':
+				camOtherShaders.push(newShader);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camOtherShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camOther.setFilters(newCamEffects);
+
+			default:
+				camGameShaders.push(newShader);
+				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
+				for(i in camGameShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camGame.setFilters(newCamEffects);
+		}
+	}
+
+	public function removeShaderFromCamera(cam:String,effect:ShaderEffect){
+		if(!ClientPrefs.data.shaders) return;
+
+		switch(cam.toLowerCase()) {
+			case 'camhud' | 'hud': 
+                camHUDShaders.remove(effect);
+                var newCamEffects:Array<BitmapFilter>=[];
+                for(i in camHUDShaders) newCamEffects.push(new ShaderFilter(i.shader));
+                camHUD.setFilters(newCamEffects);
+
+			case 'camnotes' | 'notes': 
+                camNotesShaders.remove(effect);
+                var newCamEffects:Array<BitmapFilter>=[];
+                for(i in camNotesShaders) newCamEffects.push(new ShaderFilter(i.shader));
+                camNotes.setFilters(newCamEffects);
+
+			case 'camhudoverlay' | 'overlay': 
+                camHudOverlayShaders.remove(effect);
+                var newCamEffects:Array<BitmapFilter>=[];
+                for(i in camHudOverlayShaders) newCamEffects.push(new ShaderFilter(i.shader));
+                camOverlayHUD.setFilters(newCamEffects);
+
+			case 'camother' | 'other': 
+				camOtherShaders.remove(effect);
+				var newCamEffects:Array<BitmapFilter>=[];
+				for(i in camOtherShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camOther.setFilters(newCamEffects);
+
+			default: 
+				camGameShaders.remove(effect);
+				var newCamEffects:Array<BitmapFilter>=[];
+				for(i in camGameShaders) newCamEffects.push(new ShaderFilter(i.shader));
+				camGame.setFilters(newCamEffects);
+		}
+	}
+
+	public function clearShaderFromCamera(cam:String){
+		if(!ClientPrefs.data.shaders) return;
+
+		switch(cam.toLowerCase()) {
+			case 'camhud' | 'hud': 
+				camHUDShaders = [];
+				var newCamEffects:Array<BitmapFilter>=[];
+				camHUD.setFilters(newCamEffects);
+			case 'camnotes' | 'notes': 
+				camNotesShaders = [];
+				var newCamEffects:Array<BitmapFilter>=[];
+				camNotes.setFilters(newCamEffects);
+			case 'camhudoverlay' | 'overlay': 
+				camHudOverlayShaders = [];
+				var newCamEffects:Array<BitmapFilter>=[];
+				camOverlayHUD.setFilters(newCamEffects);
+			case 'camother' | 'other': 
+				camOtherShaders = [];
+				var newCamEffects:Array<BitmapFilter>=[];
+				camOther.setFilters(newCamEffects);
+			default: 
+				camGameShaders = [];
+				var newCamEffects:Array<BitmapFilter>=[];
+				camGame.setFilters(newCamEffects);
+		}
 	}
 
 	var lastStepHit:Int = -1;
