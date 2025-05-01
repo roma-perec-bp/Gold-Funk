@@ -2602,7 +2602,7 @@ class PlayState extends MusicBeatState
 					cameraHudZoomTween = FlxTween.num(
 						defaultHUDCameraZoom,
 						flValue1,
-						flValue2 / playbackRate,
+						durSeconds / playbackRate,
 						{ease: LuaUtils.getTweenEaseByString(value3)},
 						function(num:Float) {defaultHUDCameraZoom = num;}
 					);
