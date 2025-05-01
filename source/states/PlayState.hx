@@ -2590,6 +2590,8 @@ class PlayState extends MusicBeatState
 				}
 
 			case "Zoom Hud Camera":
+				var duration:Float = flValue2 ?? 4.0;
+
 				if (cameraHudZoomTween != null)
 					cameraHudZoomTween.cancel();
 
@@ -2597,7 +2599,7 @@ class PlayState extends MusicBeatState
 					// Instant zoom. No tween needed.
 				    defaultHUDCameraZoom = flValue1;
 				else
-					var durSeconds:Float = Conductor.stepCrochet * flValue2 / 1000;
+					var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
 					// Zoom tween! Caching it so we can cancel/pause it later if needed.
 					cameraHudZoomTween = FlxTween.num(
 						defaultHUDCameraZoom,
