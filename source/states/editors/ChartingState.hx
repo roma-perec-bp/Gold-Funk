@@ -3185,7 +3185,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			softReloadNotes();
 		});
 
-		camMoveCheck = new PsychUICheckBox(objX + 200, objY, 'Affect Note Camera Movement?', 200, function()
+		camMoveCheck = new PsychUICheckBox(objX + 200, objY, 'Affect Note Camera Movement?', 80, function()
 		{
 			if(selectedNotes.length < 1) return;
 
