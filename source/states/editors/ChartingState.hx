@@ -1785,12 +1785,32 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					susLengthLastVal = susLengthStepper.value = note.sustainLength;
 					noteTypeDropDown.selectedIndex = Std.int(Math.max(0, noteTypes.indexOf(note.noteType)));
 					sustainDropDown.selectedIndex = Std.int(Math.max(0, sustainTypes.indexOf(note.sustainType)));
+					holdTimerStepper.value = note.customSingTime;
+					animSuffixInputText.text = note.animSuffix;
+					altHeyInputText.text = note.heyAnim;
+					lightStrumCheck.checked = note.lightStrum;
+					noAnimCheck.checked = note.noAnimation;
+					missAnimCheckBox.checked = note.noMissAnimation;
+					invisibleCheck.checked = note.invisibleNote;
+					camMoveCheck.checked = note.moveCameraThing;
+					catchNoteCheck.checked = note.catchNote;
+					ghostsDropDown.selectedIndex = Std.int(Math.max(0, ghostTypes.indexOf(note.ghostType)));
 				}
 				else
 				{
 					susLengthLastVal = susLengthStepper.value = 0;
 					noteTypeDropDown.selectedLabel = '';
 					sustainDropDown.selectedLabel = '';
+					ghostsDropDown.selectedLabel = '';
+					holdTimerStepper.value = 0;
+					animSuffixInputText.text = '';
+					altHeyInputText.text = '';
+					lightStrumCheck.checked = false;
+					noAnimCheck.checked = false;
+					invisibleCheck.checked = false;
+					camMoveCheck.checked = false;
+					missAnimCheckBox.checked = false;
+					catchNoteCheck.checked = false;
 				}
 			}
 			else //Event note
@@ -1804,7 +1824,17 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			susLengthStepper.min = -susLengthStepper.max;
 			susLengthLastVal = susLengthStepper.value = 0;
 			strumTimeStepper.value = selectedNotes[0].strumTime;
+			holdTimerStepper.value = selectedNotes[0].customSingTime;
+			animSuffixInputText.text = selectedNotes[0].animSuffix;
+			altHeyInputText.text = selectedNotes[0].heyAnim;
+			lightStrumCheck.checked = selectedNotes[0].lightStrum;
+			noAnimCheck.checked = selectedNotes[0].noAnimation;
+			missAnimCheckBox.checked = selectedNotes[0].noMissAnimation;
+			invisibleCheck.checked = selectedNotes[0].invisibleNote;
+			camMoveCheck.checked = selectedNotes[0].moveCameraThing;
+			catchNoteCheck.checked = selectedNotes[0].catchNote;
 			sustainDropDown.selectedLabel = '';
+			ghostsDropDown.selectedLabel = '';
 			noteTypeDropDown.selectedLabel = '';
 			eventDropDown.selectedLabel = '';
 			value1InputText.text = '';
@@ -1901,7 +1931,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	function loadMusic(?killAudio:Bool = false)
 	{
 		setSongPlaying(false);
-		setChartTheme(true);
+		//setChartTheme(true);
 		var time:Float = Conductor.songPosition;
 
 		if(killAudio)
@@ -2095,6 +2125,28 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		swagNote.gfNote = (section.gfSection && gottaHitNote == section.mustHitSection);
 		swagNote.noteType = note[3];
 		swagNote.sustainType = note[4];
+		swagNote.animSuffix = note[5];
+		swagNote.customSingTime = note[6];
+		swagNote.heyAnim = note[7];
+
+		//only way to put it true by default xd
+		if(note[8] == null) note[8] = true;
+		swagNote.lightStrum = note[8];
+
+		swagNote.noAnimation = note[9];
+
+		swagNote.ghostType = note[10];
+
+		if(note[11] == null) note[11] = true;
+		swagNote.catchNote = note[11];
+
+		swagNote.noAnimation = note[12];
+
+		swagNote.invisibleNote = note[13];
+
+		if(note[14] == null) note[14] = true;
+		swagNote.moveCameraThing = note[14];
+
 		swagNote.scrollFactor.x = 0;
 		var txt:FlxText = swagNote.findNoteTypeText(swagNote.noteType != null ? noteTypes.indexOf(swagNote.noteType) : 0);
 		if(txt != null) txt.visible = showNoteTypeLabels;
@@ -2871,6 +2923,22 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var noteTypeDropDown:PsychUIDropDownMenu;
 	var noteTypes:Array<String>;
 	var sustainTypes:Array<String> = ['', 'stutter', 'freeze'];
+	var animSuffixInputText:PsychUIInputText;
+	var altHeyInputText:PsychUIInputText;
+	var holdTimerStepper:PsychUINumericStepper;
+
+	var lightStrumCheck:PsychUICheckBox;
+	var noAnimCheck:PsychUICheckBox;
+
+	var ghostsDropDown:PsychUIDropDownMenu;
+	var ghostTypes:Array<String> = ['', 'Default Ghost', 'Arrow Movement Ghost', 'Ascend Ghost', 'Fall Ghost', 'Left Velocity Ghost', 'Right Velocity Ghost', 'Left and Right Velocity Ghost', 'Random Left and Right Velocity Ghost'];
+	
+	var catchNoteCheck:PsychUICheckBox;
+	var missAnimCheckBox:PsychUICheckBox;
+
+	var invisibleCheck:PsychUICheckBox;
+	var camMoveCheck:PsychUICheckBox;
+
 	function addNoteTab()
 	{
 		var tab_group = mainBox.getTab('Note').menu;
@@ -2923,7 +2991,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			}
 			selectedNotes = newSelected;
 			softReloadNotes();
-		}, 100);
+		}, 70);
 
 		objY += 40;
 		strumTimeStepper = new PsychUINumericStepper(objX, objY, Conductor.stepCrochet, 0, -5000, Math.POSITIVE_INFINITY, 3, 120);
@@ -2943,6 +3011,21 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				{
 					cast (note, EventMetaNote).updateEventText();
 				}
+			}
+			softReloadNotes();
+		};
+
+		holdTimerStepper = new PsychUINumericStepper(objX + 200, objY, 0.1, 0, 0, 999, 1);
+		holdTimerStepper.onValueChange = function()
+		{
+			if(selectedNotes.length < 1) return;
+
+			var durs:Float = selectedNotes[0].customSingTime;
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setSingDur(holdTimerStepper.value + (note.customSingTime - durs));
 			}
 			softReloadNotes();
 		};
@@ -2973,14 +3056,169 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			selectedNotes = newSelected;
 			softReloadNotes();
 		}, 150);
+
+		animSuffixInputText = new PsychUIInputText(objX + 200, objY, 70, '', 8);
+		animSuffixInputText.onChange = function(old:String, cur:String)
+		{
+			if(selectedNotes.length < 1) return;
+
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setAnimSuffix(cur);
+				if(cur.trim().length < 1) note.setAnimSuffix('');
+			}
+			softReloadNotes();
+		}
+		objY += 40;
+
+		altHeyInputText = new PsychUIInputText(objX, objY, 150, '', 8);
+		altHeyInputText.onChange = function(old:String, cur:String)
+		{
+			if(selectedNotes.length < 1) return;
+
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setHeyAnim(cur);
+				if(cur.trim().length < 1) note.setHeyAnim('');
+			}
+			softReloadNotes();
+		}
+
+		lightStrumCheck = new PsychUICheckBox(objX + 200, objY, 'Light Strum?', 80, function()
+		{
+			if(selectedNotes.length < 1) return;
+
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setStrumLight(lightStrumCheck.checked);
+			}
+			softReloadNotes();
+		});
+
+		objY += 40;
+
+		ghostsDropDown = new PsychUIDropDownMenu(objX, objY, [], function(id:Int, changeToType:String)
+		{
+			var newSelected:Array<MetaNote> = [];
+			var typeSelected:String = ghostTypes[id].trim();
+			for (note in selectedNotes)
+			{
+				if(note == null && !note.isEvent) continue;
+
+				if(typeSelected != null && typeSelected.length > 0)
+					note.songData[10] = typeSelected;
+				else
+					note.songData.remove(note.songData[4]);
+
+				var id:Int = notes.indexOf(note);
+				if(id > -1)
+				{
+					notes[id] = createNote(note.songData, curSec);
+					actionReplaceNotes(note, notes[id]);
+					newSelected.push(notes[id]);
+					note.destroy();
+				}
+			}
+			selectedNotes = newSelected;
+			softReloadNotes();
+		}, 70);
+
+		noAnimCheck = new PsychUICheckBox(objX + 200, objY, 'No Animation?', 80, function()
+		{
+			if(selectedNotes.length < 1) return;
+
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setNoAnim(noAnimCheck.checked);
+			}
+			softReloadNotes();
+		});
+
+		objY += 40;
+
+		catchNoteCheck = new PsychUICheckBox(objX, objY, 'Catch Note? (For Opponent)', 80, function()
+		{
+			if(selectedNotes.length < 1) return;
+
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setCatchNote(catchNoteCheck.checked);
+			}
+			softReloadNotes();
+		});
+
+		missAnimCheckBox = new PsychUICheckBox(objX + 200, objY, 'No Miss Animation?', 80, function()
+		{
+			if(selectedNotes.length < 1) return;
+
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setMissAnim(missAnimCheckBox.checked);
+			}
+			softReloadNotes();
+		});
+
+		objY += 40;
+
+		invisibleCheck = new PsychUICheckBox(objX, objY, 'Make Note Invisible?', 80, function()
+		{
+			if(selectedNotes.length < 1) return;
+
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setInvisible(invisibleCheck.checked);
+			}
+			softReloadNotes();
+		});
+
+		camMoveCheck = new PsychUICheckBox(objX + 200, objY, 'Affect Note Camera Movement?', 200, function()
+		{
+			if(selectedNotes.length < 1) return;
+
+			for (note in selectedNotes)
+			{
+				if(note == null || note.isEvent) continue;
+				
+				note.setCamMove(camMoveCheck.checked);
+			}
+			softReloadNotes();
+		});
 		
 		tab_group.add(new FlxText(susLengthStepper.x, susLengthStepper.y - 15, 80, 'Sustain length:'));
 		tab_group.add(new FlxText(strumTimeStepper.x, strumTimeStepper.y - 15, 100, 'Note Hit time (ms):'));
 		tab_group.add(new FlxText(noteTypeDropDown.x, noteTypeDropDown.y - 15, 80, 'Note Type:'));
 		tab_group.add(new FlxText(sustainDropDown.x, sustainDropDown.y - 15, 80, 'Sustain Type:'));
+		tab_group.add(new FlxText(holdTimerStepper.x, holdTimerStepper.y - 15, 200, 'Custom Sing Duration:'));
+		tab_group.add(new FlxText(animSuffixInputText.x, animSuffixInputText.y - 15, 100, 'Alt Anim Suffix:'));
+		tab_group.add(new FlxText(altHeyInputText.x, altHeyInputText.y - 15, 200, 'Alt Hey Anim (if Hey note type):'));
+		tab_group.add(new FlxText(ghostsDropDown.x, ghostsDropDown.y - 15, 200, 'Ghost Type (None if no Ghost):'));
 		tab_group.add(susLengthStepper);
-		tab_group.add(sustainDropDown);
 		tab_group.add(strumTimeStepper);
+		tab_group.add(holdTimerStepper);
+		tab_group.add(animSuffixInputText);
+		tab_group.add(altHeyInputText);
+		tab_group.add(lightStrumCheck);
+		tab_group.add(noAnimCheck);
+		tab_group.add(catchNoteCheck);
+		tab_group.add(missAnimCheckBox);
+		tab_group.add(invisibleCheck);
+		tab_group.add(camMoveCheck);
+		tab_group.add(sustainDropDown);
+		tab_group.add(ghostsDropDown);
 		tab_group.add(noteTypeDropDown);
 	}
 
@@ -3402,6 +3640,22 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			var lastSelected:String = sustainDropDown.selectedLabel;
 			sustainDropDown.list = displaySusTypes;
 			sustainDropDown.selectedLabel = lastSelected;
+		}
+
+		// Ghost type drop down
+		if(ghostsDropDown != null)
+		{
+			var displayGhostTypes:Array<String> = ghostTypes.copy();
+
+			for (id => key in displayGhostTypes)
+			{
+				if(id == 0) continue;
+				displayGhostTypes[id] = '$id. $key';
+			}
+
+			var lastSelected:String = ghostsDropDown.selectedLabel;
+			ghostsDropDown.list = displayGhostTypes;
+			ghostsDropDown.selectedLabel = lastSelected;
 		}
 		
 		// Event drop down
@@ -5204,6 +5458,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		}
 	}
 
+	var launchEditorPlay:Bool = false;
 	function openEditorPlayState()
 	{
 		if(FlxG.sound.music == null)
@@ -5216,6 +5471,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		chartEditorSave.flush(); //just in case a random crash happens before loading
 
 		openSubState(new EditorPlayState(cast notes, [vocals, opponentVocals]));
+		launchEditorPlay = true;
 		upperBox.isMinimized = true;
 		upperBox.visible = mainBox.visible = infoBox.visible = false;
 	}
@@ -5239,6 +5495,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	override function openSubState(SubState:FlxSubState)
 	{
 		if(!persistentUpdate) setSongPlaying(false);
+		if(launchEditorPlay) setChartTheme(false);
+
 		super.openSubState(SubState);
 	}
 
@@ -5250,6 +5508,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		upperBox.visible = mainBox.visible = infoBox.visible = true;
 		upperBox.bg.visible = false;
 		updateAudioVolume();
+
+		if(launchEditorPlay) 
+		{
+			launchEditorPlay = false;
+			setChartTheme(true);
+		}
 	}
 
 	override function destroy()
