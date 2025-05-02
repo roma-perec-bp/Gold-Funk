@@ -2609,6 +2609,8 @@ class PlayState extends MusicBeatState
 					);
 
 			case "Zoom Notes Camera":
+				var durSeconds:Float = Conductor.stepCrochet * flValue2 / 1000;
+				
 				if (cameraNotesZoomTween != null)
 					cameraNotesZoomTween.cancel();
 
@@ -2616,7 +2618,6 @@ class PlayState extends MusicBeatState
 					// Instant zoom. No tween needed.
 				    defaultNotesCameraZoom = flValue1;
 				else
-					var durSeconds:Float = Conductor.stepCrochet * flValue2 / 1000;
 					// Zoom tween! Caching it so we can cancel/pause it later if needed.
 					cameraNotesZoomTween = FlxTween.num(
 						defaultNotesCameraZoom,
