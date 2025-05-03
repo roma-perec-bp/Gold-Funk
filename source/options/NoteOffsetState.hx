@@ -77,7 +77,7 @@ class NoteOffsetState extends MusicBeatState
 		combo = new FlxSprite().loadGraphic(Paths.image('ratingPopUps/combo'));
 		combo.cameras = [camHUD];
 		combo.antialiasing = ClientPrefs.data.antialiasing;
-		combo.setGraphicSize(Std.int(combo.width * 0.7));
+		combo.setGraphicSize(Std.int(combo.width * 0.6));
 		combo.updateHitbox();
 		
 		add(combo);
@@ -89,7 +89,7 @@ class NoteOffsetState extends MusicBeatState
 		rating = new FlxSprite().loadGraphic(Paths.image('ratingPopUps/sick'));
 		rating.cameras = [camHUD];
 		rating.antialiasing = ClientPrefs.data.antialiasing;
-		rating.setGraphicSize(Std.int(rating.width * 0.7));
+		rating.setGraphicSize(Std.int(rating.width * 0.6));
 		rating.updateHitbox();
 		
 		add(rating);
@@ -110,7 +110,7 @@ class NoteOffsetState extends MusicBeatState
 			var numScore:FlxSprite = new FlxSprite(43 * daLoop).loadGraphic(Paths.image('ratingPopUps/num' + i));
 			numScore.cameras = [camHUD];
 			numScore.antialiasing = ClientPrefs.data.antialiasing;
-			numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+			numScore.setGraphicSize(Std.int(numScore.width * 0.4));
 			numScore.updateHitbox();
 			comboNums.add(numScore);
 			daLoop++;
