@@ -3883,9 +3883,9 @@ class PlayState extends MusicBeatState
 			comboGroup.add(rating);
 
 			if (!PlayState.isPixelStage)
-				rating.setGraphicSize(Std.int(rating.width * 0.7));
+				rating.setGraphicSize(Std.int(rating.width * 0.6));
 			else
-				rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.85));
+				rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.75));
 			
 			rating.updateHitbox();
 
@@ -3939,9 +3939,9 @@ class PlayState extends MusicBeatState
 		comboSpr.velocity.x += FlxG.random.int(1, 10) * playbackRate;
 	
 		if (!PlayState.isPixelStage)
-			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.6));
 		else
-			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.85));
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.75));
 	
 		comboSpr.updateHitbox();
 	
@@ -3967,8 +3967,8 @@ class PlayState extends MusicBeatState
 				numScore.y += playerY - offsetY;
 			}
 
-			if (!PlayState.isPixelStage) numScore.setGraphicSize(Std.int(numScore.width * 0.5));
-			else numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+			if (!PlayState.isPixelStage) numScore.setGraphicSize(Std.int(numScore.width * 0.4));
+			else numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom * 0.95));
 			numScore.updateHitbox();
 
 			numScore.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
