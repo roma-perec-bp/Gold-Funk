@@ -86,19 +86,6 @@ class PlayState extends MusicBeatState
 	public static var STRUM_X = 42;
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
-	public static var ratingStuff:Array<Dynamic> = [
-		['You Suck!', 0.2], //From 0% to 19%
-		['Shit', 0.4], //From 20% to 39%
-		['Bad', 0.5], //From 40% to 49%
-		['Bruh', 0.6], //From 50% to 59%
-		['Meh', 0.69], //From 60% to 68%
-		['Nice', 0.7], //69%
-		['Good', 0.8], //From 70% to 79%
-		['Great', 0.9], //From 80% to 89%
-		['Sick!', 1], //From 90% to 99%
-		['Perfect!!', 1] //The value on this one isn't used actually, since Perfect is always "1"
-	];
-
 	//event variables
 	private var isCameraOnForcedPos:Bool = false;
 
@@ -1290,16 +1277,16 @@ class PlayState extends MusicBeatState
 
 	public dynamic function updateScoreText()
 	{
-		var str:String = Language.getPhrase('rating_$ratingName', ratingName);
+		var str:String = '?';
 		if(totalPlayed != 0)
 		{
 			var percent:Float = CoolUtil.floorDecimal(ratingPercent * 100, 2);
-			str += ' (${percent}%) - ' + Language.getPhrase(ratingFC);
+			str = '(${percent}%) - ' + Language.getPhrase(ratingFC);
 		}
 
 		var tempScore:String;
-		if(!instakillOnMiss) tempScore = Language.getPhrase('score_text', 'Score: {1} | Misses: {2} | Rating: {3}', [FlxStringUtil.formatMoney(songScore, false, true), songMisses, str]);
-		else tempScore = Language.getPhrase('score_text_instakill', 'Score: {1} | Rating: {2}', [FlxStringUtil.formatMoney(songScore, false, true), str]);
+		if(!instakillOnMiss) tempScore = Language.getPhrase('score_text', 'Score: {1} | Misses: {2} | Accuracy: {3}', [FlxStringUtil.formatMoney(songScore, false, true), songMisses, str]);
+		else tempScore = Language.getPhrase('score_text_instakill', 'Score: {1} | Accuracy: {2}', [FlxStringUtil.formatMoney(songScore, false, true), str]);
 		scoreTxt.text = tempScore;
 	}
 
@@ -4253,8 +4240,8 @@ class PlayState extends MusicBeatState
 			char.holdTimer = 0;
 		}
 
-		var result:Dynamic = callOnLuas('playerInvisibleNoteHit', [notes.members.indexOf(daNote), daNote.noteData, daNote.noteType, daNote.isSustainNote]);
-		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('playerInvisibleNoteHit', [daNote]);
+		var result:Dynamic = callOnLuas('playerInvisibleNoteHit', [notes.members.indexOf(note), note.noteData, note.noteType, note.isSustainNote]);
+		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('playerInvisibleNoteHit', [note]);
 
 		if (!note.isSustainNote) invalidateNote(note);
 	}
@@ -5546,7 +5533,6 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public var ratingName:String = '?';
 	public var ratingPercent:Float;
 	public var ratingFC:String;
 	public function RecalculateRating(badHit:Bool = false, scoreBop:Bool = true) {
@@ -5558,27 +5544,12 @@ class PlayState extends MusicBeatState
 		var ret:Dynamic = callOnScripts('onRecalculateRating', null, true);
 		if(ret != LuaUtils.Function_Stop)
 		{
-			ratingName = '?';
 			if(totalPlayed != 0) //Prevent divide by 0
-			{
-				// Rating Percent
-				ratingPercent = Math.min(1, Math.max(0, totalNotesHit / totalPlayed));
-				//trace((totalNotesHit / totalPlayed) + ', Total: ' + totalPlayed + ', notes hit: ' + totalNotesHit);
+				ratingPercent = Math.min(1, Math.max(0, totalNotesHit / totalPlayed)); // Rating Percent
 
-				// Rating Name
-				ratingName = ratingStuff[ratingStuff.length-1][0]; //Uses last string
-				if(ratingPercent < 1)
-					for (i in 0...ratingStuff.length-1)
-						if(ratingPercent < ratingStuff[i][1])
-						{
-							ratingName = ratingStuff[i][0];
-							break;
-						}
-			}
 			fullComboFunction();
 		}
 		setOnScripts('rating', ratingPercent);
-		setOnScripts('ratingName', ratingName);
 		setOnScripts('ratingFC', ratingFC);
 		setOnScripts('totalPlayed', totalPlayed);
 		setOnScripts('totalNotesHit', totalNotesHit);
