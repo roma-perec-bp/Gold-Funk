@@ -109,12 +109,6 @@ class MetaNote extends Note
 		this.invisibleNote = v;
 	}
 
-	public function setCamMove(v:Bool)
-	{
-		this.songData[14] = v;
-		this.moveCameraThing = v;
-	}
-
 	var _lastZoom:Float = -1;
 	public function setSustainLength(v:Float, stepCrochet:Float, zoom:Float = 1)
 	{

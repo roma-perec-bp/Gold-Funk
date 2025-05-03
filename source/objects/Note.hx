@@ -145,7 +145,6 @@ class Note extends FlxSprite
 	public var lightStrum:Bool = true;
 	public var catchNote:Bool = true;
 	public var hitCausesMiss:Bool = false;
-	public var moveCameraThing:Bool = true;
 	public var distance:Float = 2000; //plan on doing scroll directions soon -bb
 
 	public var hitsoundDisabled:Bool = false;

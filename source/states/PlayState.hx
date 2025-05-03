@@ -1529,9 +1529,6 @@ class PlayState extends MusicBeatState
 				var noMissAnimationCheck: Bool = songNotes[12];
 				var invisibleNote: Bool = songNotes[13];
 
-				if(songNotes[14] == '0' || songNotes[14] == null) songNotes[14] = true;
-				var moveCameraThing: Bool = songNotes[14];
-
 				var gottaHitNote:Bool = (songNotes[1] < totalColumns);
 
 				if (i != 0) {
@@ -1578,7 +1575,6 @@ class PlayState extends MusicBeatState
 				swagNote.catchNote = catchNote;
 
 				swagNote.visible = !invisibleNote;
-				swagNote.moveCameraThing = moveCameraThing;
 				
 				swagNote.scrollFactor.set();
 				unspawnNotes.push(swagNote);
@@ -1605,7 +1601,6 @@ class PlayState extends MusicBeatState
 						sustainNote.noMissAnimation = swagNote.noMissAnimation;
 						sustainNote.catchNote = swagNote.catchNote;
 						sustainNote.visible = swagNote.visible;
-						sustainNote.moveCameraThing = swagNote.moveCameraThing;
 						sustainNote.scrollFactor.set();
 						sustainNote.parent = swagNote;
 						unspawnNotes.push(sustainNote);
@@ -4475,7 +4470,7 @@ class PlayState extends MusicBeatState
 			camNotes.shake(0.005, 0.2);
 		}
 
-		if(note.moveCameraThing)
+		if(!note.noAnimation)
 		{
 			if(SONG.notes[curSection] != null && curFocusedChar == 'dad')
 			{
@@ -4637,7 +4632,7 @@ class PlayState extends MusicBeatState
 			if(!note.noteSplashData.disabled && !note.isSustainNote) spawnNoteSplashOnNote(note);
 		}
 
-		if(note.moveCameraThing)
+		if(!note.noAnimation)
 		{
 			if(SONG.notes[curSection] != null && curFocusedChar == 'bf')
 			{
