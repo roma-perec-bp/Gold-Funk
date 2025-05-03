@@ -4457,7 +4457,7 @@ class PlayState extends MusicBeatState
 		if(note.lightStrum) strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate, note);
 		note.hitByOpponent = true;
 
-		if(note.visible) spawnHoldSplashOnNote(note);
+		if(note.visible && note.lightStrum) spawnHoldSplashOnNote(note);
 
 		if (opponentHealthDrain && health >= opponentHealthDrainAmount && !note.gfNote && note.noteType != 'GF Sing')
 			health -= opponentHealthDrainAmount;
@@ -4584,7 +4584,7 @@ class PlayState extends MusicBeatState
 
 			vocals.volume = 1;
 
-			spawnHoldSplashOnNote(note);
+			if(note.lightStrum) spawnHoldSplashOnNote(note);
 			if (!note.isSustainNote)
 			{
 				var whichAnim:String = '';
