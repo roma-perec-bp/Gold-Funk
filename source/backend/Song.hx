@@ -144,6 +144,13 @@ class Song
 				var gottaHitNote:Bool = (note[1] < 4) ? section.mustHitSection : !section.mustHitSection;
 				note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);
 
+				//COMPABILITY FOR REMOVED NOTES
+				if (note[3] == 'Alt Animation')
+					note[5] = '-alt';
+
+				if (note[3] == 'No Animation')
+					note[9] = true;
+
 				if(!Std.isOfType(note[3], String))
 					note[3] = Note.defaultNoteTypes[note[3]]; //compatibility with Week 7 and 0.1-0.3 psych charts
 			}

@@ -8,6 +8,8 @@ class SustainSplash extends FlxSprite {
 
   public static var defaultNoteSplash(default, never):String = "holdSplashes/holdSplash";
 
+  var strumMove:StrumNote;
+
   public function new():Void {
 
     super();
@@ -19,6 +21,14 @@ class SustainSplash extends FlxSprite {
     animation.curAnim.looped = true;
 
     destroyTimer = new FlxTimer();
+  }
+
+  override function update(elapsed:Float)
+  {
+    //so it won't be look weird when strum move
+    if(strumMove != null) setPosition(strumMove.x, strumMove.y);
+
+    super.update(elapsed);
   }
 
   public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void {

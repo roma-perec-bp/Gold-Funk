@@ -138,7 +138,6 @@ class FunkinLua {
 			set('deaths', PlayState.deathCounter);
 	
 			set('rating', game.ratingPercent);
-			set('ratingName', game.ratingName);
 			set('ratingFC', game.ratingFC);
 			set('totalPlayed', game.totalPlayed);
 			set('totalNotesHit', game.totalNotesHit);
@@ -842,10 +841,6 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "setRatingPercent", function(value:Float) {
 			game.ratingPercent = value;
 			game.setOnScripts('rating', game.ratingPercent);
-		});
-		Lua_helper.add_callback(lua, "setRatingName", function(value:String) {
-			game.ratingName = value;
-			game.setOnScripts('ratingName', game.ratingName);
 		});
 		Lua_helper.add_callback(lua, "setRatingFC", function(value:String) {
 			game.ratingFC = value;

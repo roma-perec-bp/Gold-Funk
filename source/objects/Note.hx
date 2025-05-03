@@ -47,11 +47,9 @@ class Note extends FlxSprite
 	//It's also used for backwards compatibility with 0.1 - 0.3.2 charts.
 	public static final defaultNoteTypes:Array<String> = [
 		'', //Always leave this one empty pls
-		'Alt Animation',
 		'Hey!',
 		'Hurt Note',
-		'GF Sing',
-		'No Animation'
+		'GF Sing'
 	];
 
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -75,6 +73,8 @@ class Note extends FlxSprite
 	public var spawned:Bool = false;
 	public var badassed:Bool = false;
 
+	public var customSingTime:Float = 0;
+
 	public var tail:Array<Note> = []; // for sustains
 	public var parent:Note;
 	
@@ -83,6 +83,8 @@ class Note extends FlxSprite
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
 	public var sustainType:String = ''; //[stutter, freeze, nothing]
+	public var ghostType:String = '';
+	public var heyAnim:String = '';
 
 	public var noteType(default, set):String = null;
 
@@ -140,6 +142,8 @@ class Note extends FlxSprite
 
 	public var noAnimation:Bool = false;
 	public var noMissAnimation:Bool = false;
+	public var lightStrum:Bool = true;
+	public var catchNote:Bool = true;
 	public var hitCausesMiss:Bool = false;
 	public var distance:Float = 2000; //plan on doing scroll directions soon -bb
 
@@ -227,11 +231,6 @@ class Note extends FlxSprite
 					hitCausesMiss = true;
 					hitsound = 'cancelMenu';
 					hitsoundChartEditor = false;
-				case 'Alt Animation':
-					animSuffix = '-alt';
-				case 'No Animation':
-					noAnimation = true;
-					noMissAnimation = true;
 				case 'GF Sing':
 					gfNote = true;
 			}
@@ -566,7 +565,7 @@ class Note extends FlxSprite
 	public function clipToStrumNote(myStrum:StrumNote)
 	{
 		var center:Float = myStrum.y + offsetY + Note.swagWidth / 2;
-		if((mustPress || !ignoreNote) && (wasGoodHit || (prevNote.wasGoodHit && !canBeHit)))
+		if((mustPress || !ignoreNote || !catchNote) && (wasGoodHit || (prevNote.wasGoodHit && !canBeHit)))
 		{
 			var swagRect:FlxRect = clipRect;
 			if(swagRect == null) swagRect = new FlxRect(0, 0, frameWidth, frameHeight);

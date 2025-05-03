@@ -12,6 +12,7 @@ class MetaNote extends Note
 	public var sustainSprite:EditorSustain;
 	public var chartY:Float = 0;
 	public var chartNoteData:Int = 0;
+	public var invisibleNote:Bool = true;
 
 	public function new(time:Float, data:Int, songData:Array<Dynamic>)
 	{
@@ -57,6 +58,55 @@ class MetaNote extends Note
 	{
 		this.songData[0] = v;
 		this.strumTime = v;
+	}
+
+	public function setSingDur(v:Float)
+	{
+		this.songData[6] = v;
+		this.customSingTime = v;
+	}
+
+	public function setAnimSuffix(v:String)
+	{
+		this.songData[5] = v;
+		this.animSuffix = v;
+	}
+
+	public function setHeyAnim(v:String)
+	{
+		this.songData[7] = v;
+		this.heyAnim = v;
+	}
+
+	public function setStrumLight(v:Bool)
+	{
+		this.songData[8] = v;
+		this.lightStrum = v;
+	}
+
+	public function setNoAnim(v:Bool)
+	{
+		this.songData[9] = v;
+		this.noAnimation = v;
+	}
+
+	public function setCatchNote(v:Bool)
+	{
+		this.songData[11] = v;
+		this.catchNote = v;
+	}
+
+	public function setMissAnim(v:Bool)
+	{
+		this.songData[12] = v;
+		this.noMissAnimation = v;
+	}
+
+	//TO DO: make it visually somehow show that its kinda visible?
+	public function setInvisible(v:Bool)
+	{
+		this.songData[13] = v;
+		this.invisibleNote = v;
 	}
 
 	var _lastZoom:Float = -1;

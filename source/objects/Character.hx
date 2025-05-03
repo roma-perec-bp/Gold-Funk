@@ -79,6 +79,7 @@ class Character extends FlxSprite
 	//Used on Character Editor
 	public var imageFile:String = '';
 	public var jsonScale:Float = 1;
+	public var jsonDuration:Float = 4;
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
 	public var editorIsPlayer:Null<Bool> = null;
@@ -192,6 +193,7 @@ class Character extends FlxSprite
 		// data
 		healthIcon = json.healthicon;
 		singDuration = json.sing_duration;
+		jsonDuration = json.sing_duration; //for custom note duration
 		flipX = (json.flip_x != isPlayer);
 		healthColorArray = (json.healthbar_colors != null && json.healthbar_colors.length > 2) ? json.healthbar_colors : [161, 161, 161];
 		vocalsFile = json.vocals_file != null ? json.vocals_file : '';
