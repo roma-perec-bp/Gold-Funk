@@ -2110,6 +2110,9 @@ class PlayState extends MusicBeatState
 
 							if(daNote.mustPress && !daNote.visible && !daNote.ignoreNote && daNote.canBeHit && (daNote.isSustainNote || daNote.strumTime <= Conductor.songPosition))
 								invisibleNoteHitPlayer(daNote);
+							
+							if (daNote.wasGoodHit && !daNote.mustPress && !daNote.catchNote && !daNote.hitByOpponent && !daNote.ignoreNote)
+								opponentNoteMiss(daNote);
 
 							if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
 
@@ -2118,9 +2121,6 @@ class PlayState extends MusicBeatState
 							{
 								if (daNote.mustPress && !cpuControlled && !daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit) && daNote.visible)
 									noteMiss(daNote);
-
-								if (!daNote.mustPress && !daNote.catchNote && !daNote.ignoreNote && !endingSong && daNote.tooLate)
-									opponentNoteMiss(daNote);
 
 								daNote.active = daNote.visible = false;
 								invalidateNote(daNote);
@@ -4216,7 +4216,7 @@ class PlayState extends MusicBeatState
 	}
 
 	function opponentNoteMiss(daNote:Note):Void {
-		//daNote.hitByOpponent = true;
+		daNote.hitByOpponent = true;
 
 		// play character anims
 		var char:Character = dad;
@@ -4224,14 +4224,16 @@ class PlayState extends MusicBeatState
 
 		if(char != null && (daNote == null || !daNote.noMissAnimation) && char.hasMissAnimations)
 		{
-			var suffix:String = '';
-			if(daNote != null) suffix = daNote.animSuffix;
+			var postfix:String = '';
+			if(daNote != null) postfix = daNote.animSuffix;
 
-			var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, daNote.noteData)))] + 'miss' + suffix;
-
-			if(!daNote.isSustainNote) char.playAnim(animToPlay, true);
+			var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length-1, daNote.noteData)))] + 'miss' + postfix;
+			if (!daNote.isSustainNote) char.playAnim(animToPlay, true);
 			char.holdTimer = 0;
 		}
+
+		var result:Dynamic = callOnLuas('opponentNoteMiss', [notes.members.indexOf(daNote), daNote.noteData, daNote.noteType, daNote.isSustainNote]);
+		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('opponentNoteMiss', [daNote]);
 	}
 
 	function invisibleNoteHitPlayer(note:Note):Void
@@ -4250,6 +4252,9 @@ class PlayState extends MusicBeatState
 			if(!note.isSustainNote) char.playAnim(animToPlay, true); //sustain shit later im lazy zzzzzzzzzzzzz
 			char.holdTimer = 0;
 		}
+
+		var result:Dynamic = callOnLuas('playerInvisibleNoteHit', [notes.members.indexOf(daNote), daNote.noteData, daNote.noteType, daNote.isSustainNote]);
+		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('playerInvisibleNoteHit', [daNote]);
 
 		if (!note.isSustainNote) invalidateNote(note);
 	}
