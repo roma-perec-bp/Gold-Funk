@@ -2930,7 +2930,7 @@ class PlayState extends MusicBeatState
 				if (songSpeedType != "constant")
 				{
 					if(flValue1 == null) flValue1 = 1;
-					if(flValue2 == null) flValue2 = 0;
+					if(flValue2 == null) flValue2 = 4;
 
 					var ease = LuaUtils.getTweenEaseByString(value3);
 
