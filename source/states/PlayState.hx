@@ -3957,14 +3957,16 @@ class PlayState extends MusicBeatState
 		{
 			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiFolder + 'num' + Std.parseInt(separatedScore.charAt(i)) + uiPostfix));
 			numScore.screenCenter();
-
-			numScore.x = placement + (43 * daLoop) - 90 + ClientPrefs.data.comboOffset[2];
-			numScore.y += 80 - ClientPrefs.data.comboOffset[3];
-
-			if(comboIsInCamGame)
+			
+			if(!comboIsInCamGame)
 			{
-				numScore.x += playerX - offsetX;
-				numScore.y += playerY - offsetY;
+				numScore.x = placement + (43 * daLoop) - 90 + ClientPrefs.data.comboOffset[2];
+				numScore.y += 80 - ClientPrefs.data.comboOffset[3];
+			}
+			else
+			{
+				numScore.x = placement + (43 * daLoop) - 90 + playerX - offsetX;
+				numScore.y += 80 + playerY - offsetY;
 			}
 
 			if (!PlayState.isPixelStage) numScore.setGraphicSize(Std.int(numScore.width * 0.4));
