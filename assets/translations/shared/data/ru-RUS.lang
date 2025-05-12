@@ -247,6 +247,8 @@ botplay: "Ботплей"
 rating_you_suck: "Отстой!"
 week_score: "СЧЁТ НЕДЕЛИ: {1}"
 blueballed: "Сварен в крутую: {1}"
+artist: "Артист: {1}"
+charter: "Чартер: {1}"
 practice_mode: "Практика"
 charting_mode: "Чартинг"
 

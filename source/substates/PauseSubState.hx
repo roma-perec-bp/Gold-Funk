@@ -80,13 +80,25 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, Difficulty.getString().toUpperCase(), 32);
+		var levelArtist:FlxText = new FlxText(20, 15 + 32, 0, Language.getPhrase("artist", "Artist: {1}"), 32);
+		levelArtist.scrollFactor.set();
+		levelArtist.setFormat(Paths.font("vcr.ttf"), 32);
+		levelArtist.updateHitbox();
+		add(levelArtist);
+
+		var levelCharter:FlxText = new FlxText(20, 15 + 64, 0, Language.getPhrase("charter", "Charter: {1}"), 32);
+		levelCharter.scrollFactor.set();
+		levelCharter.setFormat(Paths.font("vcr.ttf"), 32);
+		levelCharter.updateHitbox();
+		add(levelCharter);
+
+		var levelDifficulty:FlxText = new FlxText(20, 15 + 96, 0, Difficulty.getString().toUpperCase(), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();
 		add(levelDifficulty);
 
-		var blueballedTxt:FlxText = new FlxText(20, 15 + 64, 0, Language.getPhrase("blueballed", "Blueballed: {1}", [PlayState.deathCounter]), 32);
+		var blueballedTxt:FlxText = new FlxText(20, 15 + 128, 0, Language.getPhrase("blueballed", "Blueballed: {1}", [PlayState.deathCounter]), 32);
 		blueballedTxt.scrollFactor.set();
 		blueballedTxt.setFormat(Paths.font('vcr.ttf'), 32);
 		blueballedTxt.updateHitbox();
@@ -112,13 +124,19 @@ class PauseSubState extends MusicBeatSubstate
 		blueballedTxt.alpha = 0;
 		levelDifficulty.alpha = 0;
 		levelInfo.alpha = 0;
+		levelArtist.alpha = 0;
+		levelCharter.alpha = 0;
 
 		levelInfo.x = FlxG.width - (levelInfo.width + 20);
+		levelArtist.x = FlxG.width - (levelArtist.width + 20);
+		levelCharter.x = FlxG.width - (levelCharter.width + 20);
 		levelDifficulty.x = FlxG.width - (levelDifficulty.width + 20);
 		blueballedTxt.x = FlxG.width - (blueballedTxt.width + 20);
 
 		FlxTween.tween(bg, {alpha: 0.6}, 0.4, {ease: FlxEase.quartInOut});
 		FlxTween.tween(levelInfo, {alpha: 1, y: 20}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.3});
+		FlxTween.tween(levelArtist, {alpha: 1, y: levelCharter.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
+		FlxTween.tween(levelCharter, {alpha: 1, y: levelCharter.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
 		FlxTween.tween(levelDifficulty, {alpha: 1, y: levelDifficulty.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
 		FlxTween.tween(blueballedTxt, {alpha: 1, y: blueballedTxt.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.7});
 
