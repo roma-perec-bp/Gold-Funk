@@ -63,7 +63,7 @@
 				[4875, 5, 0, null, null, null, null, null, true, null, null, true],
 				[5062.5, 4, 0, null, null, null, null, null, true, null, null, true],
 				[5250, 7, 281.25, null, null, null, null, null, true, null, null, true],
-				[5625, 6, 0, null, null, null, null, null, true, null, null, true]
+				[5625, 6, 0, null, null, "-alt", null, null, true, null, null, true]
 			],
 			"sectionBeats": 4,
 			"followCam": true,
