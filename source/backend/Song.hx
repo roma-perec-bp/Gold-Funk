@@ -118,6 +118,7 @@ class Song
 	public var countdownSuffix:String;
 	public var swapNotes:Bool = false;
 	public var swapPlayers:Bool = false;
+	public var swapMustPlay:Bool = false;
 
 	public var speed:Float = 1;
 	public var stage:String;

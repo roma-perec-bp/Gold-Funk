@@ -2636,6 +2636,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var countdownSuffixInputText:PsychUIInputText;
 	var swapNotesCheckBox:PsychUICheckBox;
 	var swapPlayersCheckBox:PsychUICheckBox;
+	var swapMustHitCheckBox:PsychUICheckBox;
 	function addDataTab()
 	{
 		var tab_group = mainBox.getTab('Data').menu;
@@ -2883,7 +2884,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		{
 			upperBox.isMinimized = true;
 			upperBox.bg.visible = false;
-			openSubState(new BasePrompt(400, 450, 'Gameplay MetaData',
+			openSubState(new BasePrompt(400, 500, 'Gameplay MetaData',
 				function(state:BasePrompt)
 				{
 					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
@@ -2960,7 +2961,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					state.add(countdownSuffixInputText);
 					state.add(new FlxText(countdownSuffixInputText.x, countdownSuffixInputText.y - 15, 500, 'Countdown Sound PostFix (EX: "-beatbox"):'));
 
-					swapNotesCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 440, 'Swap Notes (MiddleScroll Won\'t work)', 100, updateSwap);
+					swapMustHitCheckBox = new PsychUICheckBox(countdownSuffixInputText.x + 200, state.bg.y + 370, 'Swap Notes', 100, updateMust);
+					swapMustHitCheckBox.cameras = state.cameras;
+					state.add(swapMustHitCheckBox);
+
+					swapNotesCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 440, 'Swap Strums (MiddleScroll Won\'t work)', 100, updateSwap);
 					swapNotesCheckBox.cameras = state.cameras;
 					state.add(swapNotesCheckBox);
 
@@ -2983,6 +2988,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					countdownSuffixInputText.text = PlayState.SONG.countdownSuffix;
 					swapNotesCheckBox.checked = (PlayState.SONG.swapNotes == true);
 					swapPlayersCheckBox.checked = (PlayState.SONG.swapPlayers == true);
+					swapMustHitCheckBox.checked = (PlayState.SONG.swapMustPlay == true);
 				}
 			));
 
@@ -5569,6 +5575,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	inline public function updateSingers()
 		PlayState.SONG.swapPlayers = swapPlayersCheckBox.checked;
+
+	inline public function updateMust()
+		PlayState.SONG.swapMustPlay = swapMustHitCheckBox.checked;
 
 	function updateGridVisibility()
 	{

@@ -1691,11 +1691,11 @@ class PlayState extends MusicBeatState
 		}
 		trace('["${SONG.song.toUpperCase()}" CHART INFO]: Ghost Notes Cleared: $ghostNotesCaught');
 
-		/*if(PlayState.SONG.swapPlayers) //Maybe Later ill do checkbox where notes are changing LOL?
+		if(PlayState.SONG.swapMustPlay)
 		{
 			for (note in unspawnNotes) 
 				note.mustPress = !note.mustPress;
-		}*/
+		}
 
 		for (event in songData.events) //Event Notes
 			for (i in 0...event[1].length)
