@@ -3547,7 +3547,7 @@ class PlayState extends MusicBeatState
 				if(!char.stunned)
 				{
 					char.specialAnim = false;
-					char.dance(char.idleForce);		
+					char.dance(true);		
 				}
 			
 			#if VIDEOS_ALLOWED
