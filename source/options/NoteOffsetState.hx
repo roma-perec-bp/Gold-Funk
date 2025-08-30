@@ -77,7 +77,7 @@ class NoteOffsetState extends MusicBeatState
 		combo = new FlxSprite().loadGraphic(Paths.image('ratingPopUps/combo'));
 		combo.cameras = [camHUD];
 		combo.antialiasing = ClientPrefs.data.antialiasing;
-		combo.setGraphicSize(Std.int(combo.width * 0.6));
+		combo.setGraphicSize(Std.int(combo.width * 0.5));
 		combo.updateHitbox();
 		
 		add(combo);
@@ -510,7 +510,7 @@ class NoteOffsetState extends MusicBeatState
 	function repositionCombo()
 	{
 		combo.screenCenter();
-		combo.x = coolText.x + 110 + ClientPrefs.data.comboOffset[4];
+		combo.x = coolText.x + 80 + ClientPrefs.data.comboOffset[4];
 		combo.y += 60 - ClientPrefs.data.comboOffset[5];
 
 		rating.screenCenter();

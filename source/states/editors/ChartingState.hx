@@ -76,9 +76,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		//ENGINES EVENTS
 		['CountDown', "Does the countdown in song\nValue 1: which countdown (pre-ready, ready, set, go)\nValue 2: play sound? (true or false)"],
 		['Hey!', "Plays the \"Hey!\" animation from Bopeebo,\nValue 1: BF = Only Boyfriend, GF = Only Girlfriend,\nSomething else = Both.\nValue 2: Custom animation duration,\nleave it blank for 0.6s"],
-		['Set GF Speed', "Sets GF head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\nUsed on Fresh during the beatbox parts.\n\nWarning: Value must be integer!"],
-		['Set DAD Speed', "Sets DAD head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\n\nWarning: Value must be integer!"],
-		['Set BF Speed', "Sets BF head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\n\nWarning: Value must be integer!"],
+		['Set GF Speed', "Sets GF head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\nUsed on Fresh during the beatbox parts.\n\nWarning: Value must be integer!\nValue 2: Make Idle play FORCED"],
+		['Set DAD Speed', "Sets DAD head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\n\nWarning: Value must be integer!\nValue 2: Make Idle play FORCED"],
+		['Set BF Speed', "Sets BF head bopping speed,\nValue 1: 1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc.\n\nWarning: Value must be integer!\nValue 2: Make Idle play FORCED"],
 		['Add Camera Zoom', "Used on MILF on that one \"hard\" part\nValue 1: Camera zoom add (Default: 0.015)\nValue 2: UI zoom add (Default: 0.03)\nLeave the values blank if you want to use Default."],
 		['Focus Camera', 'Value 1:\nChar (default dad) - Can be any character\nValue 2: "origin" Duration in steps (default 4.0)\nValue3: Ease - Any FlxEase, can be "INSTANT" or "CLASSIC"\n"CLASSIC" is by default.\nValue 4: Additional X and Y Camera Offsets'],
 		['Set Camera Bop', 'How often does the camera bop?\nValue 1 - The rate of camera bopping\nValue 2 - The intensity of camera bop\nValue 3 - Speed of Camera Bop (not in a beat way)'],

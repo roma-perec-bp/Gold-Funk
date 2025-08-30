@@ -64,6 +64,8 @@ class Character extends FlxSprite
 
 	public var uninterruptableAnim:Bool = false; //because psych didnt have this already?????
 
+	public var idleForce:Bool = false;
+
 	public var healthIcon:String = 'face';
 	public var animationsArray:Array<AnimArray> = [];
 

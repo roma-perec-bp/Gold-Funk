@@ -2528,13 +2528,31 @@ class PlayState extends MusicBeatState
 				if(flValue1 == null || flValue1 < 1) flValue1 = 1;
 				gfSpeed = Math.round(flValue1);
 
+				var forceLol:Bool;
+				if(value2 == 'true')
+					gf.idleForce = true;
+				else
+					gf.idleForce = false;
+
 			case 'Set DAD Speed':
 				if(flValue1 == null || flValue1 < 1) flValue1 = 2;
 				dad.danceEveryNumBeats = Math.round(flValue1);
 
+				var forceLol:Bool;
+				if(value2 == 'true')
+					dad.idleForce = true;
+				else
+					dad.idleForce = false;
+
 			case 'Set BF Speed':
 				if(flValue1 == null || flValue1 < 1) flValue1 = 2;
 				boyfriend.danceEveryNumBeats = Math.round(flValue1);
+
+				var forceLol:Bool;
+				if(value2 == 'true')
+					boyfriend.idleForce = true;
+				else
+					boyfriend.idleForce = false;
 
 			case 'Add Camera Zoom':
 				if(ClientPrefs.data.camZooms && FlxG.camera.zoom < 1.7) {
@@ -3529,7 +3547,7 @@ class PlayState extends MusicBeatState
 				if(!char.stunned)
 				{
 					char.specialAnim = false;
-					char.dance(true);		
+					char.dance(char.idleForce);		
 				}
 			
 			#if VIDEOS_ALLOWED
@@ -3993,7 +4011,7 @@ class PlayState extends MusicBeatState
 
 		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(uiFolder + 'combo' + uiPostfix));
 		comboSpr.screenCenter();
-		comboSpr.x = placement + 110;
+		comboSpr.x = placement + 80;
 		comboSpr.acceleration.y = FlxG.random.int(200, 300) * playbackRate * playbackRate;
 		comboSpr.velocity.y -= FlxG.random.int(140, 160) * playbackRate;
 	
@@ -4012,7 +4030,7 @@ class PlayState extends MusicBeatState
 		comboSpr.velocity.x += FlxG.random.int(1, 10) * playbackRate;
 	
 		if (!PlayState.isPixelStage)
-			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.6));
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.5));
 		else
 			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.75));
 	
@@ -5131,11 +5149,11 @@ class PlayState extends MusicBeatState
 	public function characterBopper(beat:Int):Void
 	{
 		if (gf != null && beat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.getAnimationName().startsWith('sing') && !gf.stunned)
-			gf.dance(true);
+			gf.dance(gf.idleForce);
 		if (boyfriend != null && beat % boyfriend.danceEveryNumBeats == 0 && !boyfriend.getAnimationName().startsWith('sing') && !boyfriend.stunned)
-			boyfriend.dance(true);
+			boyfriend.dance(boyfriend.idleForce);
 		if (dad != null && beat % dad.danceEveryNumBeats == 0 && !dad.getAnimationName().startsWith('sing') && !dad.stunned)
-			dad.dance(true);
+			dad.dance(dad.idleForce);
 	}
 
 	public function playerDance():Void
