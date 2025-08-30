@@ -52,6 +52,7 @@ typedef SwagSong =
 	@:optional var countdownSuffix:String;
 	@:optional var swapNotes:Bool;
 	@:optional var swapPlayers:Bool;
+	@:optional var swapMustPlay:Bool;
 }
 
 typedef SwagSection =
