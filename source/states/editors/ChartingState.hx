@@ -450,7 +450,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		infoBox.getTab('Information').menu.add(infoText);
 		add(infoBox);
 
-		mainBox = new PsychUIBox(mainBoxPosition.x, mainBoxPosition.y, 300, 310, ['Charting', 'Data', 'Events', 'Note', 'Section', 'Camera', 'Song']);
+		mainBox = new PsychUIBox(mainBoxPosition.x, mainBoxPosition.y, 300, 310, ['Chart', 'Data', 'Events', 'Note', 'Section', 'Camera', 'Song']);
 		mainBox.selectedName = 'Song';
 		mainBox.scrollFactor.set();
 		mainBox.cameras = [camUI];
@@ -706,12 +706,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		girlfriendDropDown.selectedLabel = PlayState.SONG.gfVersion;
 		stageDropDown.selectedLabel = PlayState.SONG.stage;
 		StageData.loadDirectory(PlayState.SONG);
-
-		// DATA TAB
-		noRGBCheckBox.checked = (PlayState.SONG.disableNoteRGB == true);
-
-		noteTextureInputText.text = PlayState.SONG.arrowSkin;
-		noteSplashesInputText.text = PlayState.SONG.splashSkin;
 	}
 	
 	var noteSelectionSine:Float = 0;
@@ -2552,7 +2546,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var opponentMuteCheckBox:PsychUICheckBox;
 	function addChartingTab()
 	{
-		var tab_group = mainBox.getTab('Charting').menu;
+		var tab_group = mainBox.getTab('Chart').menu;
 		var objX = 10;
 		var objY = 10;
 
@@ -2616,21 +2610,44 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var gameOverSndInputText:PsychUIInputText;
 	var gameOverLoopInputText:PsychUIInputText;
 	var gameOverRetryInputText:PsychUIInputText;
+
+	var hudButton:PsychUIButton;
 	var noRGBCheckBox:PsychUICheckBox;
+	var disableTimeBarCheckBox:PsychUICheckBox;
 	var noteTextureInputText:PsychUIInputText;
 	var noteSplashesInputText:PsychUIInputText;
+	var holdCoverInputText:PsychUIInputText;
+	var orignalColorsBox:PsychUICheckBox;
+	var staticArrowsMove:PsychUIDropDownMenu;
+	var opponentBox:PsychUICheckBox;
+	var camGameComboCheckBox:PsychUICheckBox;
+	var comboGameX: PsychUINumericStepper;
+	var comboGameY: PsychUINumericStepper;
+
+	var gameplayButton:PsychUIButton;
+	var quietCountCheckBox:PsychUICheckBox;
+	var skipCountCheckBox:PsychUICheckBox;
+	var skipArrowCheckBox:PsychUICheckBox;
+	var focusedCharStart:PsychUIDropDownMenu;
+	var cameraX: PsychUINumericStepper;
+	var cameraY: PsychUINumericStepper;
+	var followOffset: PsychUINumericStepper;
+	var cameraSpeed: PsychUINumericStepper;
+	var countdownSuffixInputText:PsychUIInputText;
+	var swapNotesCheckBox:PsychUICheckBox;
+	var swapPlayersCheckBox:PsychUICheckBox;
 	function addDataTab()
 	{
 		var tab_group = mainBox.getTab('Data').menu;
 		var objX = 10;
 		var objY = 25;
 
-		var gameOverButton:PsychUIButton = new PsychUIButton(objX, objY, 'Game Over MetaData', 200);
+		gameOverButton = new PsychUIButton(objX, objY, 'Game Over MetaData', 200);
 		gameOverButton.onClick = function()
 		{
 			upperBox.isMinimized = true;
 			upperBox.bg.visible = false;
-			openSubState(new BasePrompt(400, 250, 'Game Over MetaData',
+			openSubState(new BasePrompt(450, 250, 'Game Over MetaData',
 				function(state:BasePrompt)
 				{
 					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
@@ -2698,75 +2715,282 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		};
 
 		objY += 35;
-		noRGBCheckBox = new PsychUICheckBox(objX, objY, 'Disable Note RGB', 100, updateNotesRGB);
-		
-		objY += 40;
-		noteTextureInputText = new PsychUIInputText(objX, objY, 120, '');
-		noteTextureInputText.unfocus = function()
+
+		hudButton = new PsychUIButton(objX, objY, 'HUD MetaData', 200);
+		hudButton.onClick = function()
 		{
-			var changed:Bool = false;
-			if(PlayState.SONG.arrowSkin != noteTextureInputText.text) changed = true;
-			PlayState.SONG.arrowSkin = noteTextureInputText.text.trim();
-			if(PlayState.SONG.arrowSkin.trim().length < 1) PlayState.SONG.arrowSkin = null;
-
-			if(changed)
-			{
-				var textureLoad:String = 'images/${noteTextureInputText.text}.png';
-				if(Paths.fileExists(textureLoad, IMAGE) || noteTextureInputText.text.trim() == '')
+			upperBox.isMinimized = true;
+			upperBox.bg.visible = false;
+			openSubState(new BasePrompt(400, 450, 'HUD MetaData',
+				function(state:BasePrompt)
 				{
-					for (note in notes)
+					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
+					btn.cameras = state.cameras;
+					state.add(btn);
+
+					noRGBCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 90, 'Disable Note RGB', 100, updateNotesRGB);
+					noRGBCheckBox.cameras = state.cameras;
+					state.add(noRGBCheckBox);
+
+					disableTimeBarCheckBox = new PsychUICheckBox(noRGBCheckBox.x + 200, state.bg.y + 90, 'Force Disable TimeBar', 100, updateTimeBar);
+					disableTimeBarCheckBox.cameras = state.cameras;
+					state.add(disableTimeBarCheckBox);
+
+					noteTextureInputText = new PsychUIInputText(state.bg.x + 35, state.bg.y + 160, 120, '');
+					noteTextureInputText.cameras = state.cameras;
+					noteTextureInputText.unfocus = function()
 					{
-						if(note == null) continue;
-						note.reloadNote(note.texture);
-		
-						if(note.width > note.height)
-							note.setGraphicSize(GRID_SIZE);
-						else
-							note.setGraphicSize(0, GRID_SIZE);
-		
-						note.updateHitbox();
-					}
-					for (strum in strumLineNotes) {
-						if (strum == null) continue;
-						var tex:String = noteTextureInputText.text;
-						if (tex.trim() == '') { // ok
-							tex = Note.defaultNoteSkin;
-							var customSkin:String = tex + Note.getNoteSkinPostfix();
-							if (Paths.fileExists('images/$customSkin.png', IMAGE)) tex = customSkin;
+						var changed:Bool = false;
+						if(PlayState.SONG.arrowSkin != noteTextureInputText.text) changed = true;
+						PlayState.SONG.arrowSkin = noteTextureInputText.text.trim();
+						if(PlayState.SONG.arrowSkin.trim().length < 1) PlayState.SONG.arrowSkin = null;
+
+						if(changed)
+						{
+							var textureLoad:String = 'images/${noteTextureInputText.text}.png';
+							if(Paths.fileExists(textureLoad, IMAGE) || noteTextureInputText.text.trim() == '')
+							{
+								for (note in notes)
+								{
+									if(note == null) continue;
+									note.reloadNote(note.texture);
+									
+									if(note.width > note.height)
+										note.setGraphicSize(GRID_SIZE);
+									else
+										note.setGraphicSize(0, GRID_SIZE);
+
+									note.updateHitbox();
+								}
+								
+								for (strum in strumLineNotes) {
+									if (strum == null) continue;
+									var tex:String = noteTextureInputText.text;
+									if (tex.trim() == '') { // ok
+										tex = Note.defaultNoteSkin;
+										var customSkin:String = tex + Note.getNoteSkinPostfix();
+										if (Paths.fileExists('images/$customSkin.png', IMAGE)) tex = customSkin;
+									}
+									strum.texture = tex;
+
+									if(strum.width > strum.height)
+										strum.setGraphicSize(GRID_SIZE);
+									else
+										strum.setGraphicSize(0, GRID_SIZE);
+
+									strum.playAnim('static');
+									strum.updateHitbox();
+								}
+								if(noteTextureInputText.text.trim().length > 0) showOutput('Reloaded notes to: "$textureLoad"');
+								else showOutput('Reloaded notes to default texture');	
+							}
+							else showOutput('ERROR: "$textureLoad" not found.', true);
 						}
-						strum.texture = tex;
-
-						if(strum.width > strum.height)
-							strum.setGraphicSize(GRID_SIZE);
-						else
-							strum.setGraphicSize(0, GRID_SIZE);
-
-						strum.playAnim('static');
-						strum.updateHitbox();
-					}
-					if(noteTextureInputText.text.trim().length > 0) showOutput('Reloaded notes to: "$textureLoad"');
-					else showOutput('Reloaded notes to default texture');
+					};
 					
+					noteSplashesInputText = new PsychUIInputText(noteTextureInputText.x + 200, state.bg.y + 160, 120, '');
+					noteSplashesInputText.cameras = state.cameras;
+					noteSplashesInputText.onChange = function(old:String, cur:String)
+					{
+						PlayState.SONG.splashSkin = cur;
+						if(cur.trim().length < 1) PlayState.SONG.splashSkin = null;
+					}
+
+					holdCoverInputText = new PsychUIInputText(state.bg.x + 35, state.bg.y + 230, 120, '');
+					holdCoverInputText.cameras = state.cameras;
+					holdCoverInputText.onChange = function(old:String, cur:String)
+					{
+						PlayState.SONG.holdSkin = cur;
+						if(cur.trim().length < 1) PlayState.SONG.holdSkin = null;
+					}
+
+					orignalColorsBox = new PsychUICheckBox(holdCoverInputText.x + 200, state.bg.y + 230, 'Original Health Bar color', 100, updateBars);
+					orignalColorsBox.cameras = state.cameras;
+					state.add(orignalColorsBox);
+
+					state.add(noteTextureInputText);
+					state.add(noteSplashesInputText);
+					state.add(holdCoverInputText);
+
+					state.add(new FlxText(noteTextureInputText.x, noteTextureInputText.y - 15, 100, 'Note Texture:'));
+					state.add(new FlxText(noteSplashesInputText.x, noteSplashesInputText.y - 15, 120, 'Note Splashes Texture:'));
+					state.add(new FlxText(holdCoverInputText.x, holdCoverInputText.y - 15, 120, 'Hold Covers Texture:'));
+
+					staticArrowsMove = new PsychUIDropDownMenu(state.bg.x + 35, state.bg.y + 300, [''], function(id:Int, character:String)
+					{
+						PlayState.SONG.strumOffset = character;
+						if(character.length < 1) Reflect.deleteField(PlayState.SONG, 'strumOffset');
+						trace('selected $character');
+					});
+
+					opponentBox = new PsychUICheckBox(staticArrowsMove.x + 200, state.bg.y + 300, 'Force Disable Opponent\'s notes', 100, updateDisableDad);
+					opponentBox.cameras = state.cameras;
+					state.add(opponentBox);
+
+					camGameComboCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 370, 'Put Combo Grafix on game camera', 100, updateCombo);
+					camGameComboCheckBox.cameras = state.cameras;
+					state.add(camGameComboCheckBox);
+
+					comboGameX = new PsychUINumericStepper(state.bg.x + 175, state.bg.y + 370, 1, 650, -9999, 9999, 1);
+					comboGameX.cameras = state.cameras;
+					comboGameX.onValueChange = function()
+					{
+						PlayState.SONG.comboX = comboGameX.value;
+					};
+
+					comboGameY = new PsychUINumericStepper(state.bg.x + 300, state.bg.y + 370, 1, 300, -9999, 9999, 1);
+					comboGameY.cameras = state.cameras;
+					comboGameY.onValueChange = function()
+					{
+						PlayState.SONG.comboY = comboGameY.value;
+					};
+
+					state.add(new FlxText(comboGameX.x, comboGameX.y - 15, 100, 'Combo camGame X:'));
+					state.add(new FlxText(comboGameY.x, comboGameY.y - 15, 100, 'Combo camGame Y:'));
+
+					state.add(comboGameX);
+					state.add(comboGameY);
+
+					staticArrowsMove.cameras = state.cameras;
+					state.add(staticArrowsMove);  //lowest priority to display properly
+					staticArrowsMove.list = ['Default Centered', 'Player Focus', 'Opponent Focus', 'Forced MiddleScroll'];
+
+					state.add(new FlxText(staticArrowsMove.x, staticArrowsMove.y - 15, 120, 'Strums Position Type:'));
+					state.add(new FlxText(noteTextureInputText.x, noteTextureInputText.y - 15, 100, 'Note Texture:'));
+					state.add(new FlxText(noteSplashesInputText.x, noteSplashesInputText.y - 15, 120, 'Note Splashes Texture:'));
+					state.add(new FlxText(holdCoverInputText.x, holdCoverInputText.y - 15, 120, 'Hold Covers Texture:'));
+
+					noRGBCheckBox.checked = (PlayState.SONG.disableNoteRGB == true);
+					disableTimeBarCheckBox.checked = (PlayState.SONG.disableTimeBar == true);
+					noteTextureInputText.text = PlayState.SONG.arrowSkin;
+					noteSplashesInputText.text = PlayState.SONG.splashSkin;
+					holdCoverInputText.text = PlayState.SONG.holdSkin;
+					orignalColorsBox.checked = (PlayState.SONG.originalHealthColors == true);
+					opponentBox.checked = (PlayState.SONG.opponentDisabled == true);
+					camGameComboCheckBox.checked = (PlayState.SONG.comboInGameCam == true);
+					staticArrowsMove.selectedLabel = PlayState.SONG.strumOffset;
+					comboGameX.value = PlayState.SONG.comboX;
+					comboGameY.value = PlayState.SONG.comboY;
 				}
-				else showOutput('ERROR: "$textureLoad" not found.', true);
-			}
+			));
+
+		};
+		
+		objY += 35;
+
+		gameplayButton = new PsychUIButton(objX, objY, 'Gameplay MetaData', 200);
+		gameplayButton.onClick = function()
+		{
+			upperBox.isMinimized = true;
+			upperBox.bg.visible = false;
+			openSubState(new BasePrompt(400, 450, 'Gameplay MetaData',
+				function(state:BasePrompt)
+				{
+					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
+					btn.cameras = state.cameras;
+					state.add(btn);
+
+					quietCountCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 90, 'Quiet Countdown', 100, updateQuiet);
+					quietCountCheckBox.cameras = state.cameras;
+					state.add(quietCountCheckBox);
+
+					skipCountCheckBox = new PsychUICheckBox(quietCountCheckBox.x + 200, state.bg.y + 90, 'Skip Countdown', 100, updateSkip);
+					skipCountCheckBox.cameras = state.cameras;
+					state.add(skipCountCheckBox);
+
+					skipArrowCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 160, 'Skip Arrow Tween', 100, updateArrowTween);
+					skipArrowCheckBox.cameras = state.cameras;
+					state.add(skipArrowCheckBox);
+
+					focusedCharStart = new PsychUIDropDownMenu(skipArrowCheckBox.x + 200, state.bg.y + 160, [''], function(id:Int, character:String)
+					{
+						PlayState.SONG.charFocusStart = character;
+						if(character.length < 1) Reflect.deleteField(PlayState.SONG, 'charFocusStart (DISABLE MoveCamera on first section)');
+						trace('selected $character');
+					});
+
+					cameraX = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 230, 1, 0, -9999, 9999, 1);
+					cameraX.cameras = state.cameras;
+					cameraX.onValueChange = function()
+					{
+						PlayState.SONG.cameraOffsetX = cameraX.value;
+					};
+
+					cameraY = new PsychUINumericStepper(cameraX.x + 200, state.bg.y + 230, 1, 0, -9999, 9999, 1);
+					cameraY.cameras = state.cameras;
+					cameraY.onValueChange = function()
+					{
+						PlayState.SONG.cameraOffsetY = cameraY.value;
+					};
+
+					state.add(new FlxText(cameraX.x, cameraX.y - 15, 100, 'Camera Offset X:'));
+					state.add(new FlxText(cameraY.x, cameraY.y - 15, 100, 'Camera Offset Y:'));
+
+					state.add(cameraX);
+					state.add(cameraY);
+
+					followOffset = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 300, 1, 0, 0, 9999, 1);
+					followOffset.cameras = state.cameras;
+					followOffset.onValueChange = function()
+					{
+						PlayState.SONG.followCamOffset = followOffset.value;
+					};
+
+					cameraSpeed = new PsychUINumericStepper(followOffset.x + 200, state.bg.y + 300, 1, 0, 0, 10, 1);
+					cameraSpeed.cameras = state.cameras;
+					cameraSpeed.onValueChange = function()
+					{
+						PlayState.SONG.cameraSpeedMult = cameraSpeed.value;
+					};
+
+					state.add(new FlxText(followOffset.x, followOffset.y - 15, 200, 'Camera Follow Offset'));
+					state.add(new FlxText(cameraSpeed.x, cameraSpeed.y - 15, 200, 'Camera Speed Mutltipler:'));
+
+					state.add(followOffset);
+					state.add(cameraSpeed);
+
+					countdownSuffixInputText = new PsychUIInputText(state.bg.x + 35, state.bg.y + 370, 120, '');
+					countdownSuffixInputText.cameras = state.cameras;
+					countdownSuffixInputText.onChange = function(old:String, cur:String)
+					{
+						PlayState.SONG.countdownSuffix = cur;
+						if(cur.trim().length < 1) PlayState.SONG.countdownSuffix = null;
+					}
+
+					state.add(countdownSuffixInputText);
+					state.add(new FlxText(countdownSuffixInputText.x, countdownSuffixInputText.y - 15, 500, 'Countdown Sound PostFix (EX: "-beatbox"):'));
+
+					swapNotesCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 440, 'Swap Notes (MiddleScroll Won\'t work)', 100, updateSwap);
+					swapNotesCheckBox.cameras = state.cameras;
+					state.add(swapNotesCheckBox);
+
+					swapPlayersCheckBox = new PsychUICheckBox(quietCountCheckBox.x + 200, state.bg.y + 440, 'Swap Singers', 100, updateSingers);
+					swapPlayersCheckBox.cameras = state.cameras;
+					state.add(swapPlayersCheckBox);
+
+					focusedCharStart.cameras = state.cameras;
+					state.add(focusedCharStart);  //lowest priority to display properly
+					focusedCharStart.list = ['dad', 'bf', 'gf'];
+
+					quietCountCheckBox.checked = (PlayState.SONG.quietCountdown == true);
+					skipCountCheckBox.checked = (PlayState.SONG.skipCountdown == true);
+					skipArrowCheckBox.checked = (PlayState.SONG.skipArrowTween == true);
+					focusedCharStart.selectedLabel = PlayState.SONG.charFocusStart;
+					cameraX.value = PlayState.SONG.cameraOffsetX;
+					cameraY.value = PlayState.SONG.cameraOffsetY;
+					followOffset.value = PlayState.SONG.followCamOffset;
+					cameraSpeed.value = PlayState.SONG.cameraSpeedMult;
+					countdownSuffixInputText.text = PlayState.SONG.countdownSuffix;
+					swapNotesCheckBox.checked = (PlayState.SONG.swapNotes == true);
+					swapPlayersCheckBox.checked = (PlayState.SONG.swapPlayers == true);
+				}
+			));
+
 		};
 
-		noteSplashesInputText = new PsychUIInputText(objX + 140, objY, 120, '');
-		noteSplashesInputText.onChange = function(old:String, cur:String)
-		{
-			PlayState.SONG.splashSkin = cur;
-			if(cur.trim().length < 1) PlayState.SONG.splashSkin = null;
-		}
-	
-		tab_group.add(noRGBCheckBox);
-
-		tab_group.add(new FlxText(noteTextureInputText.x, noteTextureInputText.y - 15, 100, 'Note Texture:'));
-		tab_group.add(new FlxText(noteSplashesInputText.x, noteSplashesInputText.y - 15, 120, 'Note Splashes Texture:'));
-		tab_group.add(noteTextureInputText);
-		tab_group.add(noteSplashesInputText);
-
 		tab_group.add(gameOverButton);
+		tab_group.add(hudButton);
+		tab_group.add(gameplayButton);
 	}
 
 	var eventDropDown:PsychUIDropDownMenu;
@@ -5317,6 +5541,34 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		for (note in strumLineNotes)
 			note.rgbShader.enabled = !noRGBCheckBox.checked;
 	}
+
+	//i think i could do it better right??????????????????????????
+	inline public function updateTimeBar()
+		PlayState.SONG.disableTimeBar = disableTimeBarCheckBox.checked;
+
+	inline public function updateBars()
+		PlayState.SONG.originalHealthColors = orignalColorsBox.checked;
+
+	inline public function updateDisableDad()
+		PlayState.SONG.opponentDisabled = opponentBox.checked;
+
+	inline public function updateCombo()
+		PlayState.SONG.comboInGameCam = camGameComboCheckBox.checked;
+
+	inline public function updateQuiet()
+		PlayState.SONG.quietCountdown = quietCountCheckBox.checked;
+
+	inline public function updateSkip()
+		PlayState.SONG.skipCountdown = skipCountCheckBox.checked;
+
+	inline public function updateArrowTween()
+		PlayState.SONG.skipArrowTween = skipArrowCheckBox.checked;
+
+	inline public function updateSwap()
+		PlayState.SONG.swapNotes = swapNotesCheckBox.checked;
+
+	inline public function updateSingers()
+		PlayState.SONG.swapPlayers = swapPlayersCheckBox.checked;
 
 	function updateGridVisibility()
 	{

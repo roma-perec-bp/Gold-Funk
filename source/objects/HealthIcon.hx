@@ -5,6 +5,7 @@ class HealthIcon extends FlxSprite
 	public var sprTracker:FlxSprite;
 	private var isPlayer:Bool = false;
 	private var char:String = '';
+	public var hasThirdIcon:Bool = false;
 
 	public function new(char:String = 'face', isPlayer:Bool = false, ?allowGPU:Bool = true)
 	{
@@ -38,6 +39,10 @@ class HealthIcon extends FlxSprite
 
 			animation.add(char, [for(i in 0...frames.frames.length) i], 0, false, isPlayer);
 			animation.play(char);
+
+			if (animation.curAnim.numFrames == 3)
+				hasThirdIcon = true;
+
 			this.char = char;
 
 			if(char.endsWith('-pixel'))

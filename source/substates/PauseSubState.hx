@@ -80,13 +80,13 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		var levelArtist:FlxText = new FlxText(20, 15 + 32, 0, Language.getPhrase("artist", "Artist: {1}"), 32);
+		var levelArtist:FlxText = new FlxText(20, 15 + 32, 0, Language.getPhrase("artist", "Artist: {1}", ['Idk someone']), 32);
 		levelArtist.scrollFactor.set();
 		levelArtist.setFormat(Paths.font("vcr.ttf"), 32);
 		levelArtist.updateHitbox();
 		add(levelArtist);
 
-		var levelCharter:FlxText = new FlxText(20, 15 + 64, 0, Language.getPhrase("charter", "Charter: {1}"), 32);
+		var levelCharter:FlxText = new FlxText(20, 15 + 64, 0, Language.getPhrase("charter", "Charter: {1}", ['Idk someone']), 32);
 		levelCharter.scrollFactor.set();
 		levelCharter.setFormat(Paths.font("vcr.ttf"), 32);
 		levelCharter.updateHitbox();
@@ -135,7 +135,7 @@ class PauseSubState extends MusicBeatSubstate
 
 		FlxTween.tween(bg, {alpha: 0.6}, 0.4, {ease: FlxEase.quartInOut});
 		FlxTween.tween(levelInfo, {alpha: 1, y: 20}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.3});
-		FlxTween.tween(levelArtist, {alpha: 1, y: levelCharter.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
+		FlxTween.tween(levelArtist, {alpha: 1, y: levelArtist.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
 		FlxTween.tween(levelCharter, {alpha: 1, y: levelCharter.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
 		FlxTween.tween(levelDifficulty, {alpha: 1, y: levelDifficulty.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
 		FlxTween.tween(blueballedTxt, {alpha: 1, y: blueballedTxt.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.7});

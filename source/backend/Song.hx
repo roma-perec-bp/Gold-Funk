@@ -27,24 +27,31 @@ typedef SwagSong =
 	@:optional var gameOverEnd:String;
 	
 	@:optional var disableNoteRGB:Bool;
+	@:optional var disableTimeBar:Bool;
 
 	@:optional var arrowSkin:String;
 	@:optional var splashSkin:String;
+	@:optional var holdSkin:String;
 
-	@:optional var forceMiddleScroll:Bool;
-	@:optional var forceDisableOpponentStrums:Bool;
-
-	@:optional var skipCountdown:Bool;
-	@:optional var skipStrumTween:Bool;
-
-	@:optional var focusOn:String;
-	@:optional var offsetXcam:Float;
-	@:optional var offsetYcam:Float;
-
-	@:optional var vanillaHealthBar:Bool;
-	@:optional var ratingsOnCamGame:Bool;
-	@:optional var noteCameraMovement:Float;
 	@:optional var strumOffset:String;
+
+	@:optional var originalHealthColors:Bool;
+	@:optional var opponentDisabled:Bool;
+	@:optional var comboInGameCam:Bool;
+	@:optional var comboX:Float;
+	@:optional var comboY:Float;
+
+	@:optional var quietCountdown:Bool;
+	@:optional var skipCountdown:Bool;
+	@:optional var skipArrowTween:Bool;
+	@:optional var charFocusStart:String;
+	@:optional var cameraOffsetX:Float;
+	@:optional var cameraOffsetY:Float;
+	@:optional var followCamOffset:Float;
+	@:optional var cameraSpeedMult:Float;
+	@:optional var countdownSuffix:String;
+	@:optional var swapNotes:Bool;
+	@:optional var swapPlayers:Bool;
 }
 
 typedef SwagSection =
@@ -81,13 +88,37 @@ class Song
 	public var events:Array<Dynamic>;
 	public var bpm:Float;
 	public var needsVoices:Bool = true;
+
 	public var arrowSkin:String;
 	public var splashSkin:String;
+	public var holdSkin:String;
+
 	public var gameOverChar:String;
 	public var gameOverSound:String;
 	public var gameOverLoop:String;
 	public var gameOverEnd:String;
+
 	public var disableNoteRGB:Bool = false;
+	public var disableTimeBar:Bool = false;
+	public var strumOffset:String;
+	public var originalHealthColors:Bool;
+	public var opponentDisabled:Bool;
+	public var comboInGameCam:Bool;
+	public var comboX:Float = 650;
+	public var comboY:Float = 300;
+
+	public var quietCountdown:Bool = false;
+	public var skipCountdown:Bool = false;
+	public var skipArrowTween:Bool = false;
+	public var charFocusStart:String;
+	public var cameraOffsetX:Float = 0;
+	public var cameraOffsetY:Float = 0;
+	public var followCamOffset:Float = 0;
+	public var cameraSpeedMult:Float = 0;
+	public var countdownSuffix:String;
+	public var swapNotes:Bool = false;
+	public var swapPlayers:Bool = false;
+
 	public var speed:Float = 1;
 	public var stage:String;
 	public var player1:String = 'bf';
