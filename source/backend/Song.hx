@@ -53,6 +53,11 @@ typedef SwagSong =
 	@:optional var swapNotes:Bool;
 	@:optional var swapPlayers:Bool;
 	@:optional var swapMustPlay:Bool;
+
+	@:optional var art:String;
+	@:optional var music:String;
+	@:optional var code:String;
+	@:optional var chart:String;
 }
 
 typedef SwagSection =
@@ -120,6 +125,11 @@ class Song
 	public var swapNotes:Bool = false;
 	public var swapPlayers:Bool = false;
 	public var swapMustPlay:Bool = false;
+
+	public var art:String;
+	public var music:String;
+	public var code:String;
+	public var chart:String;
 
 	public var speed:Float = 1;
 	public var stage:String;

@@ -28,6 +28,8 @@ class PauseSubState extends MusicBeatSubstate
 	var missingTextBG:FlxSprite;
 	var missingText:FlxText;
 
+	var creditsY:Int = 96;
+
 	public static var songName:String = null;
 
 	override function create()
@@ -80,29 +82,56 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		var levelArtist:FlxText = new FlxText(20, 15 + 32, 0, Language.getPhrase("artist", "Artist: {1}", ['Idk someone']), 32);
-		levelArtist.scrollFactor.set();
-		levelArtist.setFormat(Paths.font("vcr.ttf"), 32);
-		levelArtist.updateHitbox();
-		add(levelArtist);
-
-		var levelCharter:FlxText = new FlxText(20, 15 + 64, 0, Language.getPhrase("charter", "Charter: {1}", ['Idk someone']), 32);
-		levelCharter.scrollFactor.set();
-		levelCharter.setFormat(Paths.font("vcr.ttf"), 32);
-		levelCharter.updateHitbox();
-		add(levelCharter);
-
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 96, 0, Difficulty.getString().toUpperCase(), 32);
+		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "Difficulty: " + Difficulty.getString().toUpperCase(), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();
 		add(levelDifficulty);
 
-		var blueballedTxt:FlxText = new FlxText(20, 15 + 128, 0, Language.getPhrase("blueballed", "Blueballed: {1}", [PlayState.deathCounter]), 32);
+		var blueballedTxt:FlxText = new FlxText(20, 15 + 64, 0, Language.getPhrase("blueballed", "Blueballed: {1}", [PlayState.deathCounter]), 32);
 		blueballedTxt.scrollFactor.set();
 		blueballedTxt.setFormat(Paths.font('vcr.ttf'), 32);
 		blueballedTxt.updateHitbox();
 		add(blueballedTxt);
+
+		var levelArtist:FlxText = new FlxText(20, 15 + creditsY, 0, Language.getPhrase("artist", "Art: {1}", [PlayState.SONG.art]), 32);
+		if (PlayState.SONG.art != null)
+		{
+			levelArtist.scrollFactor.set();
+			levelArtist.setFormat(Paths.font("vcr.ttf"), 32);
+			levelArtist.updateHitbox();
+			add(levelArtist);
+			creditsY += 32;
+		}
+
+		var levelMusic:FlxText = new FlxText(20, 15 + creditsY, 0, Language.getPhrase("music", "Music: {1}", [PlayState.SONG.music]), 32);
+		if (PlayState.SONG.music != null)
+		{
+			levelMusic.scrollFactor.set();
+			levelMusic.setFormat(Paths.font("vcr.ttf"), 32);
+			levelMusic.updateHitbox();
+			add(levelMusic);
+			creditsY += 32;
+		}
+
+		var levelCode:FlxText = new FlxText(20, 15 + creditsY, 0, Language.getPhrase("code", "Code: {1}", [PlayState.SONG.code]), 32);
+		if (PlayState.SONG.code != null)
+		{
+			levelCode.scrollFactor.set();
+			levelCode.setFormat(Paths.font("vcr.ttf"), 32);
+			levelCode.updateHitbox();
+			add(levelCode);
+			creditsY += 32;
+		}
+
+		var levelCharter:FlxText = new FlxText(20, 15 + creditsY, 0, Language.getPhrase("charter", "Chart: {1}", [PlayState.SONG.chart]), 32);
+		if (PlayState.SONG.chart != null)
+		{
+			levelCharter.scrollFactor.set();
+			levelCharter.setFormat(Paths.font("vcr.ttf"), 32);
+			levelCharter.updateHitbox();
+			add(levelCharter);
+		}
 
 		practiceText = new FlxText(20, 15 + 101, 0, Language.getPhrase("Practice Mode").toUpperCase(), 32);
 		practiceText.scrollFactor.set();
@@ -124,21 +153,28 @@ class PauseSubState extends MusicBeatSubstate
 		blueballedTxt.alpha = 0;
 		levelDifficulty.alpha = 0;
 		levelInfo.alpha = 0;
-		levelArtist.alpha = 0;
-		levelCharter.alpha = 0;
+		if (PlayState.SONG.art != null) levelArtist.alpha = 0;
+		if (PlayState.SONG.chart != null) levelCharter.alpha = 0;
+		if (PlayState.SONG.code != null) levelCode.alpha = 0;
+		if (PlayState.SONG.music != null) levelMusic.alpha = 0;
 
 		levelInfo.x = FlxG.width - (levelInfo.width + 20);
-		levelArtist.x = FlxG.width - (levelArtist.width + 20);
-		levelCharter.x = FlxG.width - (levelCharter.width + 20);
+		if (PlayState.SONG.art != null) levelArtist.x = FlxG.width - (levelArtist.width + 20);
+		if (PlayState.SONG.music != null) levelMusic.x = FlxG.width - (levelMusic.width + 20);
+		if (PlayState.SONG.code != null) levelCode.x = FlxG.width - (levelCode.width + 20);
+		if (PlayState.SONG.chart != null) levelCharter.x = FlxG.width - (levelCharter.width + 20);
+		levelInfo.x = FlxG.width - (levelInfo.width + 20);
 		levelDifficulty.x = FlxG.width - (levelDifficulty.width + 20);
 		blueballedTxt.x = FlxG.width - (blueballedTxt.width + 20);
 
 		FlxTween.tween(bg, {alpha: 0.6}, 0.4, {ease: FlxEase.quartInOut});
-		FlxTween.tween(levelInfo, {alpha: 1, y: 20}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.3});
-		FlxTween.tween(levelArtist, {alpha: 1, y: levelArtist.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
-		FlxTween.tween(levelCharter, {alpha: 1, y: levelCharter.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
-		FlxTween.tween(levelDifficulty, {alpha: 1, y: levelDifficulty.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
-		FlxTween.tween(blueballedTxt, {alpha: 1, y: blueballedTxt.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.7});
+		FlxTween.tween(levelInfo, {alpha: 1, y: 20}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.2});
+		FlxTween.tween(levelDifficulty, {alpha: 1, y: levelDifficulty.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.4});
+		FlxTween.tween(blueballedTxt, {alpha: 1, y: blueballedTxt.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.6});
+		if (PlayState.SONG.art != null) FlxTween.tween(levelArtist, {alpha: 1, y: levelArtist.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.8});
+		if (PlayState.SONG.music != null) FlxTween.tween(levelMusic, {alpha: 1, y: levelMusic.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 1});
+		if (PlayState.SONG.code != null) FlxTween.tween(levelCode, {alpha: 1, y: levelCode.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 1.2});
+		if (PlayState.SONG.chart != null) FlxTween.tween(levelCharter, {alpha: 1, y: levelCharter.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 1.4});
 
 		grpMenuShit = new FlxTypedGroup<Alphabet>();
 		add(grpMenuShit);

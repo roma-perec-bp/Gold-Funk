@@ -2637,6 +2637,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var swapNotesCheckBox:PsychUICheckBox;
 	var swapPlayersCheckBox:PsychUICheckBox;
 	var swapMustHitCheckBox:PsychUICheckBox;
+
+	var creditsButton:PsychUIButton;
+	var artInputText:PsychUIInputText;
+	var musicInputText:PsychUIInputText;
+	var codeInputText:PsychUIInputText;
+	var chartInputText:PsychUIInputText;
 	function addDataTab()
 	{
 		var tab_group = mainBox.getTab('Data').menu;
@@ -2994,9 +3000,74 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		};
 
+		objY += 35;
+
+		creditsButton = new PsychUIButton(objX, objY, 'Credits MetaData', 200);
+		creditsButton.onClick = function()
+		{
+			upperBox.isMinimized = true;
+			upperBox.bg.visible = false;
+			openSubState(new BasePrompt(450, 250, 'Credits MetaData',
+				function(state:BasePrompt)
+				{
+					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
+					btn.cameras = state.cameras;
+					state.add(btn);
+
+					artInputText = new PsychUIInputText(state.bg.x + 35, state.bg.y + 90, 120, '', 8);
+					artInputText.onChange = function(old:String, cur:String)
+					{
+						PlayState.SONG.art = cur;
+						if(cur.trim().length < 1) Reflect.deleteField(PlayState.SONG, 'art');
+					}
+					artInputText.cameras = state.cameras;
+					state.add(artInputText);
+
+					musicInputText = new PsychUIInputText(artInputText.x + 200, state.bg.y + 90, 120, '', 8);
+					musicInputText.onChange = function(old:String, cur:String)
+					{
+						PlayState.SONG.music = cur;
+						if(cur.trim().length < 1) Reflect.deleteField(PlayState.SONG, 'music');
+					}
+					musicInputText.cameras = state.cameras;
+					state.add(musicInputText);
+
+					codeInputText = new PsychUIInputText(state.bg.x + 35, state.bg.y + 160, 120, '', 8);
+					codeInputText.onChange = function(old:String, cur:String)
+					{
+						PlayState.SONG.code = cur;
+						if(cur.trim().length < 1) Reflect.deleteField(PlayState.SONG, 'code');
+					}
+					codeInputText.cameras = state.cameras;
+					state.add(codeInputText);
+
+					chartInputText = new PsychUIInputText(codeInputText.x + 200, state.bg.y + 160, 120, '', 8);
+					chartInputText.onChange = function(old:String, cur:String)
+					{
+						PlayState.SONG.chart = cur;
+						if(cur.trim().length < 1) Reflect.deleteField(PlayState.SONG, 'chart');
+					}
+					chartInputText.cameras = state.cameras;
+					state.add(chartInputText);
+
+					state.add(new FlxText(artInputText.x, artInputText.y - 15, 180, 'Artists Credits:'));
+					state.add(new FlxText(musicInputText.x, musicInputText.y - 15, 180, 'Composers Credits:'));
+					state.add(new FlxText(codeInputText.x, codeInputText.y - 15, 180, 'Coders Credits:'));
+					state.add(new FlxText(chartInputText.x, chartInputText.y - 15, 180, 'Charters Credits:'));
+
+					artInputText.text = PlayState.SONG.art;
+					musicInputText.text = PlayState.SONG.music;
+					codeInputText.text = PlayState.SONG.code;
+					chartInputText.text = PlayState.SONG.chart;
+				}
+			));
+
+		};
+
 		tab_group.add(gameOverButton);
 		tab_group.add(hudButton);
 		tab_group.add(gameplayButton);
+		tab_group.add(creditsButton);
 	}
 
 	var eventDropDown:PsychUIDropDownMenu;
