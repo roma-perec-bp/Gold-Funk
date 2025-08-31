@@ -2643,6 +2643,15 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var musicInputText:PsychUIInputText;
 	var codeInputText:PsychUIInputText;
 	var chartInputText:PsychUIInputText;
+
+	var extraButton:PsychUIButton;
+	var fadeOutStartCheckBox:PsychUICheckBox;
+	var fadeCountCheckBox:PsychUICheckBox;
+	var fadeDurationNumStepper:PsychUINumericStepper;
+	var inFrontFadeCheckbox:PsychUICheckBox;
+	var disableSplashCheckBox:PsychUICheckBox;
+	var disableHoldCoverCheckBox:PsychUICheckBox;
+	var timeBarFakeNumStepper:PsychUINumericStepper;
 	function addDataTab()
 	{
 		var tab_group = mainBox.getTab('Data').menu;
@@ -3064,10 +3073,77 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		};
 
+		objY += 35;
+
+		extraButton = new PsychUIButton(objX, objY, 'Extra MetaData', 200); //THIS THING WILL GET UPDATED SOMETIMES
+		extraButton.onClick = function()
+		{
+			upperBox.isMinimized = true;
+			upperBox.bg.visible = false;
+			openSubState(new BasePrompt(400, 500, 'Extra MetaData',
+				function(state:BasePrompt)
+				{
+					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
+					btn.cameras = state.cameras;
+					state.add(btn);
+
+					fadeOutStartCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 90, 'Fade Out at The Start of the Song', 100, updateFadeOut);
+					fadeOutStartCheckBox.cameras = state.cameras;
+					state.add(fadeOutStartCheckBox);
+
+					fadeCountCheckBox = new PsychUICheckBox(fadeOutStartCheckBox.x + 200, state.bg.y + 90, 'Start FadeOut at Countdown', 100, updateFadeCountdown);
+					fadeCountCheckBox.cameras = state.cameras;
+					state.add(fadeCountCheckBox);
+
+					fadeDurationNumStepper = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 160, 1, 0, 0, 9999, 1);
+					fadeDurationNumStepper.cameras = state.cameras;
+					fadeDurationNumStepper.onValueChange = function()
+					{
+						PlayState.SONG.fadeDuration = fadeDurationNumStepper.value;
+					};
+					state.add(fadeDurationNumStepper);
+
+					state.add(new FlxText(fadeDurationNumStepper.x, fadeDurationNumStepper.y - 15, 100, 'Fade Duration:'));
+
+					inFrontFadeCheckbox = new PsychUICheckBox(fadeDurationNumStepper.x + 200, state.bg.y + 160, 'Fade In Front of HUD', 100, updateInFrontFade);
+					inFrontFadeCheckbox.cameras = state.cameras;
+					state.add(inFrontFadeCheckbox);
+
+					disableSplashCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 230, 'Disable Splash', 100, disableSplashUpdate);
+					disableSplashCheckBox.cameras = state.cameras;
+					state.add(disableSplashCheckBox);
+
+					disableHoldCoverCheckBox = new PsychUICheckBox(disableSplashCheckBox.x + 200, state.bg.y + 230, 'Disable Hold Cover', 100, disableHoldCoverUpdate);
+					disableHoldCoverCheckBox.cameras = state.cameras;
+					state.add(disableHoldCoverCheckBox);
+
+					timeBarFakeNumStepper = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 300, 1, 0, 0, 9999, 1, 260);
+					timeBarFakeNumStepper.cameras = state.cameras;
+					timeBarFakeNumStepper.onValueChange = function()
+					{
+						PlayState.SONG.timeBarFake = timeBarFakeNumStepper.value;
+					};
+					state.add(timeBarFakeNumStepper);
+
+					state.add(new FlxText(timeBarFakeNumStepper.x, timeBarFakeNumStepper.y - 15, 200, 'Fake Visual Time Length:'));
+
+					fadeOutStartCheckBox.checked = (PlayState.SONG.fadeOutStart == true);
+					fadeCountCheckBox.checked = (PlayState.SONG.fadeCount == true);
+					fadeDurationNumStepper.value = PlayState.SONG.fadeDuration;
+					inFrontFadeCheckbox.checked = (PlayState.SONG.inFrontFade == true);
+					disableSplashCheckBox.checked = (PlayState.SONG.disableSplash == true);
+					disableHoldCoverCheckBox.checked = (PlayState.SONG.disableHoldCover == true);
+					timeBarFakeNumStepper.value = PlayState.SONG.timeBarFake;
+				}
+			));
+
+		};
+
 		tab_group.add(gameOverButton);
 		tab_group.add(hudButton);
 		tab_group.add(gameplayButton);
 		tab_group.add(creditsButton);
+		tab_group.add(extraButton);
 	}
 
 	var eventDropDown:PsychUIDropDownMenu;
@@ -5649,6 +5725,21 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	inline public function updateMust()
 		PlayState.SONG.swapMustPlay = swapMustHitCheckBox.checked;
+
+	inline public function updateFadeOut()
+		PlayState.SONG.fadeOutStart = fadeOutStartCheckBox.checked;
+
+	inline public function updateInFrontFade()
+		PlayState.SONG.inFrontFade = inFrontFadeCheckbox.checked;
+
+	inline public function updateFadeCountdown()
+		PlayState.SONG.fadeCount = fadeCountCheckBox.checked;
+
+	inline public function disableSplashUpdate()
+		PlayState.SONG.disableSplash = disableSplashCheckBox.checked;
+
+	inline public function disableHoldCoverUpdate()
+		PlayState.SONG.disableHoldCover = disableHoldCoverCheckBox.checked;
 
 	function updateGridVisibility()
 	{

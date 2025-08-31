@@ -14,11 +14,17 @@ class SustainSplash extends FlxSprite {
 
     super();
 
-    frames = Paths.getSparrowAtlas(defaultNoteSplash);
-    animation.addByPrefix('hold', 'hold', 24, true);
-    animation.addByPrefix('end', 'end', 24, false);
-    animation.play('hold', true, false, 0);
-    animation.curAnim.looped = true;
+    var splash:String = '';
+    if (PlayState.SONG != null && PlayState.SONG.holdSkin != null && PlayState.SONG.holdSkin.length > 0) 
+      splash = PlayState.SONG.holdSkin;
+    else
+      splash = defaultNoteSplash;
+
+    frames = Paths.getSparrowAtlas(splash);
+    animation.addByPrefix('start', 'holdCoverStart0', 24, false);
+    animation.addByPrefix('hold', 'holdCover0', 24, true);
+		animation.addByPrefix('end', 'holdCoverEnd0', 24, false);
+    animation.play('start', true, false, 0);
 
     destroyTimer = new FlxTimer();
   }
@@ -26,7 +32,13 @@ class SustainSplash extends FlxSprite {
   override function update(elapsed:Float)
   {
     //so it won't be look weird when strum move
-    if(strumMove != null) setPosition(strumMove.x, strumMove.y);
+    if(strumMove != null)
+    {
+      setPosition(strumMove.x, strumMove.y);
+      alpha = strumMove.alpha;
+    }
+
+    if (animation.curAnim.name == 'start' && animation.curAnim.finished) animation.play('hold');
 
     super.update(elapsed);
   }
@@ -80,6 +92,14 @@ class SustainSplash extends FlxSprite {
     super.destroy();
     if (end != null) {
       end.extraData['holdSplash'] = null;
+    }
+  }
+
+  public function onAnimationFinished(animationName:String):Void
+  {
+    if (animationName.startsWith('start'))
+    {
+      animation.play('hold', true, false, 0);
     }
   }
 

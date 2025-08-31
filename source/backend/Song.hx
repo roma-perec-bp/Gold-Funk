@@ -58,6 +58,14 @@ typedef SwagSong =
 	@:optional var music:String;
 	@:optional var code:String;
 	@:optional var chart:String;
+
+	@:optional var fadeOutStart:Bool;
+	@:optional var fadeCount:Bool;
+	@:optional var fadeDuration:Float;
+	@:optional var inFrontFade:Bool;
+	@:optional var disableSplash:Bool;
+	@:optional var disableHoldCover:Bool;
+	@:optional var timeBarFake:Float;
 }
 
 typedef SwagSection =
@@ -130,6 +138,14 @@ class Song
 	public var music:String;
 	public var code:String;
 	public var chart:String;
+
+	public var fadeOutStart:Bool = false;
+	public var fadeCount:Bool = false;
+	public var fadeDuration:Float;
+	public var inFrontFade:Bool = false;
+	public var disableSplash:Bool = false;
+	public var disableHoldCover:Bool = false;
+	public var timeBarFake:Float;
 
 	public var speed:Float = 1;
 	public var stage:String;

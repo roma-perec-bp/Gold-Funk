@@ -561,7 +561,7 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
 		var showTime:Bool = (ClientPrefs.data.timeBarType != 'Disabled' && !PlayState.SONG.disableTimeBar);
-		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 21, 400, "", 20);
+		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 21.5, 400, "", 20);
 		timeTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		timeTxt.scrollFactor.set();
 		timeTxt.alpha = 0;
@@ -719,6 +719,24 @@ class PlayState extends MusicBeatState
 
 		stagesFunc(function(stage:BaseStage) stage.createPost());
 		callOnScripts('onCreatePost');
+
+		if (PlayState.SONG.fadeOutStart)
+		{
+			if(PlayState.SONG.fadeCount)
+			{
+				if (!PlayState.SONG.inFrontFade)
+					FlxG.camera.fade(FlxColor.BLACK, 0.0001, false, null, true);
+				else
+					camOther.fade(FlxColor.BLACK, 0.0001, false, null, true);
+			}
+			else
+			{
+				if (!PlayState.SONG.inFrontFade)
+					FlxG.camera.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+				else
+					camOther.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+			}
+		}
 		
 		var splash:NoteSplash = new NoteSplash();
 		grpNoteSplashes.add(splash);
@@ -1175,6 +1193,17 @@ class PlayState extends MusicBeatState
 						tick = GO;
 					case 4:
 						tick = START;
+
+						if (PlayState.SONG.fadeOutStart)
+						{
+							if(PlayState.SONG.fadeCount)
+							{
+								if (!PlayState.SONG.inFrontFade)
+									FlxG.camera.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+								else
+									camHUD.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+							}
+						}
 				}
 
 				if(!skipArrowStartTween)
@@ -1215,7 +1244,7 @@ class PlayState extends MusicBeatState
 			spr.loadGraphic(Paths.image(image));
 		}
 
-		spr.cameras = [camHUD];
+		spr.cameras = [camOther];
 		spr.scrollFactor.set();
 		spr.updateHitbox();
 
@@ -1452,6 +1481,9 @@ class PlayState extends MusicBeatState
 		songLength = FlxG.sound.music.length;
 		FlxTween.tween(timeBar, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 		FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
+
+		if (PlayState.SONG.timeBarFake != null && PlayState.SONG.timeBarFake != 0)
+			songLength = PlayState.SONG.timeBarFake * 1000;
 
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence (with Time Left)
@@ -3889,7 +3921,7 @@ class PlayState extends MusicBeatState
 			/*if (onlySick && (noteDiff > ClientPrefs.data.sickWindow || noteDiff < -ClientPrefs.data.sickWindow))
 				doDeathCheck(true);*/
 
-			if(daRating.noteSplash && !note.noteSplashData.disabled) spawnNoteSplashOnNote(note);
+			if(daRating.noteSplash && !note.noteSplashData.disabled && !PlayState.SONG.disableSplash) spawnNoteSplashOnNote(note);
 
 			if(daRating.grayNote)
 			{
@@ -4554,7 +4586,7 @@ class PlayState extends MusicBeatState
 		note.hitByOpponent = true;
 
 		if(note.visible && note.lightStrum) 
-			if((ClientPrefs.data.opponentStrums && !PlayState.SONG.opponentDisabled))
+			if((ClientPrefs.data.opponentStrums && !PlayState.SONG.opponentDisabled) && !PlayState.SONG.disableHoldCover)
 				spawnHoldSplashOnNote(note);
 
 		if (opponentHealthDrain && health >= opponentHealthDrainAmount && !note.gfNote && note.noteType != 'GF Sing')
@@ -4685,7 +4717,7 @@ class PlayState extends MusicBeatState
 
 			vocals.volume = 1;
 
-			if(note.lightStrum) spawnHoldSplashOnNote(note);
+			if(note.lightStrum && !PlayState.SONG.disableHoldCover) spawnHoldSplashOnNote(note);
 			if (!note.isSustainNote)
 			{
 				var whichAnim:String = '';
@@ -4732,7 +4764,7 @@ class PlayState extends MusicBeatState
 			}
 
 			noteMiss(note);
-			if(!note.noteSplashData.disabled && !note.isSustainNote) spawnNoteSplashOnNote(note);
+			if(!note.noteSplashData.disabled && !note.isSustainNote && !PlayState.SONG.disableSplash) spawnNoteSplashOnNote(note);
 		}
 
 		if(!note.noAnimation)
