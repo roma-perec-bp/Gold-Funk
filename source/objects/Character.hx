@@ -300,7 +300,7 @@ class Character extends FlxSprite
 		else if (getAnimationName().endsWith('-end') && isAnimationFinished())
 		{
 			dance();
-			finishAnimation();
+			//finishAnimation();
 		}
 
 		switch(curCharacter)

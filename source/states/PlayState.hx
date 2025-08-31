@@ -4855,8 +4855,8 @@ class PlayState extends MusicBeatState
 		var hasHoldLoopAnim:Bool = char.hasAnimation(charAnim + '-hold-loop');
 
 		note.extraData.set('continueAnimation', false);
-		if (note.isSustainNote && note.sustainType == 'freeze')
-			/*if (hasHoldAnim) {
+		/*if (note.isSustainNote && note.sustainType == 'freeze')
+			if (hasHoldAnim) {
 				note.animSuffix += '-hold';
 				note.extraData.set('continueAnimation', note.noAnimation = true);
 			} else if (hasLoopAnim) {
