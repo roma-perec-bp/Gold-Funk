@@ -113,8 +113,8 @@
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
-	<haxelib name="flixel" version="5.6.1"/>
-	<haxelib name="flixel-addons" version="3.2.2"/>
+	<haxelib name="flixel"/>
+	<haxelib name="flixel-addons"/>
 	<haxelib name="tjson" version="1.4.0"/>
     <haxelib name="hxWindowColorMode"  if="windows"/> <!-- This was made by T-Bar!! -->
 
@@ -171,10 +171,13 @@
 	<!--Enable this for Nape release builds for a serious peformance improvement-->
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
 	
-	<!--Used for Izzy Engine's crash handler-->
-	<haxedef name="HXCPP_CHECK_POINTER" if="CRASH_HANDLER" />
-	<haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER" />
-	<haxedef name="HXCPP_STACK_TRACE" if="CRASH_HANDLER" />
+	<!--Used for crash handler-->
+	<section if="cpp">
+		<haxedef name="HXCPP_CHECK_POINTER" />
+		<haxedef name="HXCPP_STACK_LINE" />
+		<haxedef name="HXCPP_STACK_TRACE" />
+		<haxedef name="HXCPP_CATCH_SEGV" />
+	</section>
 	
 	<!--Disable deprecated warnings-->
 	<haxedef name='no-deprecation-warnings' />

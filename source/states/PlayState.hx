@@ -2425,7 +2425,7 @@ class PlayState extends MusicBeatState
 				persistentDraw = false;
 				FlxTimer.globalManager.clear();
 				FlxTween.globalManager.clear();
-				FlxG.camera.setFilters([]);
+				FlxG.camera.filters = [];
 
 				if(GameOverSubstate.deathDelay > 0)
 				{
@@ -4856,13 +4856,13 @@ class PlayState extends MusicBeatState
 
 		note.extraData.set('continueAnimation', false);
 		if (note.isSustainNote && note.sustainType == 'freeze')
-			if (hasHoldAnim) {
+			/*if (hasHoldAnim) {
 				note.animSuffix += '-hold';
 				note.extraData.set('continueAnimation', note.noAnimation = true);
 			} else if (hasLoopAnim) {
 				note.animSuffix += '-loop';
 				note.extraData.set('continueAnimation', note.noAnimation = true);
-			}
+			}*/
 	}
 
 	function noteHitCheck(note:Note, char:Character):Void {
@@ -4877,8 +4877,8 @@ class PlayState extends MusicBeatState
 			if (StringTools.endsWith(note.animation.name, 'end'))
 				frozenCharacters.set(char, false);
 		}
-		if (StringTools.endsWith(char.getAnimationName(), '-hold') || StringTools.endsWith(char.getAnimationName(), '-loop'))
-			frozenCharacters.set(char, false);
+		/*if (StringTools.endsWith(char.getAnimationName(), '-hold') || StringTools.endsWith(char.getAnimationName(), '-loop'))*/
+		frozenCharacters.set(char, false);
 	}
 
 	public function invalidateNote(note:Note):Void {
@@ -4965,7 +4965,7 @@ class PlayState extends MusicBeatState
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
-		FlxG.camera.setFilters([]);
+		FlxG.camera.filters = [];
 
 		#if FLX_PITCH FlxG.sound.music.pitch = 1; #end
 		FlxG.animationTimeScale = 1;
@@ -4986,31 +4986,31 @@ class PlayState extends MusicBeatState
 				camHUDShaders.push(effect);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camHUDShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camHUD.setFilters(newCamEffects);
+				camHUD.filters = newCamEffects;
 
 			case 'camnotes' | 'notes':
 				camNotesShaders.push(effect);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camNotesShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camNotes.setFilters(newCamEffects);
+				camNotes.filters = newCamEffects ;
 				
 			case 'camhudoverlay' | 'overlay':
 				camHudOverlayShaders.push(effect);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camHudOverlayShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camOverlayHUD.setFilters(newCamEffects);
+				camOverlayHUD.filters = newCamEffects;
 
 			case 'camother' | 'other':
 				camOtherShaders.push(effect);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camOtherShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camOther.setFilters(newCamEffects);
+				camOther.filters = newCamEffects;
 
 			default:
 				camGameShaders.push(effect);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camGameShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camGame.setFilters(newCamEffects);
+				camGame.filters = newCamEffects;
 		}
 	}
 
@@ -5025,31 +5025,31 @@ class PlayState extends MusicBeatState
 				camHUDShaders.push(newShader);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camHUDShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camHUD.setFilters(newCamEffects);
+				camHUD.filters = newCamEffects;
 
 			case 'camnotes' | 'notes':
 				camNotesShaders.push(newShader);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camNotesShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camNotes.setFilters(newCamEffects);
+				camNotes.filters = newCamEffects;
 				
 			case 'camhudoverlay' | 'overlay':
 				camHudOverlayShaders.push(newShader);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camHudOverlayShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camOverlayHUD.setFilters(newCamEffects);
+				camOverlayHUD.filters = newCamEffects;
 
 			case 'camother' | 'other':
 				camOtherShaders.push(newShader);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camOtherShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camOther.setFilters(newCamEffects);
+				camOther.filters = newCamEffects;
 
 			default:
 				camGameShaders.push(newShader);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camGameShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camGame.setFilters(newCamEffects);
+				camGame.filters = newCamEffects;
 		}
 	}
 
@@ -5061,31 +5061,31 @@ class PlayState extends MusicBeatState
                 camHUDShaders.remove(effect);
                 var newCamEffects:Array<BitmapFilter>=[];
                 for(i in camHUDShaders) newCamEffects.push(new ShaderFilter(i.shader));
-                camHUD.setFilters(newCamEffects);
+                camHUD.filters = newCamEffects;
 
 			case 'camnotes' | 'notes': 
                 camNotesShaders.remove(effect);
                 var newCamEffects:Array<BitmapFilter>=[];
                 for(i in camNotesShaders) newCamEffects.push(new ShaderFilter(i.shader));
-                camNotes.setFilters(newCamEffects);
+                camNotes.filters = newCamEffects;
 
 			case 'camhudoverlay' | 'overlay': 
                 camHudOverlayShaders.remove(effect);
                 var newCamEffects:Array<BitmapFilter>=[];
                 for(i in camHudOverlayShaders) newCamEffects.push(new ShaderFilter(i.shader));
-                camOverlayHUD.setFilters(newCamEffects);
+                camOverlayHUD.filters = newCamEffects;
 
 			case 'camother' | 'other': 
 				camOtherShaders.remove(effect);
 				var newCamEffects:Array<BitmapFilter>=[];
 				for(i in camOtherShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camOther.setFilters(newCamEffects);
+				camOther.filters = newCamEffects;
 
 			default: 
 				camGameShaders.remove(effect);
 				var newCamEffects:Array<BitmapFilter>=[];
 				for(i in camGameShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camGame.setFilters(newCamEffects);
+				camGame.filters = newCamEffects;
 		}
 	}
 
@@ -5096,23 +5096,23 @@ class PlayState extends MusicBeatState
 			case 'camhud' | 'hud': 
 				camHUDShaders = [];
 				var newCamEffects:Array<BitmapFilter>=[];
-				camHUD.setFilters(newCamEffects);
+				camHUD.filters = newCamEffects;
 			case 'camnotes' | 'notes': 
 				camNotesShaders = [];
 				var newCamEffects:Array<BitmapFilter>=[];
-				camNotes.setFilters(newCamEffects);
+				camNotes.filters = newCamEffects;
 			case 'camhudoverlay' | 'overlay': 
 				camHudOverlayShaders = [];
 				var newCamEffects:Array<BitmapFilter>=[];
-				camOverlayHUD.setFilters(newCamEffects);
+				camOverlayHUD.filters = newCamEffects;
 			case 'camother' | 'other': 
 				camOtherShaders = [];
 				var newCamEffects:Array<BitmapFilter>=[];
-				camOther.setFilters(newCamEffects);
+				camOther.filters = newCamEffects;
 			default: 
 				camGameShaders = [];
 				var newCamEffects:Array<BitmapFilter>=[];
-				camGame.setFilters(newCamEffects);
+				camGame.filters = newCamEffects;
 		}
 	}
 

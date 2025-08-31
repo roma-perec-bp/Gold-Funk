@@ -17,14 +17,16 @@ typedef CharacterFile = {
 	var image:String;
 	var scale:Float;
 	var sing_duration:Float;
-	var healthicon:String;
 
 	var position:Array<Float>;
 	var camera_position:Array<Float>;
 
+	//var danceEvery:Int;
+
 	var flip_x:Bool;
 	var no_antialiasing:Bool;
 	var healthbar_colors:Array<Int>;
+	var healthicon:String;
 	var vocals_file:String;
 	@:optional var _editor_isPlayer:Null<Bool>;
 }
@@ -34,8 +36,17 @@ typedef AnimArray = {
 	var name:String;
 	var fps:Int;
 	var loop:Bool;
+	//var flipX:Bool;
 	var indices:Array<Int>;
 	var offsets:Array<Int>;
+}
+
+typedef HealthParam = {
+	var healthicon:String;
+	var healthbar_colors:Array<Int>;
+	var iconfOffsets:Array<Int>;
+	var iconScale:Float;
+	var iconFlipX:Float;
 }
 
 class Character extends FlxSprite
@@ -286,6 +297,11 @@ class Character extends FlxSprite
 			dance();
 			finishAnimation();
 		}
+		else if (getAnimationName().endsWith('-end') && isAnimationFinished())
+		{
+			dance();
+			finishAnimation();
+		}
 
 		switch(curCharacter)
 		{
@@ -302,7 +318,7 @@ class Character extends FlxSprite
 				if(isAnimationFinished()) playAnim(getAnimationName(), false, false, animation.curAnim.frames.length - 3);
 		}
 
-		if (getAnimationName().startsWith('sing')) 
+		if (getAnimationName().startsWith('sing') && !getAnimationName().endsWith('-end')) 
 			holdTimer += elapsed;
 		else 
 		{
@@ -317,16 +333,34 @@ class Character extends FlxSprite
 		{
 			if(PlayState.SONG.swapPlayers && isPlayer)
 			{
-				dance();
-				finishAnimation();
 				holdTimer = 0;
+
+				var endAnimation:String = animation.curAnim.name + '-end';
+				if (hasAnimation(endAnimation))
+				{
+					playAnim(endAnimation);
+				}
+				else
+				{
+					dance();
+					finishAnimation();
+				}
 			}
 
 			if(!PlayState.SONG.swapPlayers && !isPlayer)
 			{
-				dance();
-				finishAnimation();
 				holdTimer = 0;
+
+				var endAnimation:String = animation.curAnim.name + '-end';
+				if (hasAnimation(endAnimation))
+				{
+					playAnim(endAnimation);
+				}
+				else
+				{
+					dance();
+					finishAnimation();
+				}
 			}
 		}
 
@@ -405,7 +439,9 @@ class Character extends FlxSprite
 					playAnim('danceLeft' + idleSuffix);
 			}
 			else if(hasAnimation('idle' + idleSuffix))
+			{
 				playAnim('idle' + idleSuffix, force);
+			}
 		}
 	}
 

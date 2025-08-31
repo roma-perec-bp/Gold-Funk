@@ -31,6 +31,8 @@ class SustainSplash extends FlxSprite {
 
   override function update(elapsed:Float)
   {
+    super.update(elapsed);
+    
     //so it won't be look weird when strum move
     if(strumMove != null)
     {
@@ -39,8 +41,6 @@ class SustainSplash extends FlxSprite {
     }
 
     if (animation.curAnim.name == 'start' && animation.curAnim.finished) animation.play('hold');
-
-    super.update(elapsed);
   }
 
   public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void {
@@ -88,8 +88,8 @@ class SustainSplash extends FlxSprite {
     if (FlxG.state is PlayState) {
       PlayState.instance.grpHoldSplashes.remove(this);
     }
-    destroy();
-    super.destroy();
+   // destroy();
+    //super.destroy();
     if (end != null) {
       end.extraData['holdSplash'] = null;
     }
