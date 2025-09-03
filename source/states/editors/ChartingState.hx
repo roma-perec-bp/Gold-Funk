@@ -3117,7 +3117,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					disableHoldCoverCheckBox.cameras = state.cameras;
 					state.add(disableHoldCoverCheckBox);
 
-					timeBarFakeNumStepper = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 300, 1, 0, 0, 9999, 1, 260);
+					timeBarFakeNumStepper = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 300, 1, 0, 0, 9999, 1);
 					timeBarFakeNumStepper.cameras = state.cameras;
 					timeBarFakeNumStepper.onValueChange = function()
 					{
