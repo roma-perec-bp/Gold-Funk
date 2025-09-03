@@ -1501,7 +1501,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 			dummyArrow.visible = false;
 		}
-		ignoreClickForThisFrame = false;
+		//ignoreClickForThisFrame = false;
 
 		if(Conductor.songPosition != lastTime || forceDataUpdate)
 		{
