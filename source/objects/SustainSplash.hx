@@ -26,6 +26,9 @@ class SustainSplash extends FlxSprite {
 		animation.addByPrefix('end', 'holdCoverEnd0', 24, false);
     animation.play('start', true, false, 0);
 
+    antialiasing = ClientPrefs.data.antialiasing;
+    if (PlayState.isPixelStage) antialiasing = false;
+
     destroyTimer = new FlxTimer();
   }
 
