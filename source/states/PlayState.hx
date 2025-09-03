@@ -2214,8 +2214,9 @@ class PlayState extends MusicBeatState
 							{
 								daNote.active = daNote.visible = false;
 								invalidateNote(daNote);
-							}
-							if(daNote.exists) i++;*/
+							}*/
+
+							if(daNote.exists) i++;
 						}
 					}
 					else
