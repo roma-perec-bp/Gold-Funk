@@ -2208,7 +2208,14 @@ class PlayState extends MusicBeatState
 								daNote.active = daNote.visible = false;
 								invalidateNote(daNote);
 							}
-							if(daNote.exists) i++;
+
+							/*// Kill extremely late notes
+							if (Conductor.songPosition - daNote.strumTime > noteKillOffset * camNotes.zoom)
+							{
+								daNote.active = daNote.visible = false;
+								invalidateNote(daNote);
+							}
+							if(daNote.exists) i++;*/
 						}
 					}
 					else
