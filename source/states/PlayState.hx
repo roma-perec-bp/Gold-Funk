@@ -107,7 +107,7 @@ class PlayState extends MusicBeatState
 	public var songSpeedTween:FlxTween;
 	public var songSpeed(default, set):Float = 1;
 	public var songSpeedType:String = "multiplicative";
-	public var noteKillOffset:Float = 400;
+	public var noteKillOffset:Float = 600;
 	public var missOffset:Float = 350;
 
 	public var playbackRate(default, set):Float = 1;
@@ -769,7 +769,8 @@ class PlayState extends MusicBeatState
 			}
 		}
 		songSpeed = value;
-		noteKillOffset = Math.max(Conductor.stepCrochet, 350 / songSpeed * playbackRate);
+		noteKillOffset = Math.max(Conductor.stepCrochet, 600 / songSpeed * playbackRate);
+		missOffset = Math.max(Conductor.stepCrochet, 350 / songSpeed * playbackRate);
 		return value;
 	}
 
@@ -2203,19 +2204,17 @@ class PlayState extends MusicBeatState
 							// Cause misses if note is off screen
 							if (Conductor.songPosition - daNote.strumTime > missOffset)
 							{
-								if (daNote.mustPress && !cpuControlled && !daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit) && daNote.visible)
+								if (daNote.mustPress && !cpuControlled && !daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit) && daNote.active)
 									noteMiss(daNote);
 
-								daNote.active = daNote.visible = false;
-								invalidateNote(daNote);
+								daNote.active = false;
 							}
 
-							/*// Kill extremely late notes
-							if (Conductor.songPosition - daNote.strumTime > noteKillOffset * camNotes.zoom)
+							// Kill extremely late notes
+							if (Conductor.songPosition - daNote.strumTime > noteKillOffset / camNotes.zoom)
 							{
-								daNote.active = daNote.visible = false;
 								invalidateNote(daNote);
-							}*/
+							}
 
 							if(daNote.exists) i++;
 						}
