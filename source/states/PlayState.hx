@@ -107,7 +107,8 @@ class PlayState extends MusicBeatState
 	public var songSpeedTween:FlxTween;
 	public var songSpeed(default, set):Float = 1;
 	public var songSpeedType:String = "multiplicative";
-	public var noteKillOffset:Float = 350;
+	public var noteKillOffset:Float = 400;
+	public var missOffset:Float = 350;
 
 	public var playbackRate(default, set):Float = 1;
 
@@ -2199,8 +2200,8 @@ class PlayState extends MusicBeatState
 
 							if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
 
-							// Kill extremely late notes and cause misses
-							if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
+							// Cause misses if note is off screen
+							if (Conductor.songPosition - daNote.strumTime > missOffset)
 							{
 								if (daNote.mustPress && !cpuControlled && !daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit) && daNote.visible)
 									noteMiss(daNote);
