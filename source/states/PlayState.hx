@@ -4422,8 +4422,12 @@ class PlayState extends MusicBeatState
 
 			var parentNote:Note = note.parent;
 			if (parentNote.wasGoodHit && parentNote.tail.length > 0) {
+				parentNote.alpha = 0.35;
+				parentNote.multAlpha = 0.35;
 				for (child in parentNote.tail) if (child != note) {
 					child.missed = true;
+					child.alpha = parentNote.alpha;
+					child.multAlpha = parentNote.multAlpha;
 					child.canBeHit = false;
 					child.ignoreNote = true;
 					child.tooLate = true;
