@@ -2145,6 +2145,9 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 				}
 			}
 
+			//WIP???? i didnt know it was used characters param LOL?
+			var flipX:Bool = false;
+
 			var lastAnim:String = (target.animations[curAnim] != null) ? target.animations[curAnim].anim : '';
 			var lastOffsets:Array<Int> = null;
 			for (anim in target.animations)
@@ -2161,6 +2164,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 				name: animationNameInputText.text,
 				fps: Math.round(animationFramerate.value),
 				loop: animationLoopCheckBox.checked,
+				flipX: flipX,
 				indices: indices,
 				offsets: lastOffsets
 			};

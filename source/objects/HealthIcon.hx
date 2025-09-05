@@ -7,7 +7,7 @@ class HealthIcon extends FlxSprite
 	private var char:String = '';
 	public var hasThirdIcon:Bool = false;
 
-	public function new(char:String = 'face', isPlayer:Bool = false, ?allowGPU:Bool = true)
+	public function new(char:String = 'face', isPlayer:Bool = false, ?allowGPU:Bool = true, ?offsets:Array<Float>)
 	{
 		super();
 		this.isPlayer = isPlayer;
@@ -24,7 +24,7 @@ class HealthIcon extends FlxSprite
 	}
 
 	private var iconOffsets:Array<Float> = [0, 0];
-	public function changeIcon(char:String, ?allowGPU:Bool = true) {
+	public function changeIcon(char:String, ?allowGPU:Bool = true, ?offsets:Array<Float>) {
 		if(this.char != char) {
 			var name:String = 'icons/' + char;
 			if(!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/icon-' + char; //Older versions of psych engine's support

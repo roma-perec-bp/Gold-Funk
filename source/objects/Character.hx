@@ -14,6 +14,7 @@ import states.stages.objects.TankmenBG;
 
 typedef CharacterFile = {
 	var animations:Array<AnimArray>;
+
 	var image:String;
 	var scale:Float;
 	var sing_duration:Float;
@@ -21,13 +22,20 @@ typedef CharacterFile = {
 	var position:Array<Float>;
 	var camera_position:Array<Float>;
 
-	//var danceEvery:Int;
+	var danceEvery:Int;
 
 	var flip_x:Bool;
 	var no_antialiasing:Bool;
-	var healthbar_colors:Array<Int>;
-	var healthicon:String;
 	var vocals_file:String;
+
+	var healthicon:String;
+	var healthbar_colors:Array<Int>;
+	var iconfOffsets:Array<Int>;
+	var iconScale:Float;
+	var iconFlipX:Bool;
+
+	var opponentArrows:Array<Array<FlxColor>>;
+
 	@:optional var _editor_isPlayer:Null<Bool>;
 }
 
@@ -36,17 +44,9 @@ typedef AnimArray = {
 	var name:String;
 	var fps:Int;
 	var loop:Bool;
-	//var flipX:Bool;
+	var flipX:Bool;
 	var indices:Array<Int>;
 	var offsets:Array<Int>;
-}
-
-typedef HealthParam = {
-	var healthicon:String;
-	var healthbar_colors:Array<Int>;
-	var iconfOffsets:Array<Int>;
-	var iconScale:Float;
-	var iconFlipX:Float;
 }
 
 class Character extends FlxSprite
@@ -55,6 +55,12 @@ class Character extends FlxSprite
 	 * In case a character is missing, it will use this on its place
 	**/
 	public static final DEFAULT_CHARACTER:String = 'bf';
+
+	public var opponentNoteColor:Array<Array<FlxColor>> = [
+		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+		[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]];
 
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
@@ -78,11 +84,15 @@ class Character extends FlxSprite
 	public var idleForce:Bool = false;
 
 	public var healthIcon:String = 'face';
+	public var iconfOffsets:Array<Float> = [0, 0];
+	public var healthColorArray:Array<Int> = [255, 0, 0];
+	public var iconScale:Float = 1;
+	public var iconFlipX:Bool = false;
+
 	public var animationsArray:Array<AnimArray> = [];
 
 	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
-	public var healthColorArray:Array<Int> = [255, 0, 0];
 
 	public var missingCharacter:Bool = false;
 	public var missingText:FlxText;
@@ -95,6 +105,7 @@ class Character extends FlxSprite
 	public var jsonDuration:Float = 4;
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
+	public var originalIconFlipX:Bool = false;
 	public var editorIsPlayer:Null<Bool> = null;
 
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false)
@@ -121,6 +132,7 @@ class Character extends FlxSprite
 	public function changeCharacter(character:String)
 	{
 		animationsArray = [];
+
 		animOffsets = [];
 		curCharacter = character;
 		var characterPath:String = 'characters/$character.json';
@@ -204,18 +216,25 @@ class Character extends FlxSprite
 		cameraPosition = json.camera_position;
 
 		// data
-		healthIcon = json.healthicon;
 		singDuration = json.sing_duration;
 		jsonDuration = json.sing_duration; //for custom note duration
 		flipX = (json.flip_x != isPlayer);
-		healthColorArray = (json.healthbar_colors != null && json.healthbar_colors.length > 2) ? json.healthbar_colors : [161, 161, 161];
 		vocalsFile = json.vocals_file != null ? json.vocals_file : '';
 		originalFlipX = (json.flip_x == true);
+		danceEveryNumBeats = json.danceEvery;
 		editorIsPlayer = json._editor_isPlayer;
 
 		// antialiasing
 		noAntialiasing = (json.no_antialiasing == true);
 		antialiasing = ClientPrefs.data.antialiasing ? !noAntialiasing : false;
+
+		//icon
+		healthIcon = json.healthicon;
+		healthColorArray = (json.healthbar_colors != null && json.healthbar_colors.length > 2) ? json.healthbar_colors : [161, 161, 161];
+		iconScale = json.iconScale;
+		iconFlipX = (json.iconFlipX != isPlayer);
+		originalIconFlipX = (json.iconFlipX == true);
+		
 
 		// animations
 		animationsArray = json.animations;
@@ -224,19 +243,21 @@ class Character extends FlxSprite
 				var animAnim:String = '' + anim.anim;
 				var animName:String = '' + anim.name;
 				var animFps:Int = anim.fps;
+				var animFlipX:Bool = anim.flipX;
 				var animLoop:Bool = !!anim.loop; //Bruh
 				var animIndices:Array<Int> = anim.indices;
 
 				if(!isAnimateAtlas)
 				{
 					if(animIndices != null && animIndices.length > 0)
-						animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
+						animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop, animFlipX);
 					else
-						animation.addByPrefix(animAnim, animName, animFps, animLoop);
+						animation.addByPrefix(animAnim, animName, animFps, animLoop, animFlipX);
 				}
 				#if flxanimate
 				else
 				{
+					//AS FOR NOW, FLIPX DOESNT WORK ON CURRENT FLXANIMATE, ILL ADD IT LATER ONCE ILL HANDLE FLIXEL-ANIMATE :p
 					if(animIndices != null && animIndices.length > 0)
 						atlas.anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop);
 					else
