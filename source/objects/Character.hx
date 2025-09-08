@@ -30,11 +30,11 @@ typedef CharacterFile = {
 
 	var healthicon:String;
 	var healthbar_colors:Array<Int>;
-	var iconfOffsets:Array<Int>;
+	var iconOffsets:Array<Int>;
 	var iconScale:Float;
 	var iconFlipX:Bool;
 
-	var opponentArrows:Array<Array<FlxColor>>;
+	var opponentArrows:Array<Array<String>>;
 
 	@:optional var _editor_isPlayer:Null<Bool>;
 }
@@ -56,11 +56,11 @@ class Character extends FlxSprite
 	**/
 	public static final DEFAULT_CHARACTER:String = 'bf';
 
-	public var opponentNoteColor:Array<Array<FlxColor>> = [
-		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-		[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]];
+	public var opponentNoteColor:Array<Array<String>> = [
+		["0xFFC24B99", "0xFFFFFFFF", "0xFF3C1F56"],
+		["0xFF00FFFF", "0xFFFFFFFF", "0xFF1542B7"],
+		["0xFF12FA05", "0xFFFFFFFF", "0xFF0A4447"],
+		["0xFFF9393F", "0xFFFFFFFF", "0xFF651038"]];
 
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
@@ -84,7 +84,7 @@ class Character extends FlxSprite
 	public var idleForce:Bool = false;
 
 	public var healthIcon:String = 'face';
-	public var iconfOffsets:Array<Float> = [0, 0];
+	public var iconOffsets:Array<Float> = [0, 0];
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 	public var iconScale:Float = 1;
 	public var iconFlipX:Bool = false;
@@ -98,6 +98,17 @@ class Character extends FlxSprite
 	public var missingText:FlxText;
 	public var hasMissAnimations:Bool = false;
 	public var vocalsFile:String = '';
+
+	public var defaultStringColor:Array<Array<String>> = [
+		['0xFFC24B99', '0xFFFFFFFF', '0xFF3C1F56'],
+		['0xFF00FFFF', '0xFFFFFFFF', '0xFF1542B7'],
+		['0xFF12FA05', '0xFFFFFFFF', '0xFF0A4447'],
+		['0xFFF9393F', '0xFFFFFFFF', '0xFF651038']];
+	public var defaultPixelStringColor:Array<Array<String>> = [
+		['0xFFE276FF', '0xFFFFF9FF', '0xFF60008D'],
+		['0xFF3DCAFF', '0xFFF4FFFF', '0xFF003060'],
+		['0xFF71E300', '0xFFF6FFE6', '0xFF003100'],
+		['0xFFFF884E', '0xFFFFFAF5', '0xFF6C0000']];
 
 	//Used on Character Editor
 	public var imageFile:String = '';
@@ -231,10 +242,13 @@ class Character extends FlxSprite
 		//icon
 		healthIcon = json.healthicon;
 		healthColorArray = (json.healthbar_colors != null && json.healthbar_colors.length > 2) ? json.healthbar_colors : [161, 161, 161];
-		iconScale = json.iconScale;
-		iconFlipX = (json.iconFlipX != isPlayer);
-		originalIconFlipX = (json.iconFlipX == true);
+		iconScale = json.iconScale != null ? json.iconScale : 1;
+		iconFlipX = (json.iconFlipX == true);
+		iconOffsets = json.iconOffsets;
+		originalIconFlipX = (json.iconFlipX != isPlayer);
 		
+		//notes
+		opponentNoteColor = (json.opponentArrows != null ? json.opponentArrows : (PlayState.isPixelStage ? defaultPixelStringColor : defaultStringColor));
 
 		// animations
 		animationsArray = json.animations;

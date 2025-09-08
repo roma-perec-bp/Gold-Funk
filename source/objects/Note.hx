@@ -188,20 +188,63 @@ class Note extends FlxSprite
 
 	public function defaultRGB()
 	{
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
-
-		if (arr != null && noteData > -1 && noteData <= arr.length)
+		if(inEditor)
 		{
-			rgbShader.r = arr[0];
-			rgbShader.g = arr[1];
-			rgbShader.b = arr[2];
+			var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
+			if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
+		
+			if (arr != null && noteData > -1 && noteData <= arr.length)
+			{
+				rgbShader.r = arr[0];
+				rgbShader.g = arr[1];
+				rgbShader.b = arr[2];
+			}
+			else
+			{
+				rgbShader.r = 0xFFFF0000;
+				rgbShader.g = 0xFF00FF00;
+				rgbShader.b = 0xFF0000FF;
+			}
 		}
 		else
 		{
-			rgbShader.r = 0xFFFF0000;
-			rgbShader.g = 0xFF00FF00;
-			rgbShader.b = 0xFF0000FF;
+			if(mustPress)
+			{
+				var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
+				if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
+			
+				if (arr != null && noteData > -1 && noteData <= arr.length)
+				{
+					rgbShader.r = arr[0];
+					rgbShader.g = arr[1];
+					rgbShader.b = arr[2];
+				}
+				else
+				{
+					rgbShader.r = 0xFFFF0000;
+					rgbShader.g = 0xFF00FF00;
+					rgbShader.b = 0xFF0000FF;
+				}
+			}
+			else
+			{
+				var arrOpp:Array<String>;
+					
+				arrOpp = PlayState.instance.dad.opponentNoteColor[noteData];
+
+				if (arrOpp != null && noteData > -1 && noteData <= arrOpp.length)
+				{
+					rgbShader.r = Std.parseInt(arrOpp[0]);
+					rgbShader.g = Std.parseInt(arrOpp[1]);
+					rgbShader.b = Std.parseInt(arrOpp[2]);
+				}
+				else
+				{
+					rgbShader.r = 0xFFFF0000;
+					rgbShader.g = 0xFF00FF00;
+					rgbShader.b = 0xFF0000FF;
+				}
+			}
 		}
 	}
 
@@ -257,10 +300,10 @@ class Note extends FlxSprite
 
 		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
-		this.inEditor = inEditor;
+		this.moves = false;
 		this.moves = false;
 
-		x += ((ClientPrefs.data.middleScroll || PlayState.SONG.strumOffset == 'Forced MiddleScroll') ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
+		if (!inEditor) x += ((ClientPrefs.data.middleScroll || PlayState.SONG.strumOffset == 'Forced MiddleScroll') ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		this.strumTime = strumTime;

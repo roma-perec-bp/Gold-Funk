@@ -20,6 +20,8 @@ class MetaNote extends Note
 		this.songData = songData;
 		this.strumTime = time;
 		this.chartNoteData = data;
+
+		inEditor = true; //im going insane
 	}
 
 	public override function reloadNote(tex:String = '', postfix:String = '') {
@@ -206,6 +208,8 @@ class EditorSustain extends Note {
 		sustainTile.scrollFactor.x = 0;
 
 		super(0, data, null, true, true);
+
+		inEditor = true; //im going insane
 
 		animation.play(Note.colArray[noteData] + 'holdend');
 		scale.set(scale.x, scale.x);

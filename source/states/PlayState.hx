@@ -105,6 +105,7 @@ class PlayState extends MusicBeatState
 	public var GF_Y:Float = 130;
 
 	public var songSpeedTween:FlxTween;
+	public var songLengthTween:FlxTween;
 	public var songSpeed(default, set):Float = 1;
 	public var songSpeedType:String = "multiplicative";
 	public var noteKillOffset:Float = 600;
@@ -621,13 +622,13 @@ class PlayState extends MusicBeatState
 		else
 			healthBar.leftToRight = false;
 
-		iconP1 = new HealthIcon(boyfriend.healthIcon, true);
+		iconP1 = new HealthIcon(boyfriend.healthIcon, true, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX);
 		iconP1.y = healthBar.y - 75;
 		iconP1.visible = !ClientPrefs.data.hideHud;
 		iconP1.alpha = ClientPrefs.data.healthBarAlpha;
 		uiGroup.add(iconP1);
 
-		iconP2 = new HealthIcon(dad.healthIcon, false);
+		iconP2 = new HealthIcon(dad.healthIcon, false, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX);
 		iconP2.y = healthBar.y - 75;
 		iconP2.visible = !ClientPrefs.data.hideHud;
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
@@ -832,7 +833,7 @@ class PlayState extends MusicBeatState
 			);
 	}
 
-	public function addCharacterToList(newCharacter:String, type:Int) {
+	public function addCharacterToList(newCharacter:String, type:Int, ?strumEventTime:Float) {
 		switch(type) {
 			case 0:
 				if(!boyfriendMap.exists(newCharacter)) {
@@ -852,6 +853,28 @@ class PlayState extends MusicBeatState
 					startCharacterPos(newDad, true);
 					newDad.alpha = 0.00001;
 					startCharacterScripts(newDad.curCharacter);
+
+					for (note in unspawnNotes)
+					{
+						if (!note.mustPress && (note.noteType == null || note.noteType == '') && note.strumTime >= strumEventTime)
+						{
+							var arrOpp:Array<String>;
+							arrOpp = newDad.opponentNoteColor[note.noteData];
+		
+							if (note.noteData > -1 && note.noteData <= newDad.opponentNoteColor.length)
+							{
+								note.rgbShader.r = Std.parseInt(arrOpp[0]);
+								note.rgbShader.g = Std.parseInt(arrOpp[1]);
+								note.rgbShader.b = Std.parseInt(arrOpp[2]);
+							}
+							else
+							{
+								note.rgbShader.r = 0xFFFF0000;
+								note.rgbShader.g = 0xFF00FF00;
+								note.rgbShader.b = 0xFF0000FF;
+							}
+						}
+					}
 				}
 
 			case 2:
@@ -1155,6 +1178,10 @@ class PlayState extends MusicBeatState
 			{
 				characterBopper(tmr.loopsLeft);
 
+				//tbh hated that one
+				iconP1.scale.set(boyfriend.iconScale + customBopOffset);
+				iconP2.scale.set(dad.iconScale + customBopOffset);
+
 				var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
 				var introImagesArray:Array<String> = switch(stageUI) {
 					case "pixel": ['pixelUI/ready-pixel', 'pixelUI/set-pixel', 'pixelUI/date-pixel'];
@@ -1195,6 +1222,26 @@ class PlayState extends MusicBeatState
 						tick = GO;
 					case 4:
 						tick = START;
+
+						new FlxTimer().start(0.001, function(tmr:FlxTimer) //so it can be disabled be optioned
+						{
+							if (FlxG.camera.zoom < 1.7 && cameraZoomRate > 0 && ClientPrefs.data.camZooms)
+							{
+								// Set zoom multiplier for camera bop.
+								cameraBopMultiplier = cameraBopIntensity;
+								// HUD camera zoom still uses old system. To change. (+3%)
+								camHudBopMult += hudCameraZoomIntensity;
+								camNotesBopMult += hudCameraZoomIntensity;
+							
+								if(shakeBeat)
+								{
+									camGame.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+									camHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+									camOverlayHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+									camNotes.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+								}
+							}
+						});
 
 						if (PlayState.SONG.fadeOutStart)
 						{
@@ -1785,7 +1832,37 @@ class PlayState extends MusicBeatState
 				}
 
 				var newCharacter:String = event.value2;
-				addCharacterToList(newCharacter, charType);
+				addCharacterToList(newCharacter, charType, event.strumTime);
+
+			case 'Set Opponent Notes Color':
+				var split0:Array<String> = event.value1.split(',');
+				var split1:Array<String> = event.value2.split(',');
+				var split2:Array<String> = event.value3.split(',');
+				var split3:Array<String> = event.value4.split(',');
+
+				var noteChange:Array<Array<String>> = [split0, split1, split2, split3];
+
+				for (note in unspawnNotes)
+				{
+					if (!note.mustPress && (note.noteType == null || note.noteType == '') && note.strumTime >= event.strumTime)
+					{
+						var arrOpp:Array<String>;
+						arrOpp = noteChange[note.noteData];
+		
+						if (note.noteData > -1 && note.noteData <= noteChange.length)
+						{
+							note.rgbShader.r = Std.parseInt(arrOpp[0]);
+							note.rgbShader.g = Std.parseInt(arrOpp[1]);
+							note.rgbShader.b = Std.parseInt(arrOpp[2]);
+						}
+						else
+						{
+							note.rgbShader.r = 0xFFFF0000;
+							note.rgbShader.g = 0xFF00FF00;
+							note.rgbShader.b = 0xFF0000FF;
+						}
+					}
+				}
 
 			case 'Play Sound':
 				Paths.sound(event.value1); //Precache sound
@@ -2272,13 +2349,14 @@ class PlayState extends MusicBeatState
 	}
 
 	// Health icon updaters
+	var iconLerpScaleOffset:Float = -0.15; //if you wanna edit it, go ahead
 	public dynamic function updateIconsScale(elapsed:Float)
 	{
-		var mult:Float = FlxMath.lerp(0.85, iconP1.scale.x, Math.exp(-elapsed * 9 * playbackRate));
+		var mult:Float = FlxMath.lerp(boyfriend.iconScale + iconLerpScaleOffset, iconP1.scale.x, Math.exp(-elapsed * 9 * playbackRate));
 		iconP1.scale.set(mult, mult);
 		iconP1.updateHitbox();
 
-		var mult:Float = FlxMath.lerp(0.85, iconP2.scale.x, Math.exp(-elapsed * 9 * playbackRate));
+		var mult:Float = FlxMath.lerp(dad.iconScale + iconLerpScaleOffset, iconP2.scale.x, Math.exp(-elapsed * 9 * playbackRate));
 		iconP2.scale.set(mult, mult);
 		iconP2.updateHitbox();
 	}
@@ -2637,7 +2715,25 @@ class PlayState extends MusicBeatState
 						iconP1;
 				}
 
-				iconToSwitch.changeIcon(value2);
+				var charSwitching:Character = 
+				switch(value1.toLowerCase().trim())
+				{
+					case 'dad' | 'opponent' | 'p2':
+						dad;
+					default:
+						boyfriend;
+				}
+
+				var playerShit:Bool = 
+				switch(value1.toLowerCase().trim())
+				{
+					case 'dad' | 'opponent' | 'p2':
+						false;
+					default:
+						true;
+				}
+
+				iconToSwitch.changeIcon(value2, true, charSwitching.iconOffsets, charSwitching.iconScale, charSwitching.iconFlipX);
 
 			case 'Change Combo Camera':
 				var args:Array<String> = value2.split(",");
@@ -2987,7 +3083,6 @@ class PlayState extends MusicBeatState
 					}
 				}
 
-
 			case 'Change Character':
 				var charType:Int = 0;
 				switch(value1.toLowerCase().trim()) {
@@ -3011,7 +3106,7 @@ class PlayState extends MusicBeatState
 							boyfriend.alpha = 0.00001;
 							boyfriend = boyfriendMap.get(value2);
 							boyfriend.alpha = lastAlpha;
-							iconP1.changeIcon(boyfriend.healthIcon);
+							iconP1.changeIcon(boyfriend.healthIcon, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX);
 						}
 						setOnScripts('boyfriendName', boyfriend.curCharacter);
 
@@ -3033,7 +3128,7 @@ class PlayState extends MusicBeatState
 								gf.visible = false;
 							}
 							dad.alpha = lastAlpha;
-							iconP2.changeIcon(dad.healthIcon);
+							iconP2.changeIcon(dad.healthIcon, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX);
 						}
 						setOnScripts('dadName', dad.curCharacter);
 
@@ -3075,6 +3170,26 @@ class PlayState extends MusicBeatState
 							}
 						});
 				}
+
+			case 'Change Visual Time Length':
+				if(flValue1 == null) 
+					flValue1 = FlxG.sound.music.length;
+				else
+					flValue1 *= 1000;
+
+				if(flValue2 == null) flValue2 = 0;
+
+				var ease = LuaUtils.getTweenEaseByString(value3);
+
+				if(flValue2 <= 0)
+					songLength = flValue1;
+				else
+					songLengthTween = FlxTween.tween(this, {songLength: flValue1}, Conductor.stepCrochet * flValue2 / 1000 / playbackRate, {ease: ease, onComplete:
+						function (twn:FlxTween)
+						{
+							songLengthTween = null;
+						}
+					});
 
 			case 'Flash Camera':
 				var color:FlxColor = 0xFFFFFFFF;
@@ -4775,6 +4890,16 @@ class PlayState extends MusicBeatState
 				}
 			}
 
+			if(note.lightStrum)
+			{
+				if(!cpuControlled)
+				{
+					var spr = playerStrums.members[note.noteData];
+					if(spr != null) spr.playAnim('confirm', true, [note.rgbShader.r, note.rgbShader.g, note.rgbShader.b]);
+				}
+				else strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate, note);
+			}
+
 			noteMiss(note);
 			if(!note.noteSplashData.disabled && !note.isSustainNote && !PlayState.SONG.disableSplash) spawnNoteSplashOnNote(note);
 		}
@@ -5147,7 +5272,7 @@ class PlayState extends MusicBeatState
 	}
 
 	var lastBeatHit:Int = -1;
-
+	var customBopOffset:Float = 0.05; //if you wanna edit it then here you go
 	override function beatHit()
 	{
 		if(lastBeatHit >= curBeat) {
@@ -5158,8 +5283,8 @@ class PlayState extends MusicBeatState
 		if (generatedMusic)
 			notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 
-		iconP1.scale.set(1.05);
-		iconP2.scale.set(1.05);
+		iconP1.scale.set(boyfriend.iconScale + customBopOffset);
+		iconP2.scale.set(dad.iconScale + customBopOffset);
 
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();

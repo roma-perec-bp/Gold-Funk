@@ -101,6 +101,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Set Char Position', 'Value 1: Char\nValue 2: X Y'],
 		['Set Char Position Tween', 'Value 2: Char\nValue 2: X Y\n Value 3: Duration in steps\n Value 4: Ease'],
 		['Set Char Color', 'Value 1: Char\nValue 2: Color in hex'],
+		['Set Opponent Notes Color', 'Value 1: Left R/G/B hex color code\nValue 2: Down R/G/B hex color code\nValue 3: Up R/G/B hex color code\nValue 4: Right R/G/B hex color code'],
 		['Set Char Color Tween', 'Value 1: Char\nValue 2: Color in hex\n Value 3: Duration in steps\n Value 4: Ease'],
 		['Set Char Color Transform', 'Value 1: Char\nValue 2: Red, Green, Blue, alpha offset\nValue 3: Red, Green, Blue, alpha multiplier'],
 		['Set Char Color Transform Tween', 'Value 1: Char\nValue 2: Red, Green, Blue, alpha offset\nValue 3: Red, Green, Blue, alpha multiplier\n Value 4: Duration in steps\n Value 5: Ease'],
@@ -119,6 +120,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Change Combo Camera', "Value 1: Is it should be on game camera or hud? (camHUD or camGame)\nValue 2: X, Y (650, 300)"],
 		['Singing Shakes', 'Value 1: Turn on (true or false)\nValue 2: Which character shake'],
 		['Change Note Camera Move Offset', "Value 1: Offset"],
+		['Change Visual Time Length', 'Value 1: Time length in seconds (Leave it blank to be default one)\nValue 2: Duration in steps (leave it blank to be instant)\nValue 3: Tween Ease'],
 		['Update Strum Position Variable', "Sets current note position for variable curPlayerStrumX, curPlayerStrumY\nand curOpponentStrumX, curOpponentStrumY\nNeeds for modchart scripts things if needs"],
 		['Change Object Layer', "Changes object's layer\nValue 1: Object name (boyfriend, dad, gf or etc)\nValue 2: Position layer number"],
 		['Set Property', "Value 1: Variable name\nValue 2: New value"],
@@ -2506,7 +2508,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			var icon:HealthIcon = icons[i];
 			//trace('changing iconP${icon.ID}');
 			var iconName:String = Reflect.field(characterData, 'iconP${icon.ID}');
-			icon.changeIcon(iconName);
+			icon.changeIcon(iconName, true, [0,0], 0.3);
 		}
 
 		if(icons.length > 1)
@@ -2517,9 +2519,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			if (isGfSection)
 			{
 				if (mustHitSection)
-					iconP1.changeIcon('gf');
+					iconP1.changeIcon('gf', true, [0,0], 0.3);
 				else
-					iconP2.changeIcon('gf');
+					iconP2.changeIcon('gf', true, [0,0], 0.3);
 			}
 
 			if(mustHitSection)

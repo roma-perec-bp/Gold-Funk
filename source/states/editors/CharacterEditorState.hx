@@ -414,10 +414,10 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 					newAnim('singRIGHT', 'BF NOTE RIGHT0')
 				],
 				opponentArrows: [
-					[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-					[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-					[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-					[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]],
+					['0xFFC24B99', '0xFFFFFFFF', '0xFF3C1F56'],
+					['0xFF00FFFF', '0xFFFFFFFF', '0xFF1542B7'],
+					['0xFF12FA05', '0xFFFFFFFF', '0xFF0A4447'],
+					['0xFFF9393F', '0xFFFFFFFF', '0xFF651038']],
 				no_antialiasing: false,
 				flip_x: false,
 				image: 'characters/BOYFRIEND',
@@ -430,7 +430,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 				healthicon: 'face',
 				healthbar_colors: [161, 161, 161],
-				iconfOffsets: [0, 0],
+				iconOffsets: [0, 0],
 				iconScale: 1,
 				iconFlipX: false
 			};
@@ -1337,7 +1337,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 			"healthicon": character.healthIcon,
 			"healthbar_colors": character.healthColorArray,
-			"iconfOffsets": character.iconfOffsets,
+			"iconOffsets": character.iconOffsets,
 			"iconScale": character.iconScale,
 			"iconFlipX": character.iconFlipX,
 
@@ -1350,7 +1350,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			"_editor_isPlayer": character.isPlayer
 		};
 
-		var data:String = PsychJsonPrinter.print(json, ['offsets', 'position', 'healthbar_colors', 'camera_position', 'iconfOffsets', 'opponentArrows', 'indices']);
+		var data:String = PsychJsonPrinter.print(json, ['offsets', 'position', 'healthbar_colors', 'camera_position', 'iconOffsets', 'opponentArrows', 'indices']);
 
 		if (data.length > 0)
 		{
