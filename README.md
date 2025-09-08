@@ -1,7 +1,7 @@
 <h1 align='center'>Gold Funk'!</h1>
 
 This is the another fork of Psych Engine 1.0.4 but this one has more than other forks (i guess)
-Welp for now it doesnt but current target is making custom sofcode states and edit other states like Freeplay, MainMenu, etc.
+Welp for now it doesnt but current target is making custom softcode states and edit other states like Freeplay, MainMenu, etc.
 
 Parts of engine was used in mods like:
 
