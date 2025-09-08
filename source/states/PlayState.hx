@@ -886,6 +886,32 @@ class PlayState extends MusicBeatState
 					startCharacterPos(newGf);
 					newGf.alpha = 0.00001;
 					startCharacterScripts(newGf.curCharacter);
+
+					for (note in unspawnNotes)
+					{
+						if (note.colored && note.gfNote && note.strumTime >= strumEventTime)
+						{
+							var arrGf:Array<String>;
+							arrGf = newGf.opponentNoteColor[note.noteData];
+							
+							if (arrGf != null && note.noteData > -1 && note.noteData <= arrGf.length)
+							{
+								note.rgbShader.r = Std.parseInt(arrGf[0]);
+								note.rgbShader.g = Std.parseInt(arrGf[1]);
+								note.rgbShader.b = Std.parseInt(arrGf[2]);
+		
+								// splash data and colors
+								note.noteSplashData.r = Std.parseInt(arrGf[0]);
+								note.noteSplashData.g = Std.parseInt(arrGf[1]);
+							}
+							else
+							{
+								note.rgbShader.r = 0xFFFF0000;
+								note.rgbShader.g = 0xFF00FF00;
+								note.rgbShader.b = 0xFF0000FF;
+							}
+						}
+					}
 				}
 		}
 	}
@@ -1860,6 +1886,35 @@ class PlayState extends MusicBeatState
 							note.rgbShader.r = 0xFFFF0000;
 							note.rgbShader.g = 0xFF00FF00;
 							note.rgbShader.b = 0xFF0000FF;
+						}
+					}
+				}
+
+				if(event.value5 == 'GF')
+				{
+					for (note in unspawnNotes)
+					{
+						if (note.colored && note.gfNote && note.strumTime >= event.strumTime)
+						{
+							var arrGf:Array<String>;
+							arrGf = gf.opponentNoteColor[note.noteData];
+							
+							if (arrGf != null && note.noteData > -1 && note.noteData <= arrGf.length)
+							{
+								note.rgbShader.r = Std.parseInt(arrGf[0]);
+								note.rgbShader.g = Std.parseInt(arrGf[1]);
+								note.rgbShader.b = Std.parseInt(arrGf[2]);
+		
+								// splash data and colors
+								note.noteSplashData.r = Std.parseInt(arrGf[0]);
+								note.noteSplashData.g = Std.parseInt(arrGf[1]);
+							}
+							else
+							{
+								note.rgbShader.r = 0xFFFF0000;
+								note.rgbShader.g = 0xFF00FF00;
+								note.rgbShader.b = 0xFF0000FF;
+							}
 						}
 					}
 				}

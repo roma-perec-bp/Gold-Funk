@@ -101,7 +101,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Set Char Position', 'Value 1: Char\nValue 2: X Y'],
 		['Set Char Position Tween', 'Value 2: Char\nValue 2: X Y\n Value 3: Duration in steps\n Value 4: Ease'],
 		['Set Char Color', 'Value 1: Char\nValue 2: Color in hex'],
-		['Set Opponent Notes Color', 'Value 1: Left R/G/B hex color code\nValue 2: Down R/G/B hex color code\nValue 3: Up R/G/B hex color code\nValue 4: Right R/G/B hex color code'],
+		['Set Opponent Notes Color', 'Value 1: Left R/G/B hex color code\nValue 2: Down R/G/B hex color code\nValue 3: Up R/G/B hex color code\nValue 4: Right R/G/B hex color code\nValue 5: Type here GF if only colored GF notes should be chancged'],
 		['Set Char Color Tween', 'Value 1: Char\nValue 2: Color in hex\n Value 3: Duration in steps\n Value 4: Ease'],
 		['Set Char Color Transform', 'Value 1: Char\nValue 2: Red, Green, Blue, alpha offset\nValue 3: Red, Green, Blue, alpha multiplier'],
 		['Set Char Color Transform Tween', 'Value 1: Char\nValue 2: Red, Green, Blue, alpha offset\nValue 3: Red, Green, Blue, alpha multiplier\n Value 4: Duration in steps\n Value 5: Ease'],

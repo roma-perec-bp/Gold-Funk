@@ -49,7 +49,8 @@ class Note extends FlxSprite
 		'', //Always leave this one empty pls
 		'Hey!',
 		'Hurt Note',
-		'GF Sing'
+		'GF Sing',
+		'GF Sing (Colored)'
 	];
 
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -100,6 +101,7 @@ class Note extends FlxSprite
 
 	public var animSuffix:String = '';
 	public var gfNote:Bool = false;
+	public var colored:Bool = false;
 	public var earlyHitMult:Float = 1;
 	public var lateHitMult:Float = 1;
 	public var lowPriority:Bool = false;
@@ -225,6 +227,26 @@ class Note extends FlxSprite
 					rgbShader.g = 0xFF00FF00;
 					rgbShader.b = 0xFF0000FF;
 				}
+
+				//TO DO: FIX IT SO BF COULD HAVE COLORED GF NOTES TOO
+				/*if(colored && gfNote)
+				{
+					var arrGf:Array<String>;
+					arrGf = PlayState.instance.gf.opponentNoteColor[noteData];
+
+					if (arrGf != null && noteData > -1 && noteData <= arrGf.length)
+					{
+						rgbShader.r = Std.parseInt(arrGf[0]);
+						rgbShader.g = Std.parseInt(arrGf[1]);
+						rgbShader.b = Std.parseInt(arrGf[2]);
+					}
+					else
+					{
+						rgbShader.r = 0xFFFF0000;
+						rgbShader.g = 0xFF00FF00;
+						rgbShader.b = 0xFF0000FF;
+					}
+				}*/
 			}
 			else
 			{
@@ -243,6 +265,25 @@ class Note extends FlxSprite
 					rgbShader.r = 0xFFFF0000;
 					rgbShader.g = 0xFF00FF00;
 					rgbShader.b = 0xFF0000FF;
+				}
+
+				if(colored && gfNote)
+				{
+					var arrGf:Array<String>;
+					arrGf = PlayState.instance.gf.opponentNoteColor[noteData];
+
+					if (arrGf != null && noteData > -1 && noteData <= arrGf.length)
+					{
+						rgbShader.r = Std.parseInt(arrGf[0]);
+						rgbShader.g = Std.parseInt(arrGf[1]);
+						rgbShader.b = Std.parseInt(arrGf[2]);
+					}
+					else
+					{
+						rgbShader.r = 0xFFFF0000;
+						rgbShader.g = 0xFF00FF00;
+						rgbShader.b = 0xFF0000FF;
+					}
 				}
 			}
 		}
@@ -278,6 +319,9 @@ class Note extends FlxSprite
 					hitsoundChartEditor = false;
 				case 'GF Sing':
 					gfNote = true;
+				case 'GF Sing (Colored)':
+					gfNote = true;
+					colored = true;
 			}
 			if (value != null && value.length > 1) NoteTypesConfig.applyNoteTypeData(this, value);
 			if (hitsound != 'hitsound' && hitsoundVolume > 0) Paths.sound(hitsound); //precache new sound for being idiot-proof
