@@ -1308,7 +1308,9 @@ class PlayState extends MusicBeatState
 	{
 		var spr:FlxSprite = new FlxSprite();
 
-		if(Assets.exists(Paths.getSharedPath(Language.getFileTranslation('images/$image') + '.xml')))
+		var animToFind:String = Paths.getPath('images/' + image + '.xml', TEXT);
+
+		if (#if MODS_ALLOWED FileSystem.exists(animToFind) || #end Assets.exists(animToFind))
 		{
 			spr.frames = Paths.getSparrowAtlas(image);
 			spr.animation.addByPrefix(image, image, 24, false);
@@ -2424,13 +2426,27 @@ class PlayState extends MusicBeatState
 
 		if(PlayState.SONG.swapPlayers)
 		{
-			iconP2.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : (healthBar.percent > 80 && iconP2.hasThirdIcon) ? 2 : 0;
-			iconP1.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : (healthBar.percent < 20 && iconP1.hasThirdIcon) ? 2 : 0;
+			if(iconP2.animated)
+				iconP2.updateHealthIcon(healthBar.percent);
+			else
+				iconP2.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : (healthBar.percent > 80 && iconP2.hasThirdIcon) ? 2 : 0;
+
+			if(iconP1.animated)
+				iconP1.updateHealthIcon(100 - healthBar.percent);
+			else
+				iconP1.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : (healthBar.percent < 20 && iconP1.hasThirdIcon) ? 2 : 0;
 		}
 		else
 		{
-			iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : (healthBar.percent > 80 && iconP1.hasThirdIcon) ? 2 : 0;
-			iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : (healthBar.percent < 20 && iconP2.hasThirdIcon) ? 2 : 0;
+			if(iconP1.animated)
+				iconP1.updateHealthIcon(healthBar.percent);
+			else
+				iconP1.animation.curAnim.curFrame = (healthBar.percent < 20) ? 1 : (healthBar.percent > 80 && iconP1.hasThirdIcon) ? 2 : 0;
+
+			if(iconP2.animated)
+				iconP2.updateHealthIcon(100 - healthBar.percent);
+			else
+				iconP2.animation.curAnim.curFrame = (healthBar.percent > 80) ? 1 : (healthBar.percent < 20 && iconP2.hasThirdIcon) ? 2 : 0;
 		}
 	}
 

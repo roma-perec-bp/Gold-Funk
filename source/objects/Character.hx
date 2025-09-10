@@ -83,6 +83,8 @@ class Character extends FlxSprite
 
 	public var idleForce:Bool = false;
 
+	public var loopedIdle:Bool = false;
+
 	public var healthIcon:String = 'face';
 	public var iconOffsets:Array<Float> = [0, 0];
 	public var healthColorArray:Array<Int> = [255, 0, 0];
@@ -281,6 +283,8 @@ class Character extends FlxSprite
 
 				if(anim.offsets != null && anim.offsets.length > 1) addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
 				else addOffset(anim.anim, 0, 0);
+
+				if (animAnim == 'idle' && animLoop == true) loopedIdle = true;
 			}
 		}
 		#if flxanimate
@@ -310,7 +314,7 @@ class Character extends FlxSprite
 				{
 					specialAnim = false;
 					dance();
-					finishAnimation();
+					if(!loopedIdle) finishAnimation();
 				}
 				heyTimer = 0;
 			}
@@ -319,18 +323,18 @@ class Character extends FlxSprite
 		{
 			specialAnim = false;
 			dance();
-			finishAnimation();
+			if(!loopedIdle) finishAnimation();
 		}
 		else if(uninterruptableAnim && isAnimationFinished())
 		{
 			uninterruptableAnim = false;
 			dance();
-			finishAnimation();
+			if(!loopedIdle) finishAnimation();
 		}
 		else if (getAnimationName().endsWith('miss') && isAnimationFinished())
 		{
 			dance();
-			finishAnimation();
+			if(!loopedIdle) finishAnimation();
 		}
 		else if (getAnimationName().endsWith('-end') && isAnimationFinished())
 		{
@@ -378,7 +382,7 @@ class Character extends FlxSprite
 				else
 				{
 					dance();
-					finishAnimation();
+					if(!loopedIdle) finishAnimation();
 				}
 			}
 
@@ -394,7 +398,7 @@ class Character extends FlxSprite
 				else
 				{
 					dance();
-					finishAnimation();
+					if(!loopedIdle) finishAnimation();
 				}
 			}
 		}
