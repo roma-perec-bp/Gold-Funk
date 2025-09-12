@@ -622,13 +622,13 @@ class PlayState extends MusicBeatState
 		else
 			healthBar.leftToRight = false;
 
-		iconP1 = new HealthIcon(boyfriend.healthIcon, true, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX);
+		iconP1 = new HealthIcon(boyfriend.healthIcon, true, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX, boyfriend.iconBlend, boyfriend.iconFps24);
 		iconP1.y = healthBar.y - 75;
 		iconP1.visible = !ClientPrefs.data.hideHud;
 		iconP1.alpha = ClientPrefs.data.healthBarAlpha;
 		uiGroup.add(iconP1);
 
-		iconP2 = new HealthIcon(dad.healthIcon, false, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX);
+		iconP2 = new HealthIcon(dad.healthIcon, false, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX, dad.iconBlend, dad.iconFps24);
 		iconP2.y = healthBar.y - 75;
 		iconP2.visible = !ClientPrefs.data.hideHud;
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
@@ -2804,7 +2804,7 @@ class PlayState extends MusicBeatState
 						true;
 				}
 
-				iconToSwitch.changeIcon(value2, true, charSwitching.iconOffsets, charSwitching.iconScale, charSwitching.iconFlipX);
+				iconToSwitch.changeIcon(value2, true, charSwitching.iconOffsets, charSwitching.iconScale, charSwitching.iconFlipX, charSwitching.iconBlend, charSwitching.iconFps24);
 
 			case 'Change Combo Camera':
 				var args:Array<String> = value2.split(",");
@@ -3177,7 +3177,7 @@ class PlayState extends MusicBeatState
 							boyfriend.alpha = 0.00001;
 							boyfriend = boyfriendMap.get(value2);
 							boyfriend.alpha = lastAlpha;
-							iconP1.changeIcon(boyfriend.healthIcon, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX);
+							iconP1.changeIcon(boyfriend.healthIcon, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX, boyfriend.iconBlend, boyfriend.iconFps24);
 						}
 						setOnScripts('boyfriendName', boyfriend.curCharacter);
 
@@ -3199,7 +3199,7 @@ class PlayState extends MusicBeatState
 								gf.visible = false;
 							}
 							dad.alpha = lastAlpha;
-							iconP2.changeIcon(dad.healthIcon, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX);
+							iconP2.changeIcon(dad.healthIcon, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX, dad.iconBlend, dad.iconFps24);
 						}
 						setOnScripts('dadName', dad.curCharacter);
 

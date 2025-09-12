@@ -33,6 +33,8 @@ typedef CharacterFile = {
 	var iconOffsets:Array<Int>;
 	var iconScale:Float;
 	var iconFlipX:Bool;
+	var iconBlend:String;
+	var iconFps24:Int;
 
 	var opponentArrows:Array<Array<String>>;
 
@@ -90,6 +92,8 @@ class Character extends FlxSprite
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 	public var iconScale:Float = 1;
 	public var iconFlipX:Bool = false;
+	public var iconBlend:String = '';
+	public var iconFps24:Int = 24;
 
 	public var animationsArray:Array<AnimArray> = [];
 
@@ -248,6 +252,8 @@ class Character extends FlxSprite
 		iconFlipX = (json.iconFlipX == true);
 		iconOffsets = json.iconOffsets;
 		originalIconFlipX = (json.iconFlipX != isPlayer);
+		iconBlend = json.iconBlend;
+		iconFps24 = json.iconFps24 != null ? json.iconFps24 : 24;
 		
 		//notes
 		opponentNoteColor = (json.opponentArrows != null ? json.opponentArrows : (PlayState.isPixelStage ? defaultPixelStringColor : defaultStringColor));

@@ -432,7 +432,9 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				healthbar_colors: [161, 161, 161],
 				iconOffsets: [0, 0],
 				iconScale: 1,
-				iconFlipX: false
+				iconFlipX: false,
+				iconBlend: '',
+				iconFps24: 24
 			};
 
 			character.loadCharacterFile(_template);
@@ -1340,6 +1342,9 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			"iconOffsets": character.iconOffsets,
 			"iconScale": character.iconScale,
 			"iconFlipX": character.iconFlipX,
+
+			"iconBlend": character.iconBlend,
+			"iconFps24": character.iconFps24,
 
 			"opponentArrows": character.opponentNoteColor,
 

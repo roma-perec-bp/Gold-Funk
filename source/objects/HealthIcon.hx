@@ -3,6 +3,13 @@ package objects;
 import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
 
+#if LUA_ALLOWED
+import psychlua.*;
+#else
+import psychlua.LuaUtils;
+import psychlua.HScript;
+#end
+
 class HealthIcon extends FlxSprite
 {
 	public var sprTracker:FlxSprite;
@@ -12,14 +19,14 @@ class HealthIcon extends FlxSprite
 	public var hasThirdIcon:Bool = false;
 	private var iconOffsets:Array<Float> = [0, 0];
 
-	public function new(char:String = 'face', isPlayer:Bool = false, ?allowGPU:Bool = true, ?offsetsThing:Array<Float>, ?scale:Float = 1, ?flipX:Bool = false)
+	public function new(char:String = 'face', isPlayer:Bool = false, ?allowGPU:Bool = true, ?offsetsThing:Array<Float>, ?scale:Float = 1, ?flipX:Bool = false, ?blendThing:String = '', ?fpsThing:Int = 24)
 	{
 		super();
 
 		if (offsetsThing == null) offsetsThing = [0, 0];
 
 		this.isPlayer = isPlayer;
-		changeIcon(char, allowGPU, offsetsThing, scale, flipX);
+		changeIcon(char, allowGPU, offsetsThing, scale, flipX, blendThing, fpsThing);
 		scrollFactor.set();
 	}
 
@@ -31,7 +38,7 @@ class HealthIcon extends FlxSprite
 			setPosition(sprTracker.x + sprTracker.width + 12, sprTracker.y - 30);
 	}
 
-	public function changeIcon(char:String, ?allowGPU:Bool = true, ?iconOffsetsPar:Array<Float>, ?scalePar:Float = 1, ?flipXpar:Bool = false) {
+	public function changeIcon(char:String, ?allowGPU:Bool = true, ?iconOffsetsPar:Array<Float>, ?scalePar:Float = 1, ?flipXpar:Bool = false, ?blendThing:String = '', ?fpsThing:Int = 24) {
 		if(this.char != char) {
 			if (iconOffsetsPar == null) iconOffsetsPar = [0, 0];
 
@@ -50,13 +57,13 @@ class HealthIcon extends FlxSprite
 
 				frames = graphic;
 
-				animation.addByPrefix('idle', 'idle', 24, true, isPlayer);
-				animation.addByPrefix('winning', 'winning', 24, true, isPlayer);
-				animation.addByPrefix('losing', 'losing', 24, true, isPlayer);
-				animation.addByPrefix('toWinning', 'toWinning', 24, false, isPlayer);
-				animation.addByPrefix('toLosing', 'toLosing', 24, false, isPlayer);
-				animation.addByPrefix('fromWinning', 'fromWinning', 24, false, isPlayer);
-				animation.addByPrefix('fromLosing', 'fromLosing', 24, false, isPlayer);
+				animation.addByPrefix('idle', 'idle', fpsThing, true, isPlayer);
+				animation.addByPrefix('winning', 'winning', fpsThing, true, isPlayer);
+				animation.addByPrefix('losing', 'losing', fpsThing, true, isPlayer);
+				animation.addByPrefix('toWinning', 'toWinning', fpsThing, false, isPlayer);
+				animation.addByPrefix('toLosing', 'toLosing', fpsThing, false, isPlayer);
+				animation.addByPrefix('fromWinning', 'fromWinning', fpsThing, false, isPlayer);
+				animation.addByPrefix('fromLosing', 'fromLosing', fpsThing, false, isPlayer);
 				animation.play('idle');
 
 				iconOffsets[0] = (width - 150) + iconOffsetsPar[0];
@@ -64,6 +71,8 @@ class HealthIcon extends FlxSprite
 				scale.set(scalePar, scalePar);
 				flipX = flipXpar;
 				updateHitbox();
+
+				blend = LuaUtils.blendModeFromString(blendThing);
 				
 				this.char = char;
 
@@ -88,6 +97,8 @@ class HealthIcon extends FlxSprite
 	
 				if (animation.curAnim.numFrames == 3)
 					hasThirdIcon = true;
+
+				blend = LuaUtils.blendModeFromString(blendThing);
 	
 				this.char = char;
 	
