@@ -622,9 +622,20 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	}
 
 	var healthIconInputText:PsychUIInputText;
+	var healthIconFlixX:PsychUICheckBox;
+	var healthIconScale:PsychUINumericStepper;
+	var healthIconOffsetsX:PsychUINumericStepper;
+	var healthIconOffsetsY:PsychUINumericStepper;
 	var healthColorStepperR:PsychUINumericStepper;
 	var healthColorStepperG:PsychUINumericStepper;
 	var healthColorStepperB:PsychUINumericStepper;
+
+	final blendList:Array<String> = [
+		'normal', 'add', 'alpha', 'darken', 'difference', 'erase', 'hardlight', 'invert',
+		'layer', 'lighten', 'multiply', 'overlay', 'screen', 'shader', 'subtract'
+	];
+	var iconBlendDropDown:PsychUIDropDownMenu;
+	var healthFpsStepper:PsychUINumericStepper;
 	function addHealthIconUI()
 	{
 		var tab_group = UI_characterbox.getTab('Health Icon').menu;
@@ -644,6 +655,29 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		healthColorStepperG = new PsychUINumericStepper(healthColorStepperR.x + 65, healthIconInputText.y + 45, 20, character.healthColorArray[1], 0, 255, 0);
 		healthColorStepperB = new PsychUINumericStepper(healthColorStepperR.x + 130, healthIconInputText.y + 45, 20, character.healthColorArray[2], 0, 255, 0);
 
+		healthIconFlixX = new PsychUICheckBox(decideIconColor.x, healthColorStepperR.y, "Icon FlipX", 80);
+		healthIconFlixX.checked = character.iconFlipX;
+		if(character.isPlayer) healthIconFlixX.checked = !healthIconFlixX.checked;
+		healthIconFlixX.onClick = function() {
+			character.originalIconFlipX = !character.originalIconFlipX;
+			character.iconFlipX = (character.originalIconFlipX != character.isPlayer);
+			healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
+		};
+
+		healthIconScale = new PsychUINumericStepper(15, healthIconFlixX.y + 40, 0.1, 1, 0.05, 10, 2);
+
+		healthIconOffsetsX = new PsychUINumericStepper(healthIconScale.x + 170, healthIconFlixX.y + 40, 10, 0.0, -9000, 9000, 0);
+		healthIconOffsetsY = new PsychUINumericStepper(healthIconOffsetsX.x + 70, healthIconOffsetsX.y, 10, 0.0, -9000, 9000, 0);
+
+		iconBlendDropDown = new PsychUIDropDownMenu(15, healthIconOffsetsY.y + 45, blendList, function(sel:Int, value:String) {
+			// blend mode
+			character.iconBlend = value;
+			healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
+		});
+		iconBlendDropDown.selectedLabel = blendList[0];
+
+		healthFpsStepper = new PsychUINumericStepper(iconBlendDropDown.x + 170, iconBlendDropDown.y, 1, 24, 0, 240, 0);
+
 		tab_group.add(healthIconInputText);
 		tab_group.add(new FlxText(15, healthIconInputText.y - 18, 100, 'Health icon name:'));
 		tab_group.add(decideIconColor);
@@ -651,6 +685,17 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		tab_group.add(healthColorStepperR);
 		tab_group.add(healthColorStepperG);
 		tab_group.add(healthColorStepperB);
+		tab_group.add(healthIconFlixX);
+		tab_group.add(new FlxText(15, healthIconScale.y - 18, 100, 'Scale:'));
+		tab_group.add(healthIconScale);
+		tab_group.add(new FlxText(healthIconOffsetsX.x, healthIconOffsetsX.y - 18, 100, 'Icon Offsets:'));
+		tab_group.add(healthIconOffsetsX);
+		tab_group.add(healthIconOffsetsY);
+		tab_group.add(healthIconInputText);
+		tab_group.add(new FlxText(healthFpsStepper.x, healthFpsStepper.y - 18, 100, 'Animation Icon FPS:'));
+		tab_group.add(healthFpsStepper);
+		tab_group.add(new FlxText(iconBlendDropDown.x, iconBlendDropDown.y - 18, 100, 'Icon blend:'));
+		tab_group.add(iconBlendDropDown);
 	}
 
 	var imageInputText:PsychUIInputText;
@@ -748,7 +793,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		{
 			if(sender == healthIconInputText) {
 				var lastIcon = healthIcon.getCharacter();
-				healthIcon.changeIcon(healthIconInputText.text, false);
+				healthIcon.changeIcon(healthIconInputText.text, false, character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
 				character.healthIcon = healthIconInputText.text;
 				if(lastIcon != healthIcon.getCharacter()) updatePresence();
 				unsavedProgress = true;
@@ -773,6 +818,12 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				character.scale.set(character.jsonScale, character.jsonScale);
 				character.updateHitbox();
 				updatePointerPos(false);
+				unsavedProgress = true;
+			}
+			if (sender == healthIconScale)
+			{
+				character.iconScale = healthIconScale.value;
+				healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
 				unsavedProgress = true;
 			}
 			else if(sender == positionXStepper)
@@ -825,6 +876,24 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			{
 				character.healthColorArray[2] = Math.round(healthColorStepperB.value);
 				updateHealthBar();
+				unsavedProgress = true;
+			}
+			else if(sender == healthIconOffsetsX)
+			{
+				character.iconOffsets[0] = healthIconOffsetsX.value;
+				healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
+				unsavedProgress = true;
+			}
+			else if(sender == healthIconOffsetsY)
+			{
+				character.iconOffsets[1] = healthIconOffsetsY.value;
+				healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
+				unsavedProgress = true;
+			}
+			else if(sender == healthFpsStepper)
+			{
+				character.iconFps24 = Std.int(healthFpsStepper.value);
+				healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
 				unsavedProgress = true;
 			}
 		}
@@ -892,6 +961,14 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		positionYStepper.value = character.positionArray[1];
 		positionCameraXStepper.value = character.cameraPosition[0];
 		positionCameraYStepper.value = character.cameraPosition[1];
+
+		healthIconOffsetsX.value = character.iconOffsets[0];
+		healthIconOffsetsY.value = character.iconOffsets[1];
+		healthIconFlixX.checked = character.originalIconFlipX;
+		healthIconFlixX.checked = character.originalIconFlipX;
+		iconBlendDropDown.selectedLabel = character.iconBlend;
+		healthIconScale.value = character.iconScale;
+		healthFpsStepper.value = character.iconFps24;
 		reloadAnimationDropDown();
 		updateHealthBar();
 	}

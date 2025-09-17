@@ -38,6 +38,22 @@ class HealthIcon extends FlxSprite
 			setPosition(sprTracker.x + sprTracker.width + 12, sprTracker.y - 30);
 	}
 
+	public function changePar(?iconOffsetsPar:Array<Float>, ?scalePar:Float = 1, ?flipXpar:Bool = false, ?blendThing:String = '', ?fpsThing:Int = 24)
+	{
+		if (iconOffsetsPar == null) iconOffsetsPar = [0, 0];
+
+		iconOffsets[0] = (width - 150) + iconOffsetsPar[0];
+		iconOffsets[1] = (height - 150) + iconOffsetsPar[1];
+
+		scale.set(scalePar, scalePar);
+		flipX = flipXpar;
+		updateHitbox();
+
+		animation.curAnim.frameRate = Std.int(fpsThing);
+
+		blend = LuaUtils.blendModeFromString(blendThing);
+	}
+
 	public function changeIcon(char:String, ?allowGPU:Bool = true, ?iconOffsetsPar:Array<Float>, ?scalePar:Float = 1, ?flipXpar:Bool = false, ?blendThing:String = '', ?fpsThing:Int = 24) {
 		if(this.char != char) {
 			if (iconOffsetsPar == null) iconOffsetsPar = [0, 0];

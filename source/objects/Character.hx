@@ -250,7 +250,7 @@ class Character extends FlxSprite
 		healthColorArray = (json.healthbar_colors != null && json.healthbar_colors.length > 2) ? json.healthbar_colors : [161, 161, 161];
 		iconScale = json.iconScale != null ? json.iconScale : 1;
 		iconFlipX = (json.iconFlipX == true);
-		iconOffsets = json.iconOffsets;
+		iconOffsets = json.iconOffsets != null ? json.iconScale : [0, 0];
 		originalIconFlipX = (json.iconFlipX != isPlayer);
 		iconBlend = json.iconBlend;
 		iconFps24 = json.iconFps24 != null ? json.iconFps24 : 24;
