@@ -622,7 +622,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	}
 
 	var healthIconInputText:PsychUIInputText;
-	var healthIconFlixX:PsychUICheckBox;
+	var healthIconFlipX:PsychUICheckBox;
 	var healthIconScale:PsychUINumericStepper;
 	var healthIconOffsetsX:PsychUINumericStepper;
 	var healthIconOffsetsY:PsychUINumericStepper;
@@ -631,8 +631,21 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	var healthColorStepperB:PsychUINumericStepper;
 
 	final blendList:Array<String> = [
-		'normal', 'add', 'alpha', 'darken', 'difference', 'erase', 'hardlight', 'invert',
-		'layer', 'lighten', 'multiply', 'overlay', 'screen', 'shader', 'subtract'
+		'normal',
+		'add',
+		'alpha',
+		'darken',
+		'difference',
+		'erase',
+		'hardlight',
+		'invert',
+		'layer',
+		'lighten',
+		'multiply',
+		'overlay',
+		'screen',
+		'shader',
+		'subtract'
 	];
 	var iconBlendDropDown:PsychUIDropDownMenu;
 	var healthFpsStepper:PsychUINumericStepper;
@@ -655,18 +668,18 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		healthColorStepperG = new PsychUINumericStepper(healthColorStepperR.x + 65, healthIconInputText.y + 45, 20, character.healthColorArray[1], 0, 255, 0);
 		healthColorStepperB = new PsychUINumericStepper(healthColorStepperR.x + 130, healthIconInputText.y + 45, 20, character.healthColorArray[2], 0, 255, 0);
 
-		healthIconFlixX = new PsychUICheckBox(decideIconColor.x, healthColorStepperR.y, "Icon FlipX", 80);
-		healthIconFlixX.checked = character.iconFlipX;
-		if(character.isPlayer) healthIconFlixX.checked = !healthIconFlixX.checked;
-		healthIconFlixX.onClick = function() {
+		healthIconFlipX = new PsychUICheckBox(decideIconColor.x, healthColorStepperR.y, "Icon FlipX", 80);
+		healthIconFlipX.checked = character.iconFlipX;
+		if(character.isPlayer) healthIconFlipX.checked = !healthIconFlipX.checked;
+		healthIconFlipX.onClick = function() {
 			character.originalIconFlipX = !character.originalIconFlipX;
 			character.iconFlipX = (character.originalIconFlipX != character.isPlayer);
 			healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
 		};
 
-		healthIconScale = new PsychUINumericStepper(15, healthIconFlixX.y + 40, 0.1, 1, 0.05, 10, 2);
+		healthIconScale = new PsychUINumericStepper(15, healthIconFlipX.y + 40, 0.1, 1, 0.05, 10, 2);
 
-		healthIconOffsetsX = new PsychUINumericStepper(healthIconScale.x + 170, healthIconFlixX.y + 40, 10, 0.0, -9000, 9000, 0);
+		healthIconOffsetsX = new PsychUINumericStepper(healthIconScale.x + 170, healthIconFlipX.y + 40, 10, 0.0, -9000, 9000, 0);
 		healthIconOffsetsY = new PsychUINumericStepper(healthIconOffsetsX.x + 70, healthIconOffsetsX.y, 10, 0.0, -9000, 9000, 0);
 
 		iconBlendDropDown = new PsychUIDropDownMenu(15, healthIconOffsetsY.y + 45, blendList, function(sel:Int, value:String) {
@@ -685,7 +698,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		tab_group.add(healthColorStepperR);
 		tab_group.add(healthColorStepperG);
 		tab_group.add(healthColorStepperB);
-		tab_group.add(healthIconFlixX);
+		tab_group.add(healthIconFlipX);
 		tab_group.add(new FlxText(15, healthIconScale.y - 18, 100, 'Scale:'));
 		tab_group.add(healthIconScale);
 		tab_group.add(new FlxText(healthIconOffsetsX.x, healthIconOffsetsX.y - 18, 100, 'Icon Offsets:'));
@@ -964,8 +977,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 		healthIconOffsetsX.value = character.iconOffsets[0];
 		healthIconOffsetsY.value = character.iconOffsets[1];
-		healthIconFlixX.checked = character.originalIconFlipX;
-		healthIconFlixX.checked = character.originalIconFlipX;
+		healthIconFlipX.checked = character.originalIconFlipX;
 		iconBlendDropDown.selectedLabel = character.iconBlend;
 		healthIconScale.value = character.iconScale;
 		healthFpsStepper.value = character.iconFps24;
