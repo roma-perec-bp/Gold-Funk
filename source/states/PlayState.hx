@@ -4597,22 +4597,22 @@ class PlayState extends MusicBeatState
 	{
 		if(ClientPrefs.data.laneUnderlay == 0) return;
 
-		laneE0 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneE0 = new FlxSprite(0, -400).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 5, FlxColor.BLACK);
 		laneE0.alpha = 0;
-		laneE1 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneE1 = new FlxSprite(0, -400).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 5, FlxColor.BLACK);
 		laneE1.alpha = 0;
-		laneE2 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneE2 = new FlxSprite(0, -400).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 5, FlxColor.BLACK);
 		laneE2.alpha = 0;
-		laneE3 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneE3 = new FlxSprite(0, -400).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
 		laneE3.alpha = 0;
 
-		laneP0 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneP0 = new FlxSprite(0, -400).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 5, FlxColor.BLACK);
 		laneP0.alpha = 0;
-		laneP1 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneP1 = new FlxSprite(0, -400).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 5, FlxColor.BLACK);
 		laneP1.alpha = 0;
-		laneP2 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneP2 = new FlxSprite(0, -400).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 5, FlxColor.BLACK);
 		laneP2.alpha = 0;
-		laneP3 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneP3 = new FlxSprite(0, -400).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 5, FlxColor.BLACK);
 		laneP3.alpha = 0;
 
 		noteGroup.add(laneE0);
