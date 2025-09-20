@@ -5180,7 +5180,7 @@ class PlayState extends MusicBeatState
 		note.active = false;
 	}
 
-	public function textYOUappear(note:Note):Void 
+	public function textYOUappear():Void 
 	{
 		FlxTween.cancelTweensOf(textYou); //i know where you live
 		FlxTween.tween(textYou, {alpha: 1}, Conductor.stepCrochet * 4, {
