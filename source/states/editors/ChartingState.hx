@@ -120,6 +120,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Change Combo Camera', "Value 1: Is it should be on game camera or hud? (camHUD or camGame)\nValue 2: X, Y (650, 300)"],
 		['Singing Shakes', 'Value 1: Turn on (true or false)\nValue 2: Which character shake'],
 		['Change Note Camera Move Offset', "Value 1: Offset"],
+		['Show YOU text under strums', "Just place it and you're done\n\nyes it works properly if strum position is different (i hope)"],
 		['Change Visual Time Length', 'Value 1: Time length in seconds (Leave it blank to be default one)\nValue 2: Duration in steps (leave it blank to be instant)\nValue 3: Tween Ease'],
 		['Update Strum Position Variable', "Sets current note position for variable curPlayerStrumX, curPlayerStrumY\nand curOpponentStrumX, curOpponentStrumY\nNeeds for modchart scripts things if needs"],
 		['Change Object Layer', "Changes object's layer\nValue 1: Object name (boyfriend, dad, gf or etc)\nValue 2: Position layer number"],

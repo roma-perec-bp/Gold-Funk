@@ -286,10 +286,23 @@ class PlayState extends MusicBeatState
 
 	var solidColBeh:FlxSprite;
 
+	public var textYou:FlxText;
+
 	public static var campaignScore:Int = 0;
 	public static var campaignMisses:Int = 0;
 	public static var seenCutscene:Bool = false;
 	public static var deathCounter:Int = 0;
+
+	//LANES
+	var laneP0:FlxSprite;
+	var laneP1:FlxSprite;
+	var laneP2:FlxSprite;
+	var laneP3:FlxSprite;
+
+	var laneE0:FlxSprite;
+	var laneE1:FlxSprite;
+	var laneE2:FlxSprite;
+	var laneE3:FlxSprite;
 
 	public var defaultCamZoom:Float = 1.05;
 	var stageZoom:Float = 1.05;
@@ -561,6 +574,8 @@ class PlayState extends MusicBeatState
 		add(noteGroup);
 		add(uiPostGroup);
 
+		createLanes();
+
 		Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
 		var showTime:Bool = (ClientPrefs.data.timeBarType != 'Disabled' && !PlayState.SONG.disableTimeBar);
 		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 21.5, 400, "", 20);
@@ -589,6 +604,13 @@ class PlayState extends MusicBeatState
 		}
 
 		generateSong();
+
+		//Umbra this is for you :3
+		textYou = new FlxText(0, 200, 600, 'YOU', 48);
+		textYou.setFormat(Paths.font("mariones.ttf"), 48, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		textYou.alpha = 0;
+		textYou.borderSize = 2;
+		noteGroup.add(textYou);
 
 		noteGroup.add(grpHoldSplashes);
 		noteGroup.add(grpNoteSplashes);
@@ -1269,6 +1291,9 @@ class PlayState extends MusicBeatState
 							}
 						});
 
+						if (PlayState.SONG.showYOUtext)
+							textYOUappear();
+
 						if (PlayState.SONG.fadeOutStart)
 						{
 							if(PlayState.SONG.fadeCount)
@@ -1308,7 +1333,7 @@ class PlayState extends MusicBeatState
 	{
 		var spr:FlxSprite = new FlxSprite();
 
-		var animToFind:String = Paths.getPath('images/' + image + '.xml', TEXT);
+		var animToFind:String = Paths.getPath(Language.getFileTranslation('images/$image') + '.xml', TEXT);
 
 		if (#if MODS_ALLOWED FileSystem.exists(animToFind) || #end Assets.exists(animToFind))
 		{
@@ -2401,6 +2426,71 @@ class PlayState extends MusicBeatState
 
 		setOnScripts('botPlay', cpuControlled);
 		callOnScripts('onUpdatePost', [elapsed]);
+
+		if(generatedMusic && !inCutscene && ClientPrefs.data.laneUnderlay != 0)
+		{
+			textYou.x = opponentStrums.members[1].x + 25;
+
+			laneP0.x = playerStrums.members[0].x;
+			laneP1.x = playerStrums.members[1].x;
+			laneP2.x = playerStrums.members[2].x;
+			laneP3.x = playerStrums.members[3].x;
+	
+			laneE0.x = opponentStrums.members[0].x;
+			laneE1.x = opponentStrums.members[1].x;
+			laneE2.x = opponentStrums.members[2].x;
+			laneE3.x = opponentStrums.members[3].x;
+	
+			laneP0.alpha = (
+				playerStrums.members[0].alpha == 0 ?
+					FlxMath.lerp(laneP0.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+					:
+					FlxMath.lerp(laneP0.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+			);
+			laneP1.alpha = (
+				playerStrums.members[1].alpha == 0 ?
+					FlxMath.lerp(laneP1.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+					:
+					FlxMath.lerp(laneP1.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+			);
+			laneP2.alpha = (
+				playerStrums.members[2].alpha == 0 ?
+					FlxMath.lerp(laneP2.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+					:
+					FlxMath.lerp(laneP2.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+			);
+			laneP3.alpha = (
+				playerStrums.members[3].alpha == 0 ?
+					FlxMath.lerp(laneP3.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+					:
+					FlxMath.lerp(laneP3.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+			);
+	
+			laneE0.alpha = (
+				opponentStrums.members[0].alpha == 0 ?
+					FlxMath.lerp(laneE0.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+					:
+					FlxMath.lerp(laneE0.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+			);
+			laneE1.alpha = (
+				opponentStrums.members[1].alpha == 0 ?
+					FlxMath.lerp(laneE1.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+					:
+					FlxMath.lerp(laneE1.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+			);
+			laneE2.alpha = (
+				opponentStrums.members[2].alpha == 0 ?
+					FlxMath.lerp(laneE2.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+					:
+					FlxMath.lerp(laneE2.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+			);
+			laneE3.alpha = (
+				opponentStrums.members[3].alpha == 0 ?
+					FlxMath.lerp(laneE3.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+					:
+					FlxMath.lerp(laneE3.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+			);
+		}
 
 		for (i in shaderUpdates) i(elapsed);
 	}
@@ -3683,6 +3773,9 @@ class PlayState extends MusicBeatState
 				vocals.volume = flValue1;
 				opponentVocals.volume = flValue2;
 
+			case 'Show YOU text under strums':
+				textYOUappear();
+
 			case 'Character Visibility':
 				var char:Character = boyfriend;
 				var val2:Int = Std.parseInt(value2);
@@ -4500,6 +4593,39 @@ class PlayState extends MusicBeatState
 					keyReleased(i);
 	}
 
+	function createLanes()
+	{
+		if(ClientPrefs.data.laneUnderlay == 0) return;
+
+		laneE0 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneE0.alpha = 0;
+		laneE1 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneE1.alpha = 0;
+		laneE2 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneE2.alpha = 0;
+		laneE3 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneE3.alpha = 0;
+
+		laneP0 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneP0.alpha = 0;
+		laneP1 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneP1.alpha = 0;
+		laneP2 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneP2.alpha = 0;
+		laneP3 = new FlxSprite(0,0).makeGraphic(Std.int(Note.swagWidth) - 5, FlxG.height * 2, FlxColor.BLACK);
+		laneP3.alpha = 0;
+
+		noteGroup.add(laneE0);
+		noteGroup.add(laneE1);
+		noteGroup.add(laneE2);
+		noteGroup.add(laneE3);
+
+		noteGroup.add(laneP0);
+		noteGroup.add(laneP1);
+		noteGroup.add(laneP2);
+		noteGroup.add(laneP3);
+	}
+
 	function noteMiss(daNote:Note):Void { //You didn't hit the key and let it go offscreen, also used by Hurt Notes
 		//Dupe note remove
 		notes.forEachAlive(function(note:Note) {
@@ -5052,6 +5178,18 @@ class PlayState extends MusicBeatState
 		note.blockHit = true;
 		note.badassed = true;
 		note.active = false;
+	}
+
+	public function textYOUappear(note:Note):Void 
+	{
+		FlxTween.cancelTweensOf(textYou); //i know where you live
+		FlxTween.tween(textYou, {alpha: 1}, Conductor.stepCrochet * 4, {
+			ease: FlxEase.expoOut,
+				onComplete: function(twn:FlxTween)
+				{
+					FlxTween.tween(textYou, {alpha: 0}, Conductor.stepCrochet * 8, {ease: FlxEase.quadInOut});
+				}
+		});
 	}
 
 	//so originally this was port of @vechett codename engine script, port by goat @rodney528
