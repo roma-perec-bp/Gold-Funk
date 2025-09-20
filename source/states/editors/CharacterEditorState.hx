@@ -10,6 +10,7 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.utils.Assets;
 
+import objects.Note;
 import objects.Character;
 import objects.HealthIcon;
 import objects.Bar;
@@ -41,6 +42,8 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	var healthBar:Bar;
 	var healthIcon:HealthIcon;
 
+	var myNotes = new FlxTypedGroup<Note>();
+
 	var copiedOffset:Array<Float> = [0, 0];
 	var _char:String = null;
 	var _goToPlayState:Bool = true;
@@ -48,6 +51,8 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	var anims = null;
 	var animsTxt:FlxText;
 	var curAnim = 0;
+
+	var dataArray:Array<Array<FlxColor>>;
 
 	private var camEditor:FlxCamera;
 	private var camHUD:FlxCamera;
@@ -125,6 +130,25 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		healthIcon = new HealthIcon(character.healthIcon, false, false);
 		healthIcon.y = FlxG.height - 150;
 		healthIcon.cameras = [camHUD];
+
+		var arrChar:Array<String>;	
+		for (i in 0...4)
+		{
+			arrChar = character.opponentNoteColor[i];
+			Note.initializeGlobalRGBShader(i);
+			var newNote:Note = new Note(0, i, false, true);
+			newNote.setPosition(910 + (85 * i), 450);
+			newNote.rgbShader.enabled = true;
+			newNote.scale.set(0.5, 0.5);
+			newNote.updateHitbox();
+			newNote.ID = i;
+			newNote.rgbShader.r = Std.parseInt(arrChar[0]);
+			newNote.rgbShader.g = Std.parseInt(arrChar[1]);
+			newNote.rgbShader.b = Std.parseInt(arrChar[2]);
+			newNote.cameras = [camHUD];
+			myNotes.add(newNote);
+		}
+		add(myNotes);
 
 		add(cameraFollowPointer);
 		add(healthBar);
@@ -238,6 +262,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		{
 			character.isPlayer = !character.isPlayer;
 			character.flipX = (character.originalFlipX != character.isPlayer);
+			character.iconFlipX = (character.originalIconFlipX != character.isPlayer);
 			if(check_player != null) check_player.checked = character.isPlayer;
 		}
 		character.debugMode = true;
@@ -616,9 +641,106 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		tab_group.add(animationDropDown);
 	}
 
+	var purpleInput0:PsychUIInputText;
+	var purpleInput1:PsychUIInputText;
+	var purpleInput2:PsychUIInputText;
+
+	var blueInput0:PsychUIInputText;
+	var blueInput1:PsychUIInputText;
+	var blueInput2:PsychUIInputText;
+
+	var greenInput0:PsychUIInputText;
+	var greenInput1:PsychUIInputText;
+	var greenInput2:PsychUIInputText;
+
+	var redInput0:PsychUIInputText;
+	var redInput1:PsychUIInputText;
+	var redInput2:PsychUIInputText;
 	function addNoteColorsUI()
 	{
 		var tab_group = UI_characterbox.getTab('Note Colors').menu;
+
+		purpleInput0 = new PsychUIInputText(15, 30, 75, character.opponentNoteColor[0][0], 8);
+		purpleInput1 = new PsychUIInputText(15, purpleInput0.y + 40, 75, character.opponentNoteColor[0][1], 8);
+		purpleInput2 = new PsychUIInputText(15, purpleInput1.y + 40, 75, character.opponentNoteColor[0][2], 8);
+
+		blueInput0 = new PsychUIInputText(purpleInput0.x + 85, 30, 75, character.opponentNoteColor[1][0], 8);
+		blueInput1 = new PsychUIInputText(purpleInput0.x + 85, blueInput0.y + 40, 75, character.opponentNoteColor[1][1], 8);
+		blueInput2 = new PsychUIInputText(purpleInput0.x + 85, blueInput1.y + 40, 75, character.opponentNoteColor[1][2], 8);
+
+		greenInput0 = new PsychUIInputText(blueInput0.x + 85, 30, 75, character.opponentNoteColor[2][0], 8);
+		greenInput1 = new PsychUIInputText(blueInput0.x + 85, blueInput0.y + 40, 75, character.opponentNoteColor[2][1], 8);
+		greenInput2 = new PsychUIInputText(blueInput0.x + 85, blueInput1.y + 40, 75, character.opponentNoteColor[2][2], 8);
+
+		redInput0 = new PsychUIInputText(greenInput0.x + 85, 30, 75, character.opponentNoteColor[3][0], 8);
+		redInput1 = new PsychUIInputText(greenInput0.x + 85, redInput0.y + 40, 75, character.opponentNoteColor[3][1], 8);
+		redInput2 = new PsychUIInputText(greenInput0.x + 85, redInput1.y + 40, 75, character.opponentNoteColor[3][2], 8);
+
+		tab_group.add(new FlxText(15, purpleInput0.y - 18, 200, 'Base Color'));
+		tab_group.add(new FlxText(15, purpleInput1.y - 18, 200, 'Shade Color'));
+		tab_group.add(new FlxText(15, purpleInput2.y - 18, 200, 'Outline Color'));
+		
+		tab_group.add(new FlxText(purpleInput0.x + 85, blueInput0.y - 18, 200, 'Base Color'));
+		tab_group.add(new FlxText(purpleInput0.x + 85, blueInput1.y - 18, 200, 'Shade Color'));
+		tab_group.add(new FlxText(purpleInput0.x + 85, blueInput2.y - 18, 200, 'Outline Color'));
+
+		tab_group.add(new FlxText(blueInput0.x + 85, greenInput0.y - 18, 200, 'Base Coloк'));
+		tab_group.add(new FlxText(blueInput0.x + 85, greenInput1.y - 18, 200, 'Shade Color'));
+		tab_group.add(new FlxText(blueInput0.x + 85, greenInput2.y - 18, 200, 'Outline Color:'));
+
+		tab_group.add(new FlxText(greenInput0.x + 85, redInput0.y - 18, 200, 'Base Color'));
+		tab_group.add(new FlxText(greenInput0.x + 85, redInput1.y - 18, 200, 'Shade Color'));
+		tab_group.add(new FlxText(greenInput0.x + 85, redInput2.y - 18, 200, 'Outline Color'));
+
+		tab_group.add(new FlxText(20, purpleInput2.y + 40, 200, 'LEFT NOTE'));
+		tab_group.add(new FlxText(purpleInput0.x + 90, purpleInput2.y + 40, 200, 'DOWN NOTE'));
+		tab_group.add(new FlxText(blueInput0.x + 90, purpleInput2.y + 40, 200, 'UP NOTE'));
+		tab_group.add(new FlxText(greenInput0.x + 90, purpleInput2.y + 40, 200, 'RIGHT NOTE'));
+
+		tab_group.add(purpleInput0);
+		tab_group.add(purpleInput1);
+		tab_group.add(purpleInput2);
+		tab_group.add(blueInput0);
+		tab_group.add(blueInput1);
+		tab_group.add(blueInput2);
+		tab_group.add(greenInput0);
+		tab_group.add(greenInput1);
+		tab_group.add(greenInput2);
+		tab_group.add(redInput0);
+		tab_group.add(redInput1);
+		tab_group.add(redInput2);
+
+		var applyColor:PsychUIButton = new PsychUIButton(blueInput0.x + 45, purpleInput2.y + 90, "Apply Color", function()
+		{
+			//uhhhh shit
+			if(purpleInput0.text != null) character.opponentNoteColor[0][0] = purpleInput0.text;
+			if(purpleInput1.text != null) character.opponentNoteColor[0][1] = purpleInput1.text;
+			if(purpleInput2.text != null) character.opponentNoteColor[0][2] = purpleInput2.text;
+
+			if(blueInput0.text != null) character.opponentNoteColor[1][0] = blueInput0.text;
+			if(blueInput1.text != null) character.opponentNoteColor[1][1] = blueInput1.text;
+			if(blueInput2.text != null) character.opponentNoteColor[1][2] = blueInput2.text;
+
+			if(greenInput0.text != null) character.opponentNoteColor[2][0] = greenInput0.text;
+			if(greenInput1.text != null) character.opponentNoteColor[2][1] = greenInput1.text;
+			if(greenInput2.text != null) character.opponentNoteColor[2][2] = greenInput2.text;
+
+			if(redInput0.text != null) character.opponentNoteColor[3][0] = redInput0.text;
+			if(redInput1.text != null) character.opponentNoteColor[3][1] = redInput1.text;
+			if(redInput2.text != null) character.opponentNoteColor[3][2] = redInput2.text;
+
+			var arrCharApply:Array<String>;	
+			for (i in 0...4)
+			{
+				arrCharApply = character.opponentNoteColor[i];
+
+				myNotes.members[i].rgbShader.r = Std.parseInt(arrCharApply[0]);
+				myNotes.members[i].rgbShader.g = Std.parseInt(arrCharApply[1]);
+				myNotes.members[i].rgbShader.b = Std.parseInt(arrCharApply[2]);
+			}
+		});
+
+		tab_group.add(applyColor);
 	}
 
 	var healthIconInputText:PsychUIInputText;
@@ -677,19 +799,22 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
 		};
 
-		healthIconScale = new PsychUINumericStepper(15, healthIconFlipX.y + 40, 0.1, 1, 0.05, 10, 2);
+		healthIconScale = new PsychUINumericStepper(15, healthIconFlipX.y + 40, 0.1, character.iconScale, 0.05, 10, 2);
 
-		healthIconOffsetsX = new PsychUINumericStepper(healthIconScale.x + 170, healthIconFlipX.y + 40, 10, 0.0, -9000, 9000, 0);
-		healthIconOffsetsY = new PsychUINumericStepper(healthIconOffsetsX.x + 70, healthIconOffsetsX.y, 10, 0.0, -9000, 9000, 0);
+		healthIconOffsetsX = new PsychUINumericStepper(healthIconScale.x + 170, healthIconFlipX.y + 40, 10, character.iconOffsets[0], -9000, 9000, 0);
+		healthIconOffsetsY = new PsychUINumericStepper(healthIconOffsetsX.x + 70, healthIconOffsetsX.y, 10, character.iconOffsets[1], -9000, 9000, 0);
 
 		iconBlendDropDown = new PsychUIDropDownMenu(15, healthIconOffsetsY.y + 45, blendList, function(sel:Int, value:String) {
 			// blend mode
 			character.iconBlend = value;
 			healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
 		});
-		iconBlendDropDown.selectedLabel = blendList[0];
+		iconBlendDropDown.selectedLabel = character.iconBlend;
 
-		healthFpsStepper = new PsychUINumericStepper(iconBlendDropDown.x + 170, iconBlendDropDown.y, 1, 24, 0, 240, 0);
+		healthFpsStepper = new PsychUINumericStepper(iconBlendDropDown.x + 170, iconBlendDropDown.y, 1, character.iconFps24, 0, 240, 0);
+
+		//apply just in case
+		healthIcon.changePar(character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
 
 		tab_group.add(healthIconInputText);
 		tab_group.add(new FlxText(15, healthIconInputText.y - 18, 100, 'Health icon name:'));
@@ -745,7 +870,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 		singDurationStepper = new PsychUINumericStepper(15, vocalsInputText.y + 45, 0.1, 4, 0, 999, 1);
 
-		scaleStepper = new PsychUINumericStepper(15, singDurationStepper.y + 40, 0.1, 1, 0.05, 10, 2);
+		scaleStepper = new PsychUINumericStepper(15, singDurationStepper.y + 40, 0.1, character.jsonScale, 0.05, 10, 2);
 
 		flipXCheckBox = new PsychUICheckBox(singDurationStepper.x + 80, singDurationStepper.y, "Flip X", 50);
 		flipXCheckBox.checked = character.flipX;
@@ -974,6 +1099,19 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		positionYStepper.value = character.positionArray[1];
 		positionCameraXStepper.value = character.cameraPosition[0];
 		positionCameraYStepper.value = character.cameraPosition[1];
+
+		purpleInput0.text = character.opponentNoteColor[0][0];
+		purpleInput1.text = character.opponentNoteColor[0][1];
+		purpleInput2.text = character.opponentNoteColor[0][2];
+		blueInput0.text = character.opponentNoteColor[1][0];
+		blueInput1.text = character.opponentNoteColor[1][1];
+		blueInput2.text = character.opponentNoteColor[1][2];
+		greenInput0.text = character.opponentNoteColor[2][0];
+		greenInput1.text = character.opponentNoteColor[2][1];
+		greenInput2.text = character.opponentNoteColor[2][2];
+		redInput0.text = character.opponentNoteColor[3][0];
+		redInput1.text = character.opponentNoteColor[3][1];
+		redInput2.text = character.opponentNoteColor[3][2];
 
 		healthIconOffsetsX.value = character.iconOffsets[0];
 		healthIconOffsetsY.value = character.iconOffsets[1];
@@ -1259,7 +1397,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		healthColorStepperG.value = character.healthColorArray[1];
 		healthColorStepperB.value = character.healthColorArray[2];
 		healthBar.leftBar.color = healthBar.rightBar.color = FlxColor.fromRGB(character.healthColorArray[0], character.healthColorArray[1], character.healthColorArray[2]);
-		healthIcon.changeIcon(character.healthIcon, false);
+		healthIcon.changeIcon(character.healthIcon, false, character.iconOffsets, character.iconScale, character.iconFlipX, character.iconBlend, character.iconFps24);
 		updatePresence();
 	}
 
