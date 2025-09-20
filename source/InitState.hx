@@ -30,6 +30,8 @@ class InitState extends FlxState
         Paths.clearStoredMemory();
         Paths.clearUnusedMemory();
 
+        FlxG.save.bind('funkin', CoolUtil.getSavePath());
+
         Language.reloadPhrases();
 
         Controls.instance = new Controls();
@@ -37,8 +39,7 @@ class InitState extends FlxState
         ClientPrefs.loadPrefs();
 
         #if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
-		
-        FlxG.save.bind('funkin', CoolUtil.getSavePath());
+	
         Highscore.load();
         
         #if VIDEOS_ALLOWED
