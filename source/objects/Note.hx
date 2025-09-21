@@ -237,9 +237,9 @@ class Note extends FlxSprite
 
 					if (arrGf != null && noteData > -1 && noteData <= arrGf.length)
 					{
-						rgbShader.r = Std.parseInt(arrGf[0]);
-						rgbShader.g = Std.parseInt(arrGf[1]);
-						rgbShader.b = Std.parseInt(arrGf[2]);
+						rgbShader.r = CoolUtil.colorFromString(arrGf[0]);
+						rgbShader.g = CoolUtil.colorFromString(arrGf[1]);
+						rgbShader.b = CoolUtil.colorFromString(arrGf[2]);
 					}
 					else
 					{
@@ -257,9 +257,9 @@ class Note extends FlxSprite
 
 				if (arrOpp != null && noteData > -1 && noteData <= arrOpp.length)
 				{
-					rgbShader.r = Std.parseInt(arrOpp[0]);
-					rgbShader.g = Std.parseInt(arrOpp[1]);
-					rgbShader.b = Std.parseInt(arrOpp[2]);
+					rgbShader.r = CoolUtil.colorFromString(arrOpp[0]);
+					rgbShader.g = CoolUtil.colorFromString(arrOpp[1]);
+					rgbShader.b = CoolUtil.colorFromString(arrOpp[2]);
 				}
 				else
 				{
@@ -275,9 +275,9 @@ class Note extends FlxSprite
 
 					if (arrGf != null && noteData > -1 && noteData <= arrGf.length)
 					{
-						rgbShader.r = Std.parseInt(arrGf[0]);
-						rgbShader.g = Std.parseInt(arrGf[1]);
-						rgbShader.b = Std.parseInt(arrGf[2]);
+						rgbShader.r = CoolUtil.colorFromString(arrGf[0]);
+						rgbShader.g = CoolUtil.colorFromString(arrGf[1]);
+						rgbShader.b = CoolUtil.colorFromString(arrGf[2]);
 					}
 					else
 					{

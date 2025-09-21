@@ -1238,14 +1238,18 @@ class FunkinLua {
 				right_color = CoolUtil.colorFromString(right);
 			game.healthBar.setColors(left_color, right_color);
 		});
-		Lua_helper.add_callback(lua, "setTimeBarColors", function(left:String, right:String) {
+		Lua_helper.add_callback(lua, "setTimeBarColors", function(left:String, right:String, secondRight:String) {
 			var left_color:Null<FlxColor> = null;
 			var right_color:Null<FlxColor> = null;
+			var second_right_color:Null<FlxColor> = null;
 			if (left != null && left != '')
 				left_color = CoolUtil.colorFromString(left);
+			if (secondRight != null && secondRight != '')
+				second_right_color = CoolUtil.colorFromString(secondRight);
 			if (right != null && right != '')
 				right_color = CoolUtil.colorFromString(right);
-			game.timeBar.setColors(left_color, right_color);
+
+			game.timeBar.createGradientBar([left_color], [right_color, second_right_color]);
 		});
 
 		Lua_helper.add_callback(lua, "setObjectCamera", function(obj:String, camera:String = 'game') {

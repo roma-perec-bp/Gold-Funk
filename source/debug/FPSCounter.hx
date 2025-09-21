@@ -20,6 +20,7 @@ class FPSCounter extends TextField
 		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
 	**/
 	public var memoryMegas(get, never):Float;
+	private var memoryTotal:Float = 0;
 
 	@:noCompletion private var times:Array<Float>;
 
@@ -63,7 +64,9 @@ class FPSCounter extends TextField
 	}
 
 	public dynamic function updateText():Void { // so people can override it in hscript
-		text = 'FPS: $currentFPS • Memory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}';
+		if (memoryMegas > memoryTotal) memoryTotal = memoryMegas;
+
+		text = 'FPS: $currentFPS • Memory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)} / ${flixel.util.FlxStringUtil.formatBytes(memoryTotal)}';
 
 		textColor = 0xFFFFFFFF;
 		if (currentFPS < FlxG.drawFramerate * 0.5)

@@ -12,6 +12,8 @@ import haxe.ds.ObjectMap;
 import flixel.addons.effects.FlxTrail;
 import flixel.addons.effects.FlxTrailArea;
 
+import flixel.ui.FlxBar;
+
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;
@@ -231,7 +233,8 @@ class PlayState extends MusicBeatState
 	public var camOtherShaders:Array<Dynamic> = [];
 
 	public var healthBar:Bar;
-	public var timeBar:Bar;
+	private var timeBarBG:AttachedSprite;
+	public var timeBar:FlxBar;
 	var songPercent:Float = 0;
 
 	public var ratingsData:Array<Rating> = Rating.loadDefault();
@@ -578,7 +581,7 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition = -Conductor.crochet * 5 + Conductor.offset;
 		var showTime:Bool = (ClientPrefs.data.timeBarType != 'Disabled' && !PlayState.SONG.disableTimeBar);
-		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 21.5, 400, "", 20);
+		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 20, 400, "", 20);
 		timeTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		timeTxt.scrollFactor.set();
 		timeTxt.alpha = 0;
@@ -587,13 +590,26 @@ class PlayState extends MusicBeatState
 		if(ClientPrefs.data.downScroll) timeTxt.y = FlxG.height - 44;
 		if(ClientPrefs.data.timeBarType == 'Song Name') timeTxt.text = SONG.song;
 
-		timeBar = new Bar(0, timeTxt.y + (timeTxt.height / 6), 'timeBar', function() return songPercent, 0, 1);
+		timeBarBG = new AttachedSprite('timeBar');
+		timeBarBG.screenCenter(X);
+		timeBarBG.y = timeTxt.y + (timeTxt.height / 7);
+		timeBarBG.scrollFactor.set();
+		timeBarBG.alpha = 0;
+		timeBarBG.visible = showTime;
+		timeBarBG.color = FlxColor.BLACK;
+		timeBarBG.xAdd = -4;
+		timeBarBG.yAdd = -4;
+
+		timeBar = new FlxBar(timeBarBG.x + 4, timeBarBG.y + 4, LEFT_TO_RIGHT, Std.int(timeBarBG.width - 8), Std.int(timeBarBG.height - 8), this, 'songPercent', 0, 1);
 		timeBar.scrollFactor.set();
-		timeBar.screenCenter(X);
+		timeBar.numDivisions = 800; //How much lag this causes?? Should i tone it down to idk, 400 or 200?
 		timeBar.alpha = 0;
 		timeBar.visible = showTime;
+
+		uiGroup.add(timeBarBG);
 		uiGroup.add(timeBar);
 		uiGroup.add(timeTxt);
+		timeBarBG.sprTracker = timeBar;
 
 		noteGroup.add(strumLineNotes);
 
@@ -846,6 +862,11 @@ class PlayState extends MusicBeatState
 	#end
 
 	public function reloadHealthBarColors() {
+		var dadCol = dad.healthColorArray;
+		var bfCol = boyfriend.healthColorArray;
+
+		timeBar.createGradientBar([FlxColor.WHITE], [FlxColor.fromRGB(bfCol[0], bfCol[1], bfCol[2]), FlxColor.fromRGB(dadCol[0], dadCol[1], dadCol[2])]);
+
 		if(PlayState.SONG.originalHealthColors)
 			healthBar.setColors(0xFFFF0000, 0xFF66FF33);
 		else
@@ -885,9 +906,9 @@ class PlayState extends MusicBeatState
 		
 							if (note.noteData > -1 && note.noteData <= newDad.opponentNoteColor.length)
 							{
-								note.rgbShader.r = Std.parseInt(arrOpp[0]);
-								note.rgbShader.g = Std.parseInt(arrOpp[1]);
-								note.rgbShader.b = Std.parseInt(arrOpp[2]);
+								note.rgbShader.r = CoolUtil.colorFromString(arrOpp[0]);
+								note.rgbShader.g = CoolUtil.colorFromString(arrOpp[1]);
+								note.rgbShader.b = CoolUtil.colorFromString(arrOpp[2]);
 							}
 							else
 							{
@@ -918,13 +939,13 @@ class PlayState extends MusicBeatState
 							
 							if (arrGf != null && note.noteData > -1 && note.noteData <= arrGf.length)
 							{
-								note.rgbShader.r = Std.parseInt(arrGf[0]);
-								note.rgbShader.g = Std.parseInt(arrGf[1]);
-								note.rgbShader.b = Std.parseInt(arrGf[2]);
+								note.rgbShader.r = CoolUtil.colorFromString(arrGf[0]);
+								note.rgbShader.g = CoolUtil.colorFromString(arrGf[1]);
+								note.rgbShader.b = CoolUtil.colorFromString(arrGf[2]);
 		
 								// splash data and colors
-								note.noteSplashData.r = Std.parseInt(arrGf[0]);
-								note.noteSplashData.g = Std.parseInt(arrGf[1]);
+								note.noteSplashData.r = CoolUtil.colorFromString(arrGf[0]);
+								note.noteSplashData.g = CoolUtil.colorFromString(arrGf[1]);
 							}
 							else
 							{
@@ -1909,9 +1930,9 @@ class PlayState extends MusicBeatState
 		
 						if (note.noteData > -1 && note.noteData <= noteChange.length)
 						{
-							note.rgbShader.r = Std.parseInt(arrOpp[0]);
-							note.rgbShader.g = Std.parseInt(arrOpp[1]);
-							note.rgbShader.b = Std.parseInt(arrOpp[2]);
+							note.rgbShader.r = CoolUtil.colorFromString(arrOpp[0]);
+							note.rgbShader.g = CoolUtil.colorFromString(arrOpp[1]);
+							note.rgbShader.b = CoolUtil.colorFromString(arrOpp[2]);
 						}
 						else
 						{
@@ -1933,13 +1954,13 @@ class PlayState extends MusicBeatState
 							
 							if (arrGf != null && note.noteData > -1 && note.noteData <= arrGf.length)
 							{
-								note.rgbShader.r = Std.parseInt(arrGf[0]);
-								note.rgbShader.g = Std.parseInt(arrGf[1]);
-								note.rgbShader.b = Std.parseInt(arrGf[2]);
+								note.rgbShader.r = CoolUtil.colorFromString(arrGf[0]);
+								note.rgbShader.g = CoolUtil.colorFromString(arrGf[1]);
+								note.rgbShader.b = CoolUtil.colorFromString(arrGf[2]);
 		
 								// splash data and colors
-								note.noteSplashData.r = Std.parseInt(arrGf[0]);
-								note.noteSplashData.g = Std.parseInt(arrGf[1]);
+								note.noteSplashData.r = CoolUtil.colorFromString(arrGf[0]);
+								note.noteSplashData.g = CoolUtil.colorFromString(arrGf[1]);
 							}
 							else
 							{
@@ -4039,6 +4060,7 @@ class PlayState extends MusicBeatState
 		}
 
 		timeBar.visible = false;
+		timeBarBG.visible = false;
 		timeTxt.visible = false;
 		canPause = false;
 		endingSong = true;
