@@ -59,6 +59,7 @@ class Note extends FlxSprite
 	public var noteData:Int = 0;
 
 	public var mustPress:Bool = false;
+	public var dadNote:Bool = false; //i had to make this because opponent skins did not worked properly, there is might be easier way but for now...
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 
@@ -330,7 +331,7 @@ class Note extends FlxSprite
 		return value;
 	}
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null, ?dadNote:Bool = false)
 	{
 		super();
 
@@ -344,6 +345,7 @@ class Note extends FlxSprite
 
 		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
+		this.dadNote = dadNote;
 		this.moves = false;
 		this.moves = false;
 
@@ -428,6 +430,16 @@ class Note extends FlxSprite
 		x += offsetX;
 	}
 
+	public function dadRGBdisable()
+	{
+		if(PlayState.SONG != null && PlayState.SONG.disableDadRGB && !mustPress)
+		{
+			rgbShader.enabled = false;
+			colorSwap = new ColorSwap();
+			shader = colorSwap.shader;
+		}
+	}
+
 	public static function initializeGlobalRGBShader(noteData:Int)
 	{
 		if(globalRgbShaders[noteData] == null)
@@ -464,7 +476,16 @@ class Note extends FlxSprite
 		var skin:String = texture + postfix;
 		if(texture.length < 1)
 		{
-			skin = PlayState.SONG != null ? PlayState.SONG.arrowSkin : null;
+			if(PlayState.SONG != null)
+			{
+				skin = PlayState.SONG.arrowSkin;
+
+				if (!dadNote && PlayState.SONG.opponentArrowSkin != null && PlayState.SONG.opponentArrowSkin.length > 1) 
+					skin = PlayState.SONG.opponentArrowSkin;
+			}
+			else 
+				skin == null;
+
 			if(skin == null || skin.length < 1)
 				skin = defaultNoteSkin + postfix;
 		}

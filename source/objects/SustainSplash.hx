@@ -58,7 +58,7 @@ class SustainSplash extends FlxSprite {
 
     clipRect = new flixel.math.FlxRect(0, !PlayState.isPixelStage ? 0 : -210, frameWidth, frameHeight);
 
-    if (daNote.shader != null) {
+    if (daNote.rgbShader.enabled) {
       shader = new objects.NoteSplash.PixelSplashShaderRef().shader;
       shader.data.r.value = daNote.shader.data.r.value;
       shader.data.g.value = daNote.shader.data.g.value;
@@ -70,7 +70,7 @@ class SustainSplash extends FlxSprite {
     offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
 
     destroyTimer.start(timeThingy, (idk:FlxTimer) -> {
-      if (tailEnd.mustPress && !(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && ClientPrefs.data.splashAlpha != 0) {
+      if (tailEnd.mustPress && !(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && ClientPrefs.data.splashAlpha != 0 && !PlayState.SONG.disableHoldSparkle) {
         alpha = ClientPrefs.data.splashAlpha;
         animation.play('end', true, false, 0);
         animation.curAnim.looped = false;

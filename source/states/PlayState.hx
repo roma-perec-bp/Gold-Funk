@@ -606,7 +606,7 @@ class PlayState extends MusicBeatState
 		generateSong();
 
 		//Umbra this is for you :3
-		textYou = new FlxText(0, 200, 600, 'YOU', 48);
+		textYou = new FlxText(0, 200, 0, 'YOU', 48);
 		textYou.setFormat(Paths.font("mariones.ttf"), 48, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		textYou.alpha = 0;
 		textYou.borderSize = 2;
@@ -1720,7 +1720,7 @@ class PlayState extends MusicBeatState
 					}
 				}
 
-				var swagNote:Note = new Note(spawnTime, noteColumn, oldNote);
+				var swagNote:Note = new Note(spawnTime, noteColumn, oldNote, false, false, null, gottaHitNote);
 				var isAlt: Bool = section.altAnim && !gottaHitNote;
 				swagNote.gfNote = (section.gfSection && gottaHitNote == section.mustHitSection);
 
@@ -1735,6 +1735,8 @@ class PlayState extends MusicBeatState
 				swagNote.sustainLength = holdLength;
 				swagNote.noteType = noteType;
 				swagNote.sustainType = sustainType;
+
+				if(SONG.disableDadRGB && !swagNote.mustPress) swagNote.dadRGBdisable();
 
 				swagNote.lightStrum = lightStrumCheck;
 				swagNote.noAnimation = noAnimationCheck;
@@ -1757,11 +1759,14 @@ class PlayState extends MusicBeatState
 					{
 						oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 
-						var sustainNote:Note = new Note(spawnTime + (curStepCrochet * susNote), noteColumn, oldNote, true);
+						var sustainNote:Note = new Note(spawnTime + (curStepCrochet * susNote), noteColumn, oldNote, true, false, null, swagNote.mustPress);
 						sustainNote.animSuffix = swagNote.animSuffix;
 						sustainNote.customSingTime = swagNote.customSingTime;
 						sustainNote.heyAnim = swagNote.heyAnim;
 						sustainNote.mustPress = swagNote.mustPress;
+
+						if(SONG.disableDadRGB && !swagNote.mustPress) swagNote.dadRGBdisable();
+
 						sustainNote.gfNote = swagNote.gfNote;
 						sustainNote.noteType = swagNote.noteType;
 						sustainNote.sustainType = swagNote.sustainType;
@@ -2427,69 +2432,72 @@ class PlayState extends MusicBeatState
 		setOnScripts('botPlay', cpuControlled);
 		callOnScripts('onUpdatePost', [elapsed]);
 
-		if(generatedMusic && !inCutscene && ClientPrefs.data.laneUnderlay != 0)
+		if(generatedMusic && !inCutscene)
 		{
-			textYou.x = opponentStrums.members[1].x + 25;
+			textYou.x = playerStrums.members[1].x + 35;
 
-			laneP0.x = playerStrums.members[0].x;
-			laneP1.x = playerStrums.members[1].x;
-			laneP2.x = playerStrums.members[2].x;
-			laneP3.x = playerStrums.members[3].x;
-	
-			laneE0.x = opponentStrums.members[0].x;
-			laneE1.x = opponentStrums.members[1].x;
-			laneE2.x = opponentStrums.members[2].x;
-			laneE3.x = opponentStrums.members[3].x;
-	
-			laneP0.alpha = (
-				playerStrums.members[0].alpha == 0 ?
-					FlxMath.lerp(laneP0.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
-					:
-					FlxMath.lerp(laneP0.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
-			);
-			laneP1.alpha = (
-				playerStrums.members[1].alpha == 0 ?
-					FlxMath.lerp(laneP1.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
-					:
-					FlxMath.lerp(laneP1.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
-			);
-			laneP2.alpha = (
-				playerStrums.members[2].alpha == 0 ?
-					FlxMath.lerp(laneP2.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
-					:
-					FlxMath.lerp(laneP2.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
-			);
-			laneP3.alpha = (
-				playerStrums.members[3].alpha == 0 ?
-					FlxMath.lerp(laneP3.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
-					:
-					FlxMath.lerp(laneP3.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
-			);
-	
-			laneE0.alpha = (
-				opponentStrums.members[0].alpha == 0 ?
-					FlxMath.lerp(laneE0.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
-					:
-					FlxMath.lerp(laneE0.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
-			);
-			laneE1.alpha = (
-				opponentStrums.members[1].alpha == 0 ?
-					FlxMath.lerp(laneE1.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
-					:
-					FlxMath.lerp(laneE1.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
-			);
-			laneE2.alpha = (
-				opponentStrums.members[2].alpha == 0 ?
-					FlxMath.lerp(laneE2.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
-					:
-					FlxMath.lerp(laneE2.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
-			);
-			laneE3.alpha = (
-				opponentStrums.members[3].alpha == 0 ?
-					FlxMath.lerp(laneE3.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
-					:
-					FlxMath.lerp(laneE3.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
-			);
+			if(ClientPrefs.data.laneUnderlay != 0)
+			{
+				laneP0.x = playerStrums.members[0].x;
+				laneP1.x = playerStrums.members[1].x;
+				laneP2.x = playerStrums.members[2].x;
+				laneP3.x = playerStrums.members[3].x;
+		
+				laneE0.x = opponentStrums.members[0].x;
+				laneE1.x = opponentStrums.members[1].x;
+				laneE2.x = opponentStrums.members[2].x;
+				laneE3.x = opponentStrums.members[3].x;
+		
+				laneP0.alpha = (
+					playerStrums.members[0].alpha == 0 ?
+						FlxMath.lerp(laneP0.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+						:
+						FlxMath.lerp(laneP0.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+				);
+				laneP1.alpha = (
+					playerStrums.members[1].alpha == 0 ?
+						FlxMath.lerp(laneP1.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+						:
+						FlxMath.lerp(laneP1.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+				);
+				laneP2.alpha = (
+					playerStrums.members[2].alpha == 0 ?
+						FlxMath.lerp(laneP2.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+						:
+						FlxMath.lerp(laneP2.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+				);
+				laneP3.alpha = (
+					playerStrums.members[3].alpha == 0 ?
+						FlxMath.lerp(laneP3.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+						:
+						FlxMath.lerp(laneP3.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+				);
+		
+				laneE0.alpha = (
+					opponentStrums.members[0].alpha == 0 ?
+						FlxMath.lerp(laneE0.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+						:
+						FlxMath.lerp(laneE0.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+				);
+				laneE1.alpha = (
+					opponentStrums.members[1].alpha == 0 ?
+						FlxMath.lerp(laneE1.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+						:
+						FlxMath.lerp(laneE1.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+				);
+				laneE2.alpha = (
+					opponentStrums.members[2].alpha == 0 ?
+						FlxMath.lerp(laneE2.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+						:
+						FlxMath.lerp(laneE2.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+				);
+				laneE3.alpha = (
+					opponentStrums.members[3].alpha == 0 ?
+						FlxMath.lerp(laneE3.alpha, 0, FlxMath.bound(elapsed * 5, 0, 1))
+						:
+						FlxMath.lerp(laneE3.alpha, ClientPrefs.data.laneUnderlay, FlxMath.bound(elapsed * 5, 0, 1))
+				);
+			}
 		}
 
 		for (i in shaderUpdates) i(elapsed);
@@ -5183,11 +5191,11 @@ class PlayState extends MusicBeatState
 	public function textYOUappear():Void 
 	{
 		FlxTween.cancelTweensOf(textYou); //i know where you live
-		FlxTween.tween(textYou, {alpha: 1}, Conductor.stepCrochet * 4, {
+		FlxTween.tween(textYou, {alpha: 1}, Conductor.stepCrochet * 4 / 1000, {
 			ease: FlxEase.expoOut,
 				onComplete: function(twn:FlxTween)
 				{
-					FlxTween.tween(textYou, {alpha: 0}, Conductor.stepCrochet * 8, {ease: FlxEase.quadInOut});
+					FlxTween.tween(textYou, {alpha: 0}, Conductor.stepCrochet * 8 / 1000, {ease: FlxEase.quadInOut, startDelay: 3});
 				}
 		});
 	}

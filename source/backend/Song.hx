@@ -68,7 +68,7 @@ typedef SwagSong =
 	@:optional var disableHoldSparkle:Bool;
 	@:optional var showYOUtext:Bool;
 	@:optional var opponentArrowSkin:String;
-	@:optional var disableDadRGB:String;
+	@:optional var disableDadRGB:Bool;
 	@:optional var timeBarFake:Float;
 }
 
@@ -152,7 +152,7 @@ class Song
 	public var disableHoldSparkle:Bool = false;
 	public var showYOUtext:Bool = false;
 	public var opponentArrowSkin:String;
-	public var disableDadRGB:String;
+	public var disableDadRGB:Bool;
 	public var timeBarFake:Float;
 
 	public var speed:Float = 1;

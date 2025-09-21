@@ -2655,7 +2655,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var inFrontFadeCheckbox:PsychUICheckBox;
 	var disableSplashCheckBox:PsychUICheckBox;
 	var disableHoldCoverCheckBox:PsychUICheckBox;
+	var disableHoldSparkleCheckBox:PsychUICheckBox;
+	var disableOpponentRGB:PsychUICheckBox;
 	var timeBarFakeNumStepper:PsychUINumericStepper;
+	var showYouCheckBox:PsychUICheckBox;
+	var differentOpponentSkinIputText:PsychUIInputText;
 	function addDataTab()
 	{
 		var tab_group = mainBox.getTab('Data').menu;
@@ -3121,7 +3125,15 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					disableHoldCoverCheckBox.cameras = state.cameras;
 					state.add(disableHoldCoverCheckBox);
 
-					timeBarFakeNumStepper = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 300, 1, 0, 0, 9999, 1);
+					disableHoldSparkleCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 300, 'Disable Hold Sparkle', 100, disableHoldSparkleUpdate);
+					disableHoldSparkleCheckBox.cameras = state.cameras;
+					state.add(disableHoldSparkleCheckBox);
+
+					disableOpponentRGB = new PsychUICheckBox(disableHoldSparkleCheckBox.x + 200, state.bg.y + 300, 'Disable Opponent RGB Shader', 100, disableOpponentRGBUpdate);
+					disableOpponentRGB.cameras = state.cameras;
+					state.add(disableOpponentRGB);
+
+					timeBarFakeNumStepper = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 370, 1, 0, 0, 9999, 1);
 					timeBarFakeNumStepper.cameras = state.cameras;
 					timeBarFakeNumStepper.onValueChange = function()
 					{
@@ -3129,7 +3141,24 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					};
 					state.add(timeBarFakeNumStepper);
 
+					showYouCheckBox = new PsychUICheckBox(timeBarFakeNumStepper.x + 200, state.bg.y + 370, 'Show YOU text under strums at the start', 100, showYOUupdate);
+					showYouCheckBox.cameras = state.cameras;
+					state.add(showYouCheckBox);
+
 					state.add(new FlxText(timeBarFakeNumStepper.x, timeBarFakeNumStepper.y - 15, 200, 'Fake Visual Time Length:'));
+
+					differentOpponentSkinIputText = new PsychUIInputText(state.bg.x + 35, state.bg.y + 440, 120, '');
+					differentOpponentSkinIputText.cameras = state.cameras;
+					differentOpponentSkinIputText.unfocus = function()
+					{
+						var changed:Bool = false;
+						if(PlayState.SONG.opponentArrowSkin != differentOpponentSkinIputText.text) changed = true;
+						PlayState.SONG.opponentArrowSkin = differentOpponentSkinIputText.text.trim();
+						if(PlayState.SONG.opponentArrowSkin.trim().length < 1) PlayState.SONG.opponentArrowSkin = null;
+					}
+					state.add(differentOpponentSkinIputText);
+
+					state.add(new FlxText(differentOpponentSkinIputText.x, differentOpponentSkinIputText.y - 15, 180, 'Opponent Note Texture:'));
 
 					fadeOutStartCheckBox.checked = (PlayState.SONG.fadeOutStart == true);
 					fadeCountCheckBox.checked = (PlayState.SONG.fadeCount == true);
@@ -3137,7 +3166,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					inFrontFadeCheckbox.checked = (PlayState.SONG.inFrontFade == true);
 					disableSplashCheckBox.checked = (PlayState.SONG.disableSplash == true);
 					disableHoldCoverCheckBox.checked = (PlayState.SONG.disableHoldCover == true);
+					disableHoldSparkleCheckBox.checked = (PlayState.SONG.disableHoldSparkle == true);
+					disableOpponentRGB.checked = (PlayState.SONG.disableDadRGB == true);
 					timeBarFakeNumStepper.value = PlayState.SONG.timeBarFake;
+					disableOpponentRGB.checked = (PlayState.SONG.showYOUtext == true);
+					differentOpponentSkinIputText.text = PlayState.SONG.opponentArrowSkin;
 				}
 			));
 
@@ -5699,7 +5732,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			note.rgbShader.enabled = !noRGBCheckBox.checked;
 	}
 
-	//i think i could do it better right??????????????????????????
+	//TO DO: Later in six years add whole function with switch statements cuz.... yea....
 	inline public function updateTimeBar()
 		PlayState.SONG.disableTimeBar = disableTimeBarCheckBox.checked;
 
@@ -5744,6 +5777,15 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	inline public function disableHoldCoverUpdate()
 		PlayState.SONG.disableHoldCover = disableHoldCoverCheckBox.checked;
+
+	inline public function disableHoldSparkleUpdate()
+		PlayState.SONG.disableHoldSparkle = disableHoldSparkleCheckBox.checked;
+
+	inline public function disableOpponentRGBUpdate()
+		PlayState.SONG.disableDadRGB = disableOpponentRGB.checked;
+
+	inline public function showYOUupdate()
+		PlayState.SONG.showYOUtext = showYouCheckBox.checked;
 
 	function updateGridVisibility()
 	{
