@@ -20,6 +20,15 @@ typedef StageFile = {
 	var camera_boyfriend:Array<Float>;
 	var camera_opponent:Array<Float>;
 	var camera_girlfriend:Array<Float>;
+
+	var scrollFactor_boyfriend:Array<Float>;
+	var scrollFactor_opponent:Array<Float>;
+	var scrollFactor_girlfriend:Array<Float>;
+
+	var transparency_boyfriend:Float;
+	var transparency_opponent:Float;
+	var transparency_girlfriend:Float;
+
 	var camera_speed:Null<Float>;
 
 	@:optional var preload:Dynamic;
