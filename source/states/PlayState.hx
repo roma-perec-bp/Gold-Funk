@@ -681,7 +681,7 @@ class PlayState extends MusicBeatState
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
 		uiGroup.add(scoreTxt);
 
-		watermark = new FlxText(0, 690, FlxG.width, "FNF GoldFunk' v" +  MainMenuState.goldFunkVersion + " | Alpha version ", 16);
+		watermark = new FlxText(0, 690, FlxG.width, "FNF GoldFunk' Engine v" +  MainMenuState.goldFunkVersion + " | Alpha version ", 16);
 		watermark.scrollFactor.set();
 		watermark.borderSize = 1.25;
 		watermark.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);

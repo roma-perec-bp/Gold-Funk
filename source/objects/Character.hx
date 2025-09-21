@@ -367,44 +367,50 @@ class Character extends FlxSprite
 			holdTimer += elapsed;
 		else 
 		{
-			if(PlayState.SONG.swapPlayers && isPlayer)
-				holdTimer = 0;
-
-			if(!PlayState.SONG.swapPlayers && !isPlayer)
-				holdTimer = 0;
+			if(PlayState.SONG != null)
+			{
+				if(PlayState.SONG.swapPlayers && isPlayer)
+					holdTimer = 0;
+	
+				if(!PlayState.SONG.swapPlayers && !isPlayer)
+					holdTimer = 0;
+			}
 		}
 
 		if (holdTimer >= Conductor.stepCrochet * (0.0011 #if FLX_PITCH / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1) #end) * singDuration)
 		{
-			if(PlayState.SONG.swapPlayers && isPlayer)
+			if(PlayState.SONG != null)
 			{
-				holdTimer = 0;
+				if(PlayState.SONG.swapPlayers && isPlayer)
+				{
+					holdTimer = 0;
 
-				var endAnimation:String = animation.curAnim.name + '-end';
-				if (hasAnimation(endAnimation))
-				{
-					playAnim(endAnimation);
+					var endAnimation:String = animation.curAnim.name + '-end';
+					if (hasAnimation(endAnimation))
+					{
+						playAnim(endAnimation);
+					}
+					else
+					{
+						dance();
+						if(!loopedIdle) finishAnimation();
+					}
 				}
-				else
-				{
-					dance();
-					if(!loopedIdle) finishAnimation();
-				}
-			}
 
-			if(!PlayState.SONG.swapPlayers && !isPlayer)
-			{
-				holdTimer = 0;
+				if(!PlayState.SONG.swapPlayers && !isPlayer)
+				{
+					holdTimer = 0;
 
-				var endAnimation:String = animation.curAnim.name + '-end';
-				if (hasAnimation(endAnimation))
-				{
-					playAnim(endAnimation);
-				}
-				else
-				{
-					dance();
-					if(!loopedIdle) finishAnimation();
+					var endAnimation:String = animation.curAnim.name + '-end';
+					if (hasAnimation(endAnimation))
+					{
+						playAnim(endAnimation);
+					}
+					else
+					{
+						dance();
+						if(!loopedIdle) finishAnimation();
+					}
 				}
 			}
 		}

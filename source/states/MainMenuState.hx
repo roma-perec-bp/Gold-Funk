@@ -94,7 +94,7 @@ class MainMenuState extends MusicBeatState
 			rightItem.x -= rightItem.width;
 		}
 
-		var ver:FlxText = new FlxText(12, FlxG.height - 44, 0, "Gold Funk Engine' v" + Application.current.meta.get('version'), 24);
+		var ver:FlxText = new FlxText(12, FlxG.height - 34, 0, "Gold Funk Engine' v" + Application.current.meta.get('version'), 24);
 		ver.scrollFactor.set();
 		ver.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(ver);
