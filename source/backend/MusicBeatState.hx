@@ -1,7 +1,11 @@
 package backend;
 
+import openfl.display.BitmapData;
 import flixel.FlxState;
 import backend.PsychCamera;
+
+@:bitmap("assets/embed/images/ui/cursor.png")
+private class FunkinCursor extends BitmapData {}
 
 class MusicBeatState extends FlxState
 {
@@ -27,6 +31,8 @@ class MusicBeatState extends FlxState
 
 	override function create() {
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
+		//? Should fix the funkin cursor for good
+		if(!(FlxG.mouse.cursor?.bitmapData is FunkinCursor)) FlxG.mouse.load(new FunkinCursor(0,0));
 		#if MODS_ALLOWED Mods.updatedOnState = false; #end
 
 		if(!_psychCameraInitialized) initPsychCamera();

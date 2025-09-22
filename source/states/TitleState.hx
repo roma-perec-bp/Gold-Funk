@@ -39,6 +39,8 @@ class TitleState extends MusicBeatState
 {
 	public static var initialized:Bool = false;
 
+	var enterTimer:FlxTimer;
+
 	var credGroup:FlxGroup = new FlxGroup();
 	var textGroup:FlxGroup = new FlxGroup();
 	var blackScreen:FlxSprite;
@@ -330,6 +332,13 @@ class TitleState extends MusicBeatState
 				pressedEnter = true;
 			#end
 		}
+
+		if (enterTimer != null && pressedEnter)
+		{
+			enterTimer.cancel();
+			enterTimer.onComplete(enterTimer);
+			enterTimer = null;
+		}
 		
 		if (newTitle) {
 			titleTimer += FlxMath.bound(elapsed, 0, 1);
@@ -365,7 +374,7 @@ class TitleState extends MusicBeatState
 				transitioning = true;
 				// FlxG.sound.music.stop();
 
-				new FlxTimer().start(1, function(tmr:FlxTimer)
+				enterTimer = new FlxTimer().start(1, function(tmr:FlxTimer)
 				{
 					MusicBeatState.switchState(new MainMenuState());
 					closedState = true;

@@ -508,18 +508,28 @@ class PlayState extends MusicBeatState
 			if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf'; //Fix for the Chart Editor
 			gf = new Character(0, 0, SONG.gfVersion);
 			startCharacterPos(gf);
-			gfGroup.scrollFactor.set(stageData.scrollFactor_girlfriend[0], stageData.scrollFactor_girlfriend[1]);
+			if(stageData.scrollFactor_girlfriend == null)
+				gfGroup.scrollFactor.set(0.95, 0.95);
+			else
+				gfGroup.scrollFactor.set(stageData.scrollFactor_girlfriend[0], stageData.scrollFactor_girlfriend[1]);
 			gfGroup.add(gf);
 		}
 
 		dad = new Character(0, 0, SONG.player2);
 		startCharacterPos(dad, true);
-		dadGroup.scrollFactor.set(stageData.scrollFactor_opponent[0], stageData.scrollFactor_opponent[1]);
+		if(stageData.scrollFactor_opponent == null) 
+			dadGroup.scrollFactor.set(1, 1);
+		else
+			dadGroup.scrollFactor.set(stageData.scrollFactor_opponent[0], stageData.scrollFactor_opponent[1]);
 		dadGroup.add(dad);
 
 		boyfriend = new Character(0, 0, SONG.player1, true);
 		startCharacterPos(boyfriend);
-		boyfriendGroup.scrollFactor.set(stageData.scrollFactor_boyfriend[0], stageData.scrollFactor_boyfriend[1]);
+		if(stageData.scrollFactor_opponent == null) 
+			boyfriendGroup.scrollFactor.set(1, 1);
+		else
+			boyfriendGroup.scrollFactor.set(stageData.scrollFactor_boyfriend[0], stageData.scrollFactor_boyfriend[1]);
+
 		boyfriendGroup.add(boyfriend);
 		
 		if(stageData.objects != null && stageData.objects.length > 0)
