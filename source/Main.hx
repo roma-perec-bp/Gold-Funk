@@ -38,6 +38,7 @@ import haxe.io.Path;
 #end
 
 import backend.Highscore;
+import debug.FPSCounter.DebugDisplayMode;
 
 // NATIVE API STUFF, YOU CAN IGNORE THIS AND SCROLL //
 #if (linux && !debug)
@@ -148,6 +149,7 @@ class Main extends Sprite
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		if(fpsVar != null) {
 			fpsVar.visible = ClientPrefs.data.showFPS;
+			DebugDisplayMode.SIMPLE;
 		}
 		#end
 

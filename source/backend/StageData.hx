@@ -25,10 +25,6 @@ typedef StageFile = {
 	var scrollFactor_opponent:Array<Float>;
 	var scrollFactor_girlfriend:Array<Float>;
 
-	var transparency_boyfriend:Float;
-	var transparency_opponent:Float;
-	var transparency_girlfriend:Float;
-
 	var camera_speed:Null<Float>;
 
 	@:optional var preload:Dynamic;
@@ -61,10 +57,6 @@ class StageData {
 			camera_boyfriend: [0, 0],
 			camera_opponent: [0, 0],
 			camera_girlfriend: [0, 0],
-
-			transparency_boyfriend: 1,
-			transparency_opponent: 1,
-			transparency_girlfriend: 1,
 
 			scrollFactor_boyfriend: [0, 0],
 			scrollFactor_opponent: [0, 0],
