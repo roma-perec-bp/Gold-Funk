@@ -24,4 +24,5 @@ haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cd
 haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2e374924fe74844086aab7891666
 haxelib git hxcpp https://github.com/FunkinCrew/hxcpp 6546fa5c3ad1bac065f144745122ab5a6d4195ff --quiet --skip-dependencies
 haxelib git hxcpp-debug-server https://github.com/FunkinCrew/hxcpp-debugger 7459934666a473a4cc4d066ba4a93ef92f1ce94c --quiet --skip-dependencies
+haxelib run lime rebuild hxcpp
 echo Finished!
