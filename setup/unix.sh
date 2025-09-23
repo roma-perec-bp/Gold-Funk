@@ -18,11 +18,10 @@ haxelib install flxgif
 haxelib install hxvlc 2.2.2 --skip-dependencies
 haxelib install lime 8.1.2
 haxelib install openfl 9.3.3
-#DOWNLOAD THESE MANUALLY CUZ IDK HOW TO SET ACTIONS WORKFLOW THINGS
-#haxelib git hxcpp https://github.com/FunkinCrew/hxcpp 6546fa5c3ad1bac065f144745122ab5a6d4195ff --quiet --skip-dependencies
-#haxelib git hxcpp-debug-server https://github.com/FunkinCrew/hxcpp-debugger 7459934666a473a4cc4d066ba4a93ef92f1ce94c --quiet --skip-dependencies
 haxelib git flxanimate https://github.com/Dot-Stuff/flxanimate 768740a56b26aa0c072720e0d1236b94afe68e3e
 haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7
 haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cdc4632397ef3504d464e90
 haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2e374924fe74844086aab7891666
+haxelib git hxcpp https://github.com/FunkinCrew/hxcpp 6546fa5c3ad1bac065f144745122ab5a6d4195ff --quiet --skip-dependencies
+haxelib git hxcpp-debug-server https://github.com/FunkinCrew/hxcpp-debugger 7459934666a473a4cc4d066ba4a93ef92f1ce94c --quiet --skip-dependencies
 echo Finished!
