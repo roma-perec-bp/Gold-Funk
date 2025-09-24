@@ -4884,10 +4884,26 @@ class PlayState extends MusicBeatState
 
 	function gfComboBreak(comboBreak:Int)
 	{
-		if(comboBreak > 70 && gf != null && gf.hasAnimation('sad'))
+		var dropAnim:Null<String> = null;
+
+		if (gf != null)
 		{
-			gf.playAnim('sad', true);
-			gf.specialAnim = true;
+			// Choose the combo drop anim to play.
+    		// If there are several (for example, drop10 and drop50) the highest one will be used.
+    			// If the combo count is too low, no animation will be played.
+    		for (count in gf.dropNoteCounts)
+			{
+			  	if (comboBreak >= count)
+			  	{
+					dropAnim = 'drop$count';
+
+					if (gf.hasAnimation(dropAnim))
+					{
+						gf.playAnim(dropAnim, true);
+						gf.specialAnim = true;
+					}
+			  	}
+			}
 		}
 	}
 
@@ -5098,21 +5114,10 @@ class PlayState extends MusicBeatState
 				var whichAnim:String = '';
 				popUpScore(note);
 
-				switch(combo)
+				if (gf != null && gf.hasAnimation('combo$combo'))
 				{
-					case 50:
-						whichAnim = 'cheer';
-					case 200:
-						whichAnim = 'fawn';
-				}
-
-				if(whichAnim != '')
-				{
-					if(gf != null && gf.hasAnimation(whichAnim))
-					{
-						gf.playAnim(whichAnim, true);
-						gf.specialAnim = true;
-					}
+					gf.playAnim('combo$combo', true);
+					gf.specialAnim = true;
 				}
 
 				health += note.hitHealth * healthGain;

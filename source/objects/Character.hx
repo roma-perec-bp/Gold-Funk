@@ -85,6 +85,8 @@ class Character extends FlxSprite
 
 	public var idleForce:Bool = false;
 
+	public var dropNoteCounts(default, null):Array<Int>;
+
 	public var loopedIdle:Bool = false;
 
 	public var healthIcon:String = 'face';
@@ -144,6 +146,29 @@ class Character extends FlxSprite
 			case 'pico-blazin', 'darnell-blazin':
 				skipDance = true;
 		}
+
+		this.dropNoteCounts = findCountAnimations('drop'); // example: drop50
+	}
+
+	function findCountAnimations(prefix:String):Array<Int>
+	{
+		var animNames:Array<String> = this.animation.getNameList();
+	  
+		var result:Array<Int> = [];
+	  
+		for (anim in animNames)
+		{
+			if (anim.startsWith(prefix))
+			{
+			  	var comboNum:Null<Int> = Std.parseInt(anim.substring(prefix.length));
+			  	if (comboNum != null)
+					result.push(comboNum);
+			}
+		}
+	  
+		// Sort numerically.
+		result.sort((a, b) -> a - b);
+		return result;
 	}
 
 	public function changeCharacter(character:String)
