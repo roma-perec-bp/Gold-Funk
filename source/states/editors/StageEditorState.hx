@@ -89,7 +89,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		loadJsonAssetDirectory();
 		gf = new Character(0, 0, stageJson._editorMeta != null ? stageJson._editorMeta.gf : 'gf');
 		gf.visible = !(stageJson.hide_girlfriend);
-		gf.scrollFactor.set(0.95, 0.95);
 		dad = new Character(0, 0, stageJson._editorMeta != null ? stageJson._editorMeta.dad : 'dad');
 		boyfriend = new Character(0, 0, stageJson._editorMeta != null ? stageJson._editorMeta.boyfriend : 'bf', true);
 
@@ -579,13 +578,13 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 
 	function editorUI()
 	{
-		UI_box = new PsychUIBox(FlxG.width - 225, 10, 200, 400, ['Meta', 'Data', 'Object']);
+		UI_box = new PsychUIBox(FlxG.width - 225, 5, 200, 540, ['Meta', 'Data', 'Object']);
 		UI_box.cameras = [camHUD];
 		UI_box.scrollFactor.set();
 		add(UI_box);
 		UI_box.selectedName = 'Data';
 
-		UI_stagebox = new PsychUIBox(FlxG.width - 275, 25, 250, 100, ['Stage']);
+		UI_stagebox = new PsychUIBox(FlxG.width - 320, 10, 250, 100, ['Stage']);
 		UI_stagebox.cameras = [camHUD];
 		UI_stagebox.scrollFactor.set();
 		add(UI_stagebox);
@@ -608,6 +607,12 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var camGfStepperY:PsychUINumericStepper;
 	var camBfStepperX:PsychUINumericStepper;
 	var camBfStepperY:PsychUINumericStepper;
+	var scrollDadStepperX:PsychUINumericStepper;
+	var scrollDadStepperY:PsychUINumericStepper;
+	var scrollGfStepperX:PsychUINumericStepper;
+	var scrollGfStepperY:PsychUINumericStepper;
+	var scrollBfStepperX:PsychUINumericStepper;
+	var scrollBfStepperY:PsychUINumericStepper;
 
 	function addDataTab()
 	{
@@ -715,6 +720,70 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		};
 
 		objY += 50;
+		tab_group.add(new FlxText(objX, objY - 18, 100, 'Scrollfactor Values:'));
+		objY += 20;
+
+		tab_group.add(new FlxText(objX, objY - 18, 100, 'Opponent:'));
+
+		var cx:Float = 1;
+		var cy:Float = 1;
+		if(stageJson.scrollFactor_opponent != null && stageJson.scrollFactor_opponent.length > 1)
+		{
+			cx = stageJson.scrollFactor_opponent[0];
+			cy = stageJson.scrollFactor_opponent[0];
+		}
+		scrollDadStepperX = new PsychUINumericStepper(objX, objY, 0.05, cx, -10000, 10000, 2);
+		scrollDadStepperY = new PsychUINumericStepper(objX + 80, objY, 0.05, cy, -10000, 10000, 2);
+		scrollDadStepperX.onValueChange = scrollDadStepperY.onValueChange = function() {
+			if(stageJson.scrollFactor_opponent == null) stageJson.scrollFactor_opponent = [1, 1];
+			stageJson.scrollFactor_opponent[0] = scrollDadStepperX.value;
+			stageJson.scrollFactor_opponent[1] = scrollDadStepperY.value;
+
+			dad.updateHitbox();
+			dad.scrollFactor.set(stageJson.scrollFactor_opponent[0], stageJson.scrollFactor_opponent[1]);
+		};
+
+		objY += 40;
+		var cx:Float = 0.95;
+		var cy:Float = 0.95;
+		if(stageJson.scrollFactor_girlfriend != null && stageJson.scrollFactor_girlfriend.length > 1)
+		{
+			cx = stageJson.scrollFactor_girlfriend[0];
+			cy = stageJson.scrollFactor_girlfriend[0];
+		}
+		tab_group.add(new FlxText(objX, objY - 18, 100, 'Girlfriend:'));
+		scrollGfStepperX = new PsychUINumericStepper(objX, objY, 0.05, cx, -10000, 10000, 2);
+		scrollGfStepperY = new PsychUINumericStepper(objX + 80, objY, 0.05, cy, -10000, 10000, 2);
+		scrollGfStepperX.onValueChange = scrollGfStepperY.onValueChange = function() {
+			if(stageJson.scrollFactor_girlfriend == null) stageJson.scrollFactor_girlfriend = [0.95, 0.95];
+			stageJson.scrollFactor_girlfriend[0] = scrollGfStepperX.value;
+			stageJson.scrollFactor_girlfriend[1] = scrollGfStepperY.value;
+
+			gf.updateHitbox();
+			gf.scrollFactor.set(stageJson.scrollFactor_girlfriend[0], stageJson.scrollFactor_girlfriend[1]);
+		};
+
+		objY += 40;
+		var cx:Float = 1;
+		var cy:Float = 1;
+		if(stageJson.scrollFactor_boyfriend != null && stageJson.scrollFactor_boyfriend.length > 1)
+		{
+			cx = stageJson.scrollFactor_boyfriend[0];
+			cy = stageJson.scrollFactor_boyfriend[0];
+		}
+		tab_group.add(new FlxText(objX, objY - 18, 100, 'Boyfriend:'));
+		scrollBfStepperX = new PsychUINumericStepper(objX, objY, 0.05, cx, -10000, 10000, 2);
+		scrollBfStepperY = new PsychUINumericStepper(objX + 80, objY, 0.05, cy, -10000, 10000, 2);
+		scrollBfStepperX.onValueChange = scrollBfStepperY.onValueChange = function() {
+			if(stageJson.scrollFactor_boyfriend == null) stageJson.scrollFactor_boyfriend = [1, 1];
+			stageJson.scrollFactor_boyfriend[0] = scrollBfStepperX.value;
+			stageJson.scrollFactor_boyfriend[1] = scrollBfStepperY.value;
+
+			boyfriend.updateHitbox();
+			boyfriend.scrollFactor.set(stageJson.scrollFactor_boyfriend[0], stageJson.scrollFactor_boyfriend[1]);
+		};
+
+		objY += 50;
 		tab_group.add(new FlxText(objX, objY - 18, 100, 'Camera Data:'));
 		objY += 20;
 		tab_group.add(new FlxText(objX, objY - 18, 100, 'Zoom:'));
@@ -739,6 +808,12 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		tab_group.add(camGfStepperY);
 		tab_group.add(camBfStepperX);
 		tab_group.add(camBfStepperY);
+		tab_group.add(scrollDadStepperX);
+		tab_group.add(scrollDadStepperY);
+		tab_group.add(scrollGfStepperX);
+		tab_group.add(scrollGfStepperY);
+		tab_group.add(scrollBfStepperX);
+		tab_group.add(scrollBfStepperY);
 		tab_group.add(zoomStepper);
 		tab_group.add(cameraSpeedStepper);
 		
@@ -1212,6 +1287,27 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			camBfStepperY.value = stageJson.camera_boyfriend[1];
 		}
 		else camBfStepperX.value = camBfStepperY.value = 0;
+
+		if(stageJson.scrollFactor_opponent != null && stageJson.scrollFactor_opponent.length > 1)
+		{
+			scrollDadStepperX.value = stageJson.scrollFactor_opponent[0];
+			scrollDadStepperY.value = stageJson.scrollFactor_opponent[1];
+		}
+		else scrollDadStepperX.value = scrollDadStepperY.value = 1;
+
+		if(stageJson.scrollFactor_girlfriend != null && stageJson.scrollFactor_girlfriend.length > 1)
+		{
+			scrollGfStepperX.value = stageJson.scrollFactor_girlfriend[0];
+			scrollGfStepperY.value = stageJson.scrollFactor_girlfriend[1];
+		}
+		else scrollGfStepperX.value = scrollGfStepperY.value = 0.95;
+
+		if(stageJson.scrollFactor_boyfriend != null && stageJson.scrollFactor_boyfriend.length > 1)
+		{
+			scrollBfStepperX.value = stageJson.scrollFactor_boyfriend[0];
+			scrollBfStepperY.value = stageJson.scrollFactor_boyfriend[1];
+		}
+		else scrollBfStepperX.value = scrollBfStepperY.value = 1;
 
 		if(focusRadioGroup.checked > -1)
 		{
