@@ -4696,7 +4696,7 @@ class PlayState extends MusicBeatState
 
 		var charMiss:Character = daNote.gfNote ? gf : boyfriend;
 		if(PlayState.SONG.swapPlayers) char = dad;
-		if (charMiss != null) frozenCharacters.set(charMiss, false);
+		if (charMiss != null && !charMiss.isAnimateAtlas) frozenCharacters.set(charMiss, false);
 	}
 
 	function opponentNoteMiss(daNote:Note):Void {
@@ -4909,7 +4909,7 @@ class PlayState extends MusicBeatState
 
 		var charPlay:Character = note.gfNote ? gf : dad;
 		if(PlayState.SONG.swapPlayers) charPlay = boyfriend;
-		if (charPlay != null) preNoteHitCheck(note, charPlay);
+		if (charPlay != null && !charPlay.isAnimateAtlas) preNoteHitCheck(note, charPlay);
 
 		var heyAnimation:String = 'hey';
 
@@ -5000,7 +5000,7 @@ class PlayState extends MusicBeatState
 
 		var charSus:Character = note.gfNote ? gf : dad;
 		if(PlayState.SONG.swapPlayers) charSus = boyfriend;
-		if (charSus != null) noteHitCheck(note, charSus);
+		if (charSus != null && !charSus.isAnimateAtlas) noteHitCheck(note, charSus);
 
 		if (!note.isSustainNote) invalidateNote(note);
 	}
@@ -5021,7 +5021,7 @@ class PlayState extends MusicBeatState
 
 		var charPlay:Character = note.gfNote ? gf : boyfriend;
 		if(PlayState.SONG.swapPlayers) charPlay = dad;
-		if (charPlay != null) preNoteHitCheck(note, charPlay);
+		if (charPlay != null && !charPlay.isAnimateAtlas) preNoteHitCheck(note, charPlay);
 
 		note.wasGoodHit = true;
 		note.noteWasHit = true; //пиздец что эту переменную не использовали
@@ -5185,7 +5185,7 @@ class PlayState extends MusicBeatState
 
 		var charSus:Character = note.gfNote ? gf : boyfriend;
 		if(PlayState.SONG.swapPlayers) charSus = dad;
-		if (charSus != null) noteHitCheck(note, charSus);
+		if (charSus != null && !charSus.isAnimateAtlas) noteHitCheck(note, charSus);
 
 		if(!note.isSustainNote && !note.badassed) invalidateNote(note);
 	}
