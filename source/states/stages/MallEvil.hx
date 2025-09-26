@@ -31,7 +31,7 @@ class MallEvil extends BaseStage
 
 	function winterHorrorlandCutscene()
 	{
-		camHUD.visible = false;
+		camHUD.alpha = 0;
 		inCutscene = true;
 
 		FlxG.sound.play(Paths.sound('Lights_Turn_On'));
@@ -53,7 +53,7 @@ class MallEvil extends BaseStage
 		// zoom out
 		new FlxTimer().start(0.8, function(tmr:FlxTimer)
 		{
-			camHUD.visible = true;
+			FlxTween.tween(camHUD, {alpha: 1}, 2.5);
 			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
 				ease: FlxEase.quadInOut,
 				onComplete: function(twn:FlxTween)
