@@ -12,8 +12,10 @@ import objects.MenuCharacter;
 
 import options.GameplayChangersSubstate;
 import substates.ResetScoreSubState;
+import substates.StoryProgressSubState;
 
 import backend.StageData;
+import backend.Progression;
 
 class StoryMenuState extends MusicBeatState
 {
@@ -307,67 +309,114 @@ class StoryMenuState extends MusicBeatState
 				songArray.push(leWeek[i][0]);
 			}
 
+			PlayState.firstSong = songArray[0];
+
 			// Nevermind that's stupid lmao
 			try
 			{
-				PlayState.storyPlaylist = songArray;
-				PlayState.isFirstSongInCampaign = true;
-				PlayState.isStoryMode = true;
-				selectedWeek = true;
-	
-				var diffic = Difficulty.getFilePath(curDifficulty);
-				if(diffic == null) diffic = '';
-	
-				PlayState.storyDifficulty = curDifficulty;
-	
-				Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
-				PlayState.campaignScore = 0;
-				PlayState.campaignMisses = 0;
+				if (Progression.weekProgress.exists(loadedWeeks[curWeek].weekName))
+				{
+					persistentUpdate = false;
+					openSubState(new StoryProgressSubState(
+					function()
+					{
+						PlayState.campaignScore = 0;
+						PlayState.campaignMisses = 0;
+
+						PlayState.storyPlaylist = songArray;
+				
+						playWeek();
+					}, 
+
+					function()
+					{
+						var resumeInfo = Progression.weekProgress.get(loadedWeeks[curWeek].weekName);
+				
+						songArray = resumeInfo.song;
+				
+						PlayState.campaignMisses = resumeInfo.weekMisees;
+						PlayState.campaignScore = resumeInfo.weekSocre;
+		
+						trace(songArray);
+
+						PlayState.storyPlaylist = songArray;
+				
+						playWeek();
+					}, 
+
+					function()
+					{
+						return;
+					}));
+				}
+				else
+				{
+					PlayState.campaignScore = 0;
+					PlayState.campaignMisses = 0;
+
+					PlayState.storyPlaylist = songArray;
+				
+					playWeek();
+				}
 			}
 			catch(e:Dynamic)
 			{
 				trace('ERROR! $e');
 				return;
 			}
-			
-			if (stopspamming == false)
-			{
-				FlxG.sound.play(Paths.sound('confirmMenu'));
-
-				grpWeekText.members[curWeek].isFlashing = true;
-				for (char in grpWeekCharacters.members)
-				{
-					if (char.character != '' && char.hasConfirmAnimation)
-					{
-						char.animation.play('confirm');
-					}
-				}
-				stopspamming = true;
-			}
-
-			var directory = StageData.forceNextDirectory;
-			LoadingState.loadNextDirectory();
-			StageData.forceNextDirectory = directory;
-
-			@:privateAccess
-			if(PlayState._lastLoadedModDirectory != Mods.currentModDirectory)
-			{
-				trace('CHANGED MOD DIRECTORY, RELOADING STUFF');
-				Paths.freeGraphicsFromMemory();
-			}
-			LoadingState.prepareToSong();
-			new FlxTimer().start(1, function(tmr:FlxTimer)
-			{
-				#if !SHOW_LOADING_SCREEN FlxG.sound.music.stop(); #end
-				LoadingState.loadAndSwitchState(new PlayState(), true);
-				FreeplayState.destroyFreeplayVocals();
-			});
-			
-			#if (MODS_ALLOWED && DISCORD_ALLOWED)
-			DiscordClient.loadModRPC();
-			#end
 		}
 		else FlxG.sound.play(Paths.sound('cancelMenu'));
+	}
+
+	function playWeek()
+	{
+		PlayState.isFirstSongInCampaign = true;
+		PlayState.isStoryMode = true;
+		selectedWeek = true;
+	
+		var diffic = Difficulty.getFilePath(curDifficulty);
+		if(diffic == null) diffic = '';
+	
+		PlayState.storyDifficulty = curDifficulty;
+	
+		Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
+
+		if (stopspamming == false)
+		{
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+
+			grpWeekText.members[curWeek].isFlashing = true;
+			for (char in grpWeekCharacters.members)
+			{
+				if (char.character != '' && char.hasConfirmAnimation)
+				{
+					char.animation.play('confirm');
+				}
+			}
+			stopspamming = true;
+		}
+
+		var directory = StageData.forceNextDirectory;
+		LoadingState.loadNextDirectory();
+		StageData.forceNextDirectory = directory;
+
+		@:privateAccess
+		if(PlayState._lastLoadedModDirectory != Mods.currentModDirectory)
+		{
+			trace('CHANGED MOD DIRECTORY, RELOADING STUFF');
+			Paths.freeGraphicsFromMemory();
+		}
+		LoadingState.prepareToSong();
+		new FlxTimer().start(1, function(tmr:FlxTimer)
+		{
+			#if !SHOW_LOADING_SCREEN FlxG.sound.music.stop(); #end
+			LoadingState.loadAndSwitchState(new PlayState(), true);
+			FreeplayState.destroyFreeplayVocals();
+		});
+			
+		#if (MODS_ALLOWED && DISCORD_ALLOWED)
+		DiscordClient.loadModRPC();
+		#end
 	}
 
 	function changeDifficulty(change:Int = 0):Void

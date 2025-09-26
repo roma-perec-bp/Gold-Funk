@@ -9,6 +9,7 @@ import openfl.display.BitmapData;
 
 import backend.WeekData;
 import backend.Highscore;
+import backend.Progression;
 
 import states.StoryMenuState;
 import states.FlashingState;
@@ -41,6 +42,7 @@ class InitState extends FlxState
         #if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 	
         Highscore.load();
+        Progression.load();
         
         #if VIDEOS_ALLOWED
         hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end);
@@ -57,6 +59,9 @@ class InitState extends FlxState
 
         if(FlxG.save.data != null && FlxG.save.data.fullscreen) FlxG.fullscreen = FlxG.save.data.fullscreen;
         if (FlxG.save.data.weekCompleted != null) StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
+
+        if (FlxG.save.data.playedSongs == null) FlxG.save.data.playedSongs = [];
+        if (FlxG.save.data.completedSongs == null) FlxG.save.data.completedSongs = [];
 
         #if html5
         FlxG.autoPause = false;

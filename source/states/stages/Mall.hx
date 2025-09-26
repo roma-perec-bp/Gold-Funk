@@ -89,6 +89,7 @@ class Mall extends BaseStage
 			blackShit.scrollFactor.set();
 			add(blackShit);
 			camHUD.visible = false;
+			camNotes.visible = false;
 
 			inCutscene = true;
 			canPause = false;

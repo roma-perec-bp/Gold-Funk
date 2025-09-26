@@ -48,6 +48,11 @@ class Template extends BaseStage
 		// Code here
 	}
 
+	override function skipIntroFunc()
+	{
+		// Code here
+	}
+
 	// Steps, Beats and Sections:
 	//    curStep, curDecStep
 	//    curBeat, curDecBeat

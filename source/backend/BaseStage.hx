@@ -42,6 +42,7 @@ class BaseStage extends FlxBasic
 	
 	public var camGame(get, never):FlxCamera;
 	public var camHUD(get, never):FlxCamera;
+	public var camNotes(get, never):FlxCamera;
 	public var camOther(get, never):FlxCamera;
 
 	public var defaultCamZoom(get, set):Float;
@@ -68,6 +69,8 @@ class BaseStage extends FlxBasic
 	//public function update(elapsed:Float) {}
 	public function countdownTick(count:Countdown, num:Int) {}
 	public function startSong() {}
+
+	public function skipIntroFunc() {}
 
 	// FNF steps, beats and sections
 	public var curBeat:Int = 0;
@@ -167,6 +170,7 @@ class BaseStage extends FlxBasic
 	
 	inline private function get_camGame():FlxCamera return game.camGame;
 	inline private function get_camHUD():FlxCamera return game.camHUD;
+	inline private function get_camNotes():FlxCamera return game.camNotes;
 	inline private function get_camOther():FlxCamera return game.camOther;
 
 	inline private function get_defaultCamZoom():Float return game.defaultCamZoom;

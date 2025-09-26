@@ -31,12 +31,13 @@ class MallEvil extends BaseStage
 
 	function winterHorrorlandCutscene()
 	{
-		camHUD.visible = false;
+		camHUD.alpha = 0;
+		camNotes.alpha = 0;
 		inCutscene = true;
 
 		FlxG.sound.play(Paths.sound('Lights_Turn_On'));
-		FlxG.camera.zoom = 1.5;
-		FlxG.camera.focusOn(new FlxPoint(400, -2050));
+		game.currentCameraZoom = 1.5;
+		game.tweenCameraToPosition(400, -2050, 0);
 
 		// blackout at the start
 		var blackScreen:FlxSprite = new FlxSprite().makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
@@ -53,13 +54,13 @@ class MallEvil extends BaseStage
 		// zoom out
 		new FlxTimer().start(0.8, function(tmr:FlxTimer)
 		{
-			camHUD.visible = true;
-			FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
-				ease: FlxEase.quadInOut,
-				onComplete: function(twn:FlxTween)
-				{
-					startCountdown();
-				}
+			game.tweenCameraZoom(1, 2.5, false, FlxEase.quadInOut);
+			new FlxTimer().start(2.5, function(tmr:FlxTimer)
+			{
+				FlxTween.tween(camHUD, {alpha: 1}, 2);
+				FlxTween.tween(camNotes, {alpha: 1}, 2);
+				camHUD.visible = true;
+				startCountdown();
 			});
 		});
 	}

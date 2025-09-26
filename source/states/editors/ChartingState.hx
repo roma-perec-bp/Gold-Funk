@@ -473,7 +473,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		if(chartEditorSave.data.infoBoxPosition != null && chartEditorSave.data.infoBoxPosition.length > 1)
 			infoBox.setPosition(chartEditorSave.data.infoBoxPosition[0], chartEditorSave.data.infoBoxPosition[1]);
 
-		upperBox = new PsychUIBox(40, 40, 330, 300, ['File', 'Edit', 'View']);
+		upperBox = new PsychUIBox(40, 90, 330, 300, ['File', 'Edit', 'View']);
 		upperBox.scrollFactor.set();
 		upperBox.isMinimized = true;
 		upperBox.minimizeOnFocusLost = true;
@@ -2929,9 +2929,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					focusedCharStart = new PsychUIDropDownMenu(skipArrowCheckBox.x + 200, state.bg.y + 160, [''], function(id:Int, character:String)
 					{
 						PlayState.SONG.charFocusStart = character;
-						if(character.length < 1) Reflect.deleteField(PlayState.SONG, 'charFocusStart (DISABLE MoveCamera on first section)');
+						if(character.length < 1) Reflect.deleteField(PlayState.SONG, 'charFocusStart');
 						trace('selected $character');
 					});
+
+					state.add(new FlxText(focusedCharStart.x, focusedCharStart.y - 25, 0, 'Start camera on:\n(disable MoveCamera on 1st section)'));
 
 					cameraX = new PsychUINumericStepper(state.bg.x + 35, state.bg.y + 230, 1, 0, -9999, 9999, 1);
 					cameraX.cameras = state.cameras;

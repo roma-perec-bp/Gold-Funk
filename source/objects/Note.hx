@@ -88,6 +88,8 @@ class Note extends FlxSprite
 	public var ghostType:String = '';
 	public var heyAnim:String = '';
 
+	public var isInvisible:Bool = false; //used for skip time feature
+
 	public var noteType(default, set):String = null;
 
 	public var eventName:String = '';
@@ -592,6 +594,8 @@ class Note extends FlxSprite
 
 	public function desaturate():Void
 	{
+		colorSwap.hue = 0;
+		colorSwap.brightness = 0;
 		colorSwap.saturation = -1;
 	}
 

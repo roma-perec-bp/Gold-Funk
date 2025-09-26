@@ -817,16 +817,16 @@ class FunkinLua {
 		});
 
 		Lua_helper.add_callback(lua, "setCameraScroll", function(x:Float, y:Float) FlxG.camera.scroll.set(x - FlxG.width/2, y - FlxG.height/2));
-		Lua_helper.add_callback(lua, "setCameraFollowPoint", function(x:Float, y:Float) game.camFollow.setPosition(x, y));
+		Lua_helper.add_callback(lua, "setCameraFollowPoint", function(x:Float, y:Float) game.cameraFollowPoint.setPosition(x, y));
 		Lua_helper.add_callback(lua, "addCameraScroll", function(?x:Float = 0, ?y:Float = 0) FlxG.camera.scroll.add(x, y));
 		Lua_helper.add_callback(lua, "addCameraFollowPoint", function(?x:Float = 0, ?y:Float = 0) {
-			game.camFollow.x += x;
-			game.camFollow.y += y;
+			game.cameraFollowPoint.x += x;
+			game.cameraFollowPoint.y += y;
 		});
 		Lua_helper.add_callback(lua, "getCameraScrollX", () -> FlxG.camera.scroll.x + FlxG.width/2);
 		Lua_helper.add_callback(lua, "getCameraScrollY", () -> FlxG.camera.scroll.y + FlxG.height/2);
-		Lua_helper.add_callback(lua, "getCameraFollowX", () -> game.camFollow.x);
-		Lua_helper.add_callback(lua, "getCameraFollowY", () -> game.camFollow.y);
+		Lua_helper.add_callback(lua, "getCameraFollowX", () -> game.cameraFollowPoint.x);
+		Lua_helper.add_callback(lua, "getCameraFollowY", () -> game.cameraFollowPoint.y);
 
 		Lua_helper.add_callback(lua, "cameraShake", function(camera:String, intensity:Float, duration:Float) {
 			LuaUtils.cameraFromString(camera).shake(intensity, duration);

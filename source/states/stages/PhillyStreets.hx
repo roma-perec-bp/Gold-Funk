@@ -159,6 +159,7 @@ class PhillyStreets extends BaseStage
 				case 'darnell':
 					if(!seenCutscene) setStartCallback(videoCutscene.bind('darnellCutscene'));
 				case '2hot':
+					//TO DO: add an actual 2hot end in game instead of this mess
 					setEndCallback(function()
 					{
 						game.endingSong = true;
@@ -252,10 +253,9 @@ class PhillyStreets extends BaseStage
 	var cutsceneHandler:CutsceneHandler;
 	function darnellCutscene()
 	{
-		//moveCamera(false);
-		camFollow.x += 250;
-		FlxG.camera.snapToTarget();
-		FlxG.camera.zoom = 1.3;
+		game.tweenCameraZoom(1.3, 0, true);
+		game.tweenCameraToPosition(boyfriend.getMidpoint().x - 200, boyfriend.getMidpoint().y - 80, 0);
+
 		spraycan.cutscene = true;
 
 		cutsceneHandler = new CutsceneHandler();
@@ -296,26 +296,27 @@ class PhillyStreets extends BaseStage
 
 		final cutsceneDelay = 2.0;
 		boyfriend.playAnim('intro1', true);
+		boyfriend.animation.curAnim.finish(); //I never liked that transition
 		cutsceneHandler.timer(0.7, function() //play music
 		{
 			cutsceneMusic.play();
 		});
 		cutsceneHandler.timer(cutsceneDelay, function() //zoom out to show off everything
 		{
-			//moveCamera(true);
-			camFollow.x += 100;
-			FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x + 100 - FlxG.width/2, y: camFollow.y - FlxG.height/2}, 2.5, {ease: FlxEase.quadInOut});
-			FlxTween.tween(FlxG.camera, {zoom: 0.66}, 2.5, {ease: FlxEase.quadInOut});
+			game.tweenCameraToPosition(dad.getMidpoint().x + 500, dad.getMidpoint().y - 110, 2.5, FlxEase.quadInOut);
+			game.tweenCameraZoom(0.66, 2.5, true, FlxEase.quadInOut);
 		});
 		cutsceneHandler.timer(cutsceneDelay + 3, function() //darnell lights can
 		{
 			dad.playAnim('lightCan', true);
 			lightCanSnd.play(true);
+			game.tweenCameraZoom(0.8, 0.5, true, FlxEase.expoOut);
 		});
 		cutsceneHandler.timer(cutsceneDelay + 4, function() //pico reloads
 		{
 			boyfriend.playAnim('cock', true);
-			FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x + 180 - FlxG.width/2}, 0.4, {ease: FlxEase.backOut});
+			game.tweenCameraToPosition(dad.getMidpoint().x + 680, dad.getMidpoint().y - 110, 0.4, FlxEase.backOut);
+			game.tweenCameraZoom(0.7, 1, true, FlxEase.expoOut);
 			gunPrepSnd.play(true);
 		});
 		cutsceneHandler.timer(cutsceneDelay + 4.166, function() createCasing());
@@ -337,7 +338,9 @@ class PhillyStreets extends BaseStage
 
 			FlxG.sound.play(Paths.soundRandom('shots/shot', 1, 4));
 
-			FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x + 100 - FlxG.width/2}, 2.5, {ease: FlxEase.quadInOut});
+			game.tweenCameraZoom(0.66, 0.5, true, FlxEase.expoOut);
+
+			game.tweenCameraToPosition(dad.getMidpoint().x + 500, dad.getMidpoint().y - 110, 2.5, FlxEase.quadInOut);
 
 			spraycan.playCanShot();
 			new FlxTimer().start(1/24, function(_)
@@ -366,9 +369,8 @@ class PhillyStreets extends BaseStage
 		{
 			cutsceneMusic.stop(); // stop the music!!!!!!
 
-			game.cameraSpeed = 0;
-			FlxTween.tween(FlxG.camera, {zoom: 0.77}, 2, {ease: FlxEase.sineInOut});
-			FlxTween.tween(FlxG.camera.scroll, {x: camFollow.x + 180 - FlxG.width/2}, 2, {ease: FlxEase.sineInOut, onComplete: function(_) game.cameraSpeed = 1});
+			game.tweenCameraZoom(0.77, 2, true, FlxEase.sineInOut);
+			game.tweenCameraToPosition(dad.getMidpoint().x + 580, dad.getMidpoint().y, 2, FlxEase.sineInOut);
 			game.inCutscene = false;
 
 			spraycan.visible = spraycan.active = spraycan.cutscene = false;
@@ -385,12 +387,12 @@ class PhillyStreets extends BaseStage
 			dad.animation.finishCallback = null;
 			gf.animation.finishCallback = null;
 			
+			var targetX = dad.getMidpoint().x + dad.cameraPosition[0] + game.opponentCameraOffset[0] + 150;
+			var targetY = dad.getMidpoint().y + dad.cameraPosition[1] + game.opponentCameraOffset[1] - 100;
+			game.tweenCameraToPosition(targetX, targetY, 0);
+			game.tweenCameraZoom(1, 0, false);
+
 			game.moveCameraSection();
-			game.cameraSpeed = 1;
-			FlxTween.cancelTweensOf(FlxG.camera);
-			FlxTween.cancelTweensOf(FlxG.camera.scroll);
-			FlxG.camera.scroll.set(camFollow.x - FlxG.width/2, camFollow.y - FlxG.height/2);
-			FlxG.camera.zoom = defaultCamZoom;
 		};
 		FlxG.camera.fade(FlxColor.BLACK, 2, true, null, true);
 	}
@@ -796,17 +798,6 @@ class PhillyStreets extends BaseStage
 
 	override function goodNoteHit(note:Note)
 	{
-		switch(game.combo)
-		{
-			case 50, 100:
-				var animToPlay:String = 'combo${game.combo}';
-				if(gf.animation.exists(animToPlay))
-				{
-					gf.playAnim(animToPlay);
-					gf.specialAnim = true;
-				}
-		}
-
 		switch(note.noteType)
 		{
 			case 'weekend-1-cockgun': // HE'S PULLING HIS COCK OUT
@@ -914,7 +905,6 @@ class PhillyStreets extends BaseStage
 				dad.specialAnim = true;
 				kickCanSnd.play(true, sndTime - 50);
 				spraycan.playCanStart();
-				camFollow.x += 250;
 
 				game.tweenCameraToPosition(
 					dad.getMidpoint().x + dad.cameraPosition[0] + game.opponentCameraOffset[0] + 150 + 150, 

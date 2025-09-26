@@ -31,6 +31,10 @@ class CoolUtil
 		}
 		return version;
 	}
+
+	inline public static function spaceToDash(string:String):String
+		return string.replace(" ", "-");
+	
 	inline public static function quantize(f:Float, snap:Float){
 		// changed so this actually works lol
 		var m:Float = Math.fround(f * snap);
