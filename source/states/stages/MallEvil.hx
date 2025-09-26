@@ -33,6 +33,7 @@ class MallEvil extends BaseStage
 	{
 		camHUD.alpha = 0;
 		camNotes.alpha = 0;
+
 		inCutscene = true;
 
 		FlxG.sound.play(Paths.sound('Lights_Turn_On'));
