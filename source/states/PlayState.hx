@@ -781,13 +781,16 @@ class PlayState extends MusicBeatState
 		startCallback();
 		RecalculateRating(false, false);
 
-		if (isStoryMode && firstSong != curSong) // Makes sure it isnt the first song
-			setWeekProgress(storyPlaylist);
-
-		if (Progression.weekProgress.exists(WeekData.getCurrentWeek().weekName) && firstSong == curSong) // Clear week progress if start over
+		if (isStoryMode)
 		{
-			Progression.weekProgress.remove(WeekData.getCurrentWeek().weekName);
-			Progression.save();
+			if (firstSong != curSong) // Makes sure it isnt the first song
+				setWeekProgress(storyPlaylist);
+
+			if (Progression.weekProgress.exists(WeekData.getCurrentWeek().weekName) && firstSong == curSong) // Clear week progress if start over
+			{
+				Progression.weekProgress.remove(WeekData.getCurrentWeek().weekName);
+				Progression.save();
+			}
 		}
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
@@ -1705,10 +1708,10 @@ class PlayState extends MusicBeatState
 		{
 			if (songData.needsVoices)
 			{
-				var playerVocals = Paths.voices(songData.song, (boyfriend.vocalsFile == null || boyfriend.vocalsFile.length < 1) ? 'Player' : boyfriend.vocalsFile);
+				var playerVocals = Paths.voices(songData.song, (boyfriend.vocalsFile == null || boyfriend.vocalsFile.length < 1) ? 'Player' : boyfriend.vocalsFile, songData.postfix);
 				vocals.loadEmbedded(playerVocals != null ? playerVocals : Paths.voices(songData.song));
 				
-				var oppVocals = Paths.voices(songData.song, (dad.vocalsFile == null || dad.vocalsFile.length < 1) ? 'Opponent' : dad.vocalsFile);
+				var oppVocals = Paths.voices(songData.song, (dad.vocalsFile == null || dad.vocalsFile.length < 1) ? 'Opponent' : dad.vocalsFile, songData.postfix);
 				if(oppVocals != null && oppVocals.length > 0) opponentVocals.loadEmbedded(oppVocals);
 			}
 		}
@@ -1724,7 +1727,7 @@ class PlayState extends MusicBeatState
 		inst = new FlxSound();
 		try
 		{
-			inst.loadEmbedded(Paths.inst(songData.song));
+			inst.loadEmbedded(Paths.inst(songData.song , Difficulty.getFilePath()));
 		}
 		catch (e:Dynamic) {}
 		FlxG.sound.list.add(inst);

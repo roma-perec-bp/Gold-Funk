@@ -8,6 +8,7 @@ import objects.Note;
 typedef SwagSong =
 {
 	var song:String;
+	var postfix:String; //so it wont be nesesarry to put inst-erect or inst-nightmare LOL
 	var notes:Array<SwagSection>;
 	var events:Array<Dynamic>;
 	var bpm:Float;
