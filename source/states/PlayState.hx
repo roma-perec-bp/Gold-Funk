@@ -224,6 +224,8 @@ class PlayState extends MusicBeatState
 	public var comboGot:Int = 10;
 	public var comboIsInCamGame:Bool = false;
 
+	var missNoteSound:FlxSound;
+
 	public var shaderUpdates:Array<Float->Void> = [];
 
 	//omg
@@ -4753,6 +4755,18 @@ class PlayState extends MusicBeatState
 		noteGroup.add(laneP3);
 	}
 
+	function playMissSound():Void{
+		if(missNoteSound == null){
+			missNoteSound = new FlxSound();
+			missNoteSound.autoDestroy = false;
+			FlxG.sound.list.add(missNoteSound);
+		}
+		if(missNoteSound.playing){ missNoteSound.stop(); }
+		missNoteSound.loadEmbedded(Paths.soundRandom('missnote', 1, 3), false);
+		missNoteSound.volume = FlxG.random.float(0.1, 0.2);
+		missNoteSound.play();
+	}
+
 	function noteMiss(daNote:Note):Void { //You didn't hit the key and let it go offscreen, also used by Hurt Notes
 		//Dupe note remove
 		notes.forEachAlive(function(note:Note) {
@@ -4907,7 +4921,7 @@ class PlayState extends MusicBeatState
 
 		if(!practiceMode) RecalculateRating(true);
 
-		if(ClientPrefs.data.missSounds) FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+		if(ClientPrefs.data.missSounds) playMissSound();
 
 		var noteTypeName:String = '';
 
