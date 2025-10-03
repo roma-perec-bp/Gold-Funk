@@ -118,9 +118,7 @@ class FlxSoundTray extends Sprite
 	{
 		// Animate sound tray thing
 		if (_timer > 0)
-		{
 			_timer -= (MS / 1000);
-		}
 		else if (y > -height)
 		{
 			y -= (MS / 1000) * height * 0.5;
@@ -185,9 +183,7 @@ class FlxSoundTray extends Sprite
 		var soundThing = null;
 
 		if (FlxG.sound.muted)
-		{
 			globalVolume = 0;
-		}
 
 		if (globalVolume == 10)
 			soundThing = getSound(volumeMaxSound); // Paths.returnSound('sounds/soundtray/$volumeMaxSound');
@@ -204,12 +200,10 @@ class FlxSoundTray extends Sprite
 		var soundThing = null;
 
 		if (FlxG.sound.muted)
-		{
 			globalVolume = 0;
-		}
 
 		if (globalVolume == 10)
-			soundThing = getSound(volumeMaxSound); // Paths.returnSound('sounds/soundtray/$volumeMaxSound');
+			soundThing = getSound(volumeMaxSound);
 		else
 			soundThing = getSound(volumeDownSound);
 
