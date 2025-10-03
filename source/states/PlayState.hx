@@ -606,7 +606,7 @@ class PlayState extends MusicBeatState
 		timeTxt.scrollFactor.set();
 		timeTxt.alpha = 0;
 		timeTxt.borderSize = 2;
-		timeTxt.visible = updateTime = showTime;
+		timeTxt.visible = updateTime;
 		if(ClientPrefs.data.downScroll) timeTxt.y = FlxG.height - 44;
 		if(ClientPrefs.data.timeBarType == 'Song Name') timeTxt.text = SONG.song;
 
@@ -626,9 +626,12 @@ class PlayState extends MusicBeatState
 		timeBar.alpha = 0;
 		timeBar.visible = showTime;
 
-		uiGroup.add(timeBarBG);
-		uiGroup.add(timeBar);
-		uiGroup.add(timeTxt);
+		if(showTime) 
+		{
+			uiGroup.add(timeBarBG);
+			uiGroup.add(timeBar);
+			uiGroup.add(timeTxt);
+		}
 		timeBarBG.sprTracker = timeBar;
 
 		noteGroup.add(strumLineNotes);
@@ -660,10 +663,9 @@ class PlayState extends MusicBeatState
 		healthBar.scale.set(0.85, 0.85);
 		healthBar.screenCenter(X);
 		healthBar.leftToRight = false;
-		healthBar.visible = !ClientPrefs.data.hideHud;
 		healthBar.alpha = ClientPrefs.data.healthBarAlpha;
 		reloadHealthBarColors();
-		uiGroup.add(healthBar);
+		if(!ClientPrefs.data.hideHud) uiGroup.add(healthBar);
 
 		if(PlayState.SONG.swapPlayers)
 			healthBar.leftToRight = true;
@@ -672,22 +674,21 @@ class PlayState extends MusicBeatState
 
 		iconP1 = new HealthIcon(boyfriend.healthIcon, true, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX, boyfriend.iconBlend, boyfriend.iconFps24);
 		iconP1.y = healthBar.y - 75;
-		iconP1.visible = !ClientPrefs.data.hideHud;
 		iconP1.alpha = ClientPrefs.data.healthBarAlpha;
-		uiGroup.add(iconP1);
+		if(!ClientPrefs.data.hideHud) uiGroup.add(iconP1);
 
 		iconP2 = new HealthIcon(dad.healthIcon, false, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX, dad.iconBlend, dad.iconFps24);
 		iconP2.y = healthBar.y - 75;
 		iconP2.visible = !ClientPrefs.data.hideHud;
 		iconP2.alpha = ClientPrefs.data.healthBarAlpha;
-		uiGroup.add(iconP2);
+		if(!ClientPrefs.data.hideHud) uiGroup.add(iconP2);
 
 		scoreTxt = new FlxText(0, healthBar.y + 35, FlxG.width, "", 16);
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
-		uiGroup.add(scoreTxt);
+		if(!ClientPrefs.data.hideHud) uiGroup.add(scoreTxt);
 
 
 		//skip feature code by KadeDev
@@ -707,7 +708,7 @@ class PlayState extends MusicBeatState
 		watermark.scrollFactor.set();
 		watermark.borderSize = 1.25;
 		watermark.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
-		add(watermark);
+		if(!ClientPrefs.data.hideHud) add(watermark); // this is a HUD to
 		watermark.cameras = [camOther];
 
 		botplayTxt = new FlxText(400, healthBar.y - 90, FlxG.width - 800, Language.getPhrase("Botplay").toUpperCase(), 32);
