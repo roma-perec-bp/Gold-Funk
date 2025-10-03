@@ -12,7 +12,7 @@ import states.FreeplayState;
 
 class GameOverSubstate extends MusicBeatSubstate
 {
-	public var boyfriend:Character;
+	public var boyfriend_death:Character;
 	var camFollow:FlxObject;
 
 	var stagePostfix:String = "";
@@ -21,6 +21,12 @@ class GameOverSubstate extends MusicBeatSubstate
 	public static var deathSoundName:String = 'fnf_loss_sfx';
 	public static var loopSoundName:String = 'gameOver';
 	public static var endSoundName:String = 'gameOverEnd';
+
+	//extra vars
+	public static var removeCameraShaders:Bool = true;
+	public static var removeBfShaders:Bool = true;
+	public static var bg_alpha:Float = 1;
+
 	public static var deathDelay:Float = 0;
 
 	public static var instance:GameOverSubstate;
@@ -28,7 +34,7 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		if(playStateBoyfriend != null && playStateBoyfriend.curCharacter == characterName) //Avoids spawning a second boyfriend cuz animate atlas is laggy
 		{
-			this.boyfriend = playStateBoyfriend;
+			this.boyfriend_death = playStateBoyfriend;
 		}
 		super();
 	}
@@ -38,6 +44,9 @@ class GameOverSubstate extends MusicBeatSubstate
 		deathSoundName = 'fnf_loss_sfx';
 		loopSoundName = 'gameOver';
 		endSoundName = 'gameOverEnd';
+		removeBfShaders = true;
+		removeCameraShaders = true;
+		bg_alpha = 1;
 		deathDelay = 0;
 
 		var _song = PlayState.SONG;
@@ -59,25 +68,36 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		instance = this;
 
-		Conductor.songPosition = 0;
+		FlxTween.tween(PlayState.instance.camHUD, {alpha: 0}, 1);
 
-		if(boyfriend == null)
+		if (GameOverSubstate.bg_alpha != 1)
 		{
-			boyfriend = new Character(PlayState.instance.boyfriend.getScreenPosition().x, PlayState.instance.boyfriend.getScreenPosition().y, characterName, true);
-			boyfriend.x += boyfriend.positionArray[0] - PlayState.instance.boyfriend.positionArray[0];
-			boyfriend.y += boyfriend.positionArray[1] - PlayState.instance.boyfriend.positionArray[1];
+			// Add a black background to the screen.
+			var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
+			bg.alpha = GameOverSubstate.bg_alpha;
+			bg.scrollFactor.set();
+			bg.screenCenter();
+			add(bg);
 		}
-		boyfriend.skipDance = true;
-		add(boyfriend);
+
+		if(boyfriend_death == null)
+		{
+			boyfriend_death = new Character(PlayState.instance.boyfriend.getScreenPosition().x, PlayState.instance.boyfriend.getScreenPosition().y, characterName, true);
+			boyfriend_death.x += boyfriend_death.positionArray[0] - PlayState.instance.boyfriend.positionArray[0];
+			boyfriend_death.y += boyfriend_death.positionArray[1] - PlayState.instance.boyfriend.positionArray[1];
+		}
+		boyfriend_death.skipDance = true;
+		if (removeBfShaders) boyfriend_death.shader = null;
+		add(boyfriend_death);
 
 		FlxG.sound.play(Paths.sound(deathSoundName));
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
 
-		boyfriend.playAnim('firstDeath');
+		boyfriend_death.playAnim('firstDeath');
 
 		camFollow = new FlxObject(0, 0, 1, 1);
-		camFollow.setPosition(boyfriend.getGraphicMidpoint().x + boyfriend.cameraPosition[0], boyfriend.getGraphicMidpoint().y + boyfriend.cameraPosition[1]);
+		camFollow.setPosition(boyfriend_death.getGraphicMidpoint().x + boyfriend_death.cameraPosition[0], boyfriend_death.getGraphicMidpoint().y + boyfriend_death.cameraPosition[1]);
 		FlxG.camera.focusOn(new FlxPoint(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2)));
 		FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		add(camFollow);
@@ -88,7 +108,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		if(characterName == 'pico-dead')
 		{
-			overlay = new FlxSprite(boyfriend.x + 205, boyfriend.y - 80);
+			overlay = new FlxSprite(boyfriend_death.x + 205, boyfriend_death.y - 80);
 			overlay.frames = Paths.getSparrowAtlas('Pico_Death_Retry');
 			overlay.animation.addByPrefix('deathLoop', 'Retry Text Loop', 24, true);
 			overlay.animation.addByPrefix('deathConfirm', 'Retry Text Confirm', 24, false);
@@ -97,7 +117,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			overlay.visible = false;
 			add(overlay);
 
-			boyfriend.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int)
+			boyfriend_death.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int)
 			{
 				switch(name)
 				{
@@ -106,28 +126,33 @@ class GameOverSubstate extends MusicBeatSubstate
 						{
 							overlay.visible = true;
 							overlay.animation.play('deathLoop');
-							boyfriend.animation.callback = null;
+							boyfriend_death.animation.callback = null;
 						}
 					default:
-						boyfriend.animation.callback = null;
+						boyfriend_death.animation.callback = null;
 				}
 			}
 
 			if(PlayState.instance.gf != null && PlayState.instance.gf.curCharacter == 'nene')
 			{
-				var neneKnife:FlxSprite = new FlxSprite(boyfriend.x - 450, boyfriend.y - 250);
+				var neneKnife:FlxSprite = new FlxSprite(boyfriend_death.x - 450, boyfriend_death.y - 250);
 				neneKnife.frames = Paths.getSparrowAtlas('NeneKnifeToss');
 				neneKnife.animation.addByPrefix('anim', 'knife toss', 24, false);
 				neneKnife.antialiasing = ClientPrefs.data.antialiasing;
 				neneKnife.animation.finishCallback = function(_)
 				{
+					/*neneKnife.kill();
 					remove(neneKnife);
-					neneKnife.destroy();
+					neneKnife.destroy();*/
+
+					neneKnife.visible = false;
 				}
 				insert(0, neneKnife);
 				neneKnife.animation.play('anim', true);
 			}
 		}
+
+		FlxTween.tween(FlxG.camera, {zoom: PlayState.instance.stageZoom}, 1, {ease: FlxEase.expoOut}); //if camera zoom on playstate was messed up, then reset to stage zoom
 
 		super.create();
 	}
@@ -139,9 +164,9 @@ class GameOverSubstate extends MusicBeatSubstate
 		PlayState.instance.callOnScripts('onUpdate', [elapsed]);
 
 		var justPlayedLoop:Bool = false;
-		if (!boyfriend.isAnimationNull() && boyfriend.getAnimationName() == 'firstDeath' && boyfriend.isAnimationFinished())
+		if (!boyfriend_death.isAnimationNull() && boyfriend_death.getAnimationName() == 'firstDeath' && boyfriend_death.isAnimationFinished())
 		{
-			boyfriend.playAnim('deathLoop');
+			boyfriend_death.playAnim('deathLoop');
 			if(overlay != null && overlay.animation.exists('deathLoop'))
 			{
 				overlay.visible = true;
@@ -216,10 +241,10 @@ class GameOverSubstate extends MusicBeatSubstate
 		if (!isEnding)
 		{
 			isEnding = true;
-			if(boyfriend.hasAnimation('deathConfirm'))
-				boyfriend.playAnim('deathConfirm', true);
-			else if(boyfriend.hasAnimation('deathLoop'))
-				boyfriend.playAnim('deathLoop', true);
+			if(boyfriend_death.hasAnimation('deathConfirm'))
+				boyfriend_death.playAnim('deathConfirm', true);
+			else if(boyfriend_death.hasAnimation('deathLoop'))
+				boyfriend_death.playAnim('deathLoop', true);
 
 			if(overlay != null && overlay.animation.exists('deathConfirm'))
 			{
@@ -231,8 +256,29 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.sound.play(Paths.music(endSoundName));
 			new FlxTimer().start(0.7, function(tmr:FlxTimer)
 			{
-				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
+				FlxG.camera.fade(FlxColor.BLACK, 2, false, function() //TO DO: INSTA RESTART IN GAME OVER AND PRB REWRITING THIS SHIT OMG
 				{
+					/*if(PlayState.SONG.swapPlayers)
+					{
+						PlayState.instance.dad.stunned = false;
+						//if (!PlayState.instance.dad.isAnimateAtlas) PlayState.instance.dadGroup.alpha = 1;
+					}
+					else
+					{
+						PlayState.instance.boyfriend.stunned = false;
+						//if (!PlayState.instance.boyfriend.isAnimateAtlas) PlayState.instance.boyfriendGroup.alpha = 1;
+					}
+
+					PlayState.instance.health = 1;
+
+					new FlxTimer().start(1, function(tmr:FlxTimer)
+					{
+						PlayState.instance.camOther.fade(FlxColor.BLACK, 1, true, null, true); //cuz hud
+						FlxG.camera.fade(FlxColor.BLACK, 1, true, null, true);
+						PlayState.instance.revivePlayer();
+						close();
+					});*/
+
 					MusicBeatState.resetState();
 				});
 			});

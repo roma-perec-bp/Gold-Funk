@@ -73,7 +73,7 @@ class StageWeek1 extends BaseStage
 							dadbattleBlack.visible = true;
 							dadbattleLight.visible = true;
 							dadbattleFog.visible = true;
-							defaultCamZoom += 0.12;
+							//defaultCamZoom += 0.12;
 						}
 
 						var who:Character = dad;
@@ -89,7 +89,7 @@ class StageWeek1 extends BaseStage
 					default:
 						dadbattleBlack.visible = false;
 						dadbattleLight.visible = false;
-						defaultCamZoom -= 0.12;
+						//defaultCamZoom -= 0.12;
 						FlxTween.tween(dadbattleFog, {alpha: 0}, 0.7, {onComplete: function(twn:FlxTween) dadbattleFog.visible = false});
 				}
 		}

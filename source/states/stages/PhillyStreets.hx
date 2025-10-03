@@ -889,8 +889,6 @@ class PhillyStreets extends BaseStage
 				dad.playAnim('lightCan', true);
 				dad.specialAnim = true;
 				lightCanSnd.play(true, sndTime - 65);
-				
-				game.defaultCamZoom += 0.1;
 
 				game.tweenCameraZoom(1.1, Conductor.stepCrochet * 8 / 1000, false, LuaUtils.getTweenEaseByString('expoout'));
 
