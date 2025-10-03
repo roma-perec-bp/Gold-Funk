@@ -5,6 +5,7 @@ import states.stages.objects.*;
 import substates.GameOverSubstate;
 import cutscenes.DialogueBox;
 import openfl.utils.Assets as OpenFlAssets;
+import shaders.WiggleEffect;
 
 class SchoolEvil extends BaseStage
 {
@@ -19,6 +20,7 @@ class SchoolEvil extends BaseStage
 		var posX = 400;
 		var posY = 200;
 
+		//TO-DO: Change the animated sprite to shader. 
 		var bg:BGSprite;
 		if(!ClientPrefs.data.lowQuality)
 			bg = new BGSprite('weeb/animatedEvilSchool', posX, posY, 0.8, 0.9, ['background 2'], true);

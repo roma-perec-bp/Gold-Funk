@@ -79,9 +79,7 @@ class StatsGraph extends Sprite
     graphics.lineStyle(1, graphColor, 1, false, null, null, MITER, 255);
 
     if (history.length == 0)
-    {
       return;
-    }
 
     var inc:Float = (axisWidth - 2) / (HISTORY_MAX - 1);
     var range:Float = Math.max(maxValue - minValue, maxValue * 0.1);
@@ -115,9 +113,7 @@ class StatsGraph extends Sprite
   public function average():Float
   {
     if (history.length == 0)
-    {
       return 0;
-    }
 
     var sum:Float = 0;
 
@@ -132,18 +128,13 @@ class StatsGraph extends Sprite
   public function lowest():Float
   {
     if (history.length == 0)
-    {
       return 0;
-    }
 
     var val:Float = history[0];
 
     for (v in history)
     {
-      if (v < val)
-      {
-        val = v;
-      }
+      if (v < val) val = v;
     }
 
     return val;

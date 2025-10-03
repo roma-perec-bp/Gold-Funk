@@ -173,13 +173,9 @@ class FPSCounter extends Sprite
     }
 
     if (isAdvanced)
-    {
       updateAdvancedDisplay();
-    }
     else
-    {
       updateSimpleDisplay();
-    }
 
     deltaTimeout = 0.0;
   }
@@ -205,9 +201,7 @@ class FPSCounter extends Sprite
     gcMemGraph.textDisplay.text = 'GC MEM: ${FlxStringUtil.formatBytes(gcMem).toLowerCase()} / ${FlxStringUtil.formatBytes(gcMemPeak).toLowerCase()}';
 
     if (taskMemGraph != null)
-    {
       taskMemGraph.textDisplay.text = 'TASK MEM: ${FlxStringUtil.formatBytes(taskMem).toLowerCase()} / ${FlxStringUtil.formatBytes(taskMemPeak).toLowerCase()}';
-    }
   }
 
   function updateSimpleDisplay():Void
