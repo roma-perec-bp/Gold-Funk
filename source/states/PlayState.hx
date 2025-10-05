@@ -1224,6 +1224,9 @@ class PlayState extends MusicBeatState
 
 	public function revivePlayer()
 	{
+		stagesFunc(function(stage:BaseStage) stage.songRestart());
+		callOnScripts('onSongRestart');
+
 		for (hold in grpHoldSplashes) {
 			hold.destroy();
 			grpHoldSplashes.remove(hold);
@@ -1336,6 +1339,9 @@ class PlayState extends MusicBeatState
 
 	public function restartSong()
 	{
+		stagesFunc(function(stage:BaseStage) stage.songRestart());
+		callOnScripts('onSongRestart');
+
 		if (vwooshTimer != null) vwooshTimer.cancel();
 		if (startTimer != null) startTimer.cancel();
 
