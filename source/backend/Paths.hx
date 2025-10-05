@@ -231,7 +231,7 @@ class Paths
 			if (difficulty != null && difficulty.length > 1 && difficulty != '') songKey += '-' + difficulty;
 		}
 
-		trace('songKey test: $songKey');
+		//trace('songKey test: $songKey');
 		return returnSound(songKey, 'songs', modsAllowed);
 	}
 
@@ -246,7 +246,7 @@ class Paths
 			if (difficulty != null && difficulty.length > 1 && difficulty != '') songKey += '-' + difficulty;
 		}
 
-		trace('songKey test: $songKey');
+		//trace('songKey test: $songKey');
 		return returnSound(songKey, 'songs', modsAllowed, false);
 	}
 

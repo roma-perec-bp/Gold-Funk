@@ -1224,26 +1224,133 @@ class PlayState extends MusicBeatState
 
 	public function revivePlayer()
 	{
+		for (hold in grpHoldSplashes) {
+			hold.destroy();
+			grpHoldSplashes.remove(hold);
+		}
+
+		reloading = true;
+
+		ratingPercent = 0;
+		totalPlayed = 0;
+		songScore = 0;
+		combo = 0;
+		songMisses = 0;
+		ratingsData[0].hits = 0;
+		ratingsData[1].hits = 0;
+		ratingsData[2].hits = 0;
+		ratingsData[3].hits = 0;
+
+		updateScoreText();
+		
+		startedCountdown = false;
+
+		FlxG.sound.music.pause();
+		vocals.pause();
+		opponentVocals.pause();
+
 		FlxG.sound.music.time = 0;
 		vocals.time = 0;
 		opponentVocals.time = 0;
 		Conductor.songPosition = 0;
 
+		isDead = false;
+
 		setupCameraToSong();
 		resetCamera();
 
-		needsToReset = true;
+		// so the song doesn't start too early :D
+		var vwooshDelay:Float = 0.5;
 
-		isDead = false;
+		vwooshTimer = new FlxTimer().start(vwooshDelay, function(_) {
+			needsToReset = true;
+			generateNotes(true);
 
-		generateNotes(true);
-		startCountdown();
+			if(eventNotes.length > 0)
+			{
+				for (event in eventNotes) event.strumTime -= eventEarlyTrigger(event);
+				eventNotes.sort(sortByTime);
+			}
+
+			if(eventNotes.length < 1) checkEventNote();
+			
+			startCountdown();
+		});
+	}
+
+	public function reloadChars()
+	{
+		if(boyfriend.curCharacter != SONG.player1) {
+			if(!boyfriendMap.exists(SONG.player1)) {
+				addCharacterToList(SONG.player1, 0);
+			}
+
+			var lastAlpha:Float = boyfriend.alpha;
+			boyfriend.alpha = 0.00001;
+			boyfriend = boyfriendMap.get(SONG.player1);
+			boyfriend.alpha = lastAlpha;
+			iconP1.changeIcon(boyfriend.healthIcon, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX, boyfriend.iconBlend, boyfriend.iconFps24);
+		}
+		setOnScripts('boyfriendName', boyfriend.curCharacter);
+
+
+		if(dad.curCharacter != SONG.player2) {
+			if(!dadMap.exists(SONG.player2)) {
+				addCharacterToList(SONG.player2, 1);
+			}
+
+			var wasGf:Bool = dad.curCharacter.startsWith('gf-') || dad.curCharacter == 'gf';
+			var lastAlpha:Float = dad.alpha;
+			dad.alpha = 0.00001;
+			dad = dadMap.get(SONG.player2);
+			if(!dad.curCharacter.startsWith('gf-') && dad.curCharacter != 'gf') {
+				if(wasGf && gf != null) {
+					gf.visible = true;
+				}
+			} else if(gf != null) {
+				gf.visible = false;
+			}
+			dad.alpha = lastAlpha;
+			iconP2.changeIcon(dad.healthIcon, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX, dad.iconBlend, dad.iconFps24);
+		}
+		setOnScripts('dadName', dad.curCharacter);
+
+		if(gf != null)
+		{
+			if(gf.curCharacter != SONG.gfVersion)
+			{
+				if(!gfMap.exists(SONG.gfVersion)) {
+					addCharacterToList(SONG.gfVersion, 2);
+				}
+
+				var lastAlpha:Float = gf.alpha;
+				gf.alpha = 0.00001;
+				gf = gfMap.get(SONG.gfVersion);
+				gf.alpha = lastAlpha;
+			}
+			setOnScripts('gfName', gf.curCharacter);
+		}
+
+		reloadHealthBarColors();
 	}
 
 	public function restartSong()
 	{
 		if (vwooshTimer != null) vwooshTimer.cancel();
 		if (startTimer != null) startTimer.cancel();
+
+		boyfriend.playInitAnimation();
+		dad.playInitAnimation();
+		if(gf != null) gf.playInitAnimation();
+
+		for (hold in grpHoldSplashes) {
+			hold.destroy();
+			grpHoldSplashes.remove(hold);
+		}
+
+		reloadChars();
+
+		reloading = true;
 
 		ratingPercent = 0;
 		totalPlayed = 0;
@@ -1288,6 +1395,15 @@ class PlayState extends MusicBeatState
 			setupCameraToSong();
 			needsToReset = true;
 			generateNotes(true);
+
+			if(eventNotes.length > 0)
+			{
+				for (event in eventNotes) event.strumTime -= eventEarlyTrigger(event);
+				eventNotes.sort(sortByTime);
+			}
+
+			if(eventNotes.length < 1) checkEventNote();
+
 			startCountdown();
 		});
 	}
@@ -1379,8 +1495,6 @@ class PlayState extends MusicBeatState
 				persistentDraw = true;
 
 				canPause = true;
-
-				reloading = true;
 			}
 
 			startedCountdown = true;
@@ -1459,6 +1573,7 @@ class PlayState extends MusicBeatState
 							//FlxG.sound.music.play();
 							@:privateAccess
 							FlxG.sound.playMusic(inst._sound, 1, false);
+							#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
 
 							vocals.play();
 							opponentVocals.play();
@@ -2931,20 +3046,6 @@ class PlayState extends MusicBeatState
 
 				if (vwooshTimer != null) vwooshTimer.cancel();
 				if (startTimer != null) startTimer.cancel();
-
-				ratingPercent = 0;
-				totalPlayed = 0;
-				songScore = 0;
-				combo = 0;
-				songMisses = 0;
-				ratingsData[0].hits = 0;
-				ratingsData[1].hits = 0;
-				ratingsData[2].hits = 0;
-				ratingsData[3].hits = 0;
-
-				updateScoreText();
-		
-				startedCountdown = false;
 
 				canResync = false;
 				canPause = false;

@@ -32,10 +32,10 @@ class GameOverSubstate extends MusicBeatSubstate
 	public static var instance:GameOverSubstate;
 	public function new(?playStateBoyfriend:Character = null)
 	{
-		if(playStateBoyfriend != null && playStateBoyfriend.curCharacter == characterName) //Avoids spawning a second boyfriend cuz animate atlas is laggy
+		/*if(playStateBoyfriend != null && playStateBoyfriend.curCharacter == characterName) //Avoids spawning a second boyfriend cuz animate atlas is laggy
 		{
 			this.boyfriend_death = playStateBoyfriend;
-		}
+		}*/
 		super();
 	}
 
@@ -258,28 +258,28 @@ class GameOverSubstate extends MusicBeatSubstate
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function() //TO DO: INSTA RESTART IN GAME OVER AND PRB REWRITING THIS SHIT OMG
 				{
-					/*if(PlayState.SONG.swapPlayers)
-					{
+					if(PlayState.SONG.swapPlayers)
 						PlayState.instance.dad.stunned = false;
-						//if (!PlayState.instance.dad.isAnimateAtlas) PlayState.instance.dadGroup.alpha = 1;
-					}
 					else
-					{
 						PlayState.instance.boyfriend.stunned = false;
-						//if (!PlayState.instance.boyfriend.isAnimateAtlas) PlayState.instance.boyfriendGroup.alpha = 1;
-					}
 
 					PlayState.instance.health = 1;
+					//PlayState.instance.add(PlayState.instance.boyfriend);
 
 					new FlxTimer().start(1, function(tmr:FlxTimer)
 					{
 						PlayState.instance.camOther.fade(FlxColor.BLACK, 1, true, null, true); //cuz hud
+						FlxTween.tween(PlayState.instance.camHUD, {alpha: 1}, 1);
 						FlxG.camera.fade(FlxColor.BLACK, 1, true, null, true);
 						PlayState.instance.revivePlayer();
-						close();
-					});*/
+						PlayState.instance.boyfriend.playInitAnimation();
+						PlayState.instance.dad.playInitAnimation();
+						if(PlayState.instance.gf != null) PlayState.instance.gf.playInitAnimation();
 
-					MusicBeatState.resetState();
+						close();
+					});
+
+					//MusicBeatState.resetState();
 				});
 			});
 			PlayState.instance.callOnScripts('onGameOverConfirm', [true]);

@@ -150,6 +150,23 @@ class Character extends FlxSprite
 		this.dropNoteCounts = findCountAnimations('drop'); // example: drop50
 	}
 
+	public function playInitAnimation()
+	{
+		if(danceIdle)
+		{
+			danced = !danced;
+
+			if (danced)
+				playAnim('danceRight' + idleSuffix);
+			else
+				playAnim('danceLeft' + idleSuffix);
+		}
+		else if(hasAnimation('idle' + idleSuffix))
+		{
+				playAnim('idle' + idleSuffix);
+		}
+	}
+
 	function findCountAnimations(prefix:String):Array<Int>
 	{
 		var animNames:Array<String> = this.animation.getNameList();
