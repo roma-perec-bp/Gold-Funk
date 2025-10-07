@@ -48,7 +48,7 @@ class Template extends BaseStage
 		// Code here
 	}
 
-	override function songrestart() 
+	override function songRestart() 
 	{
 		// Code here
 	}

@@ -98,7 +98,7 @@ class BaseStage extends FlxBasic
 	public function noteMissPress(direction:Int) {}
 
 	// Etc
-	public function songrestart() {}
+	public function songRestart() {}
 
 	// Things to replace FlxGroup stuff and inject sprites directly into the state
 	function add(object:FlxBasic) return FlxG.state.add(object);
