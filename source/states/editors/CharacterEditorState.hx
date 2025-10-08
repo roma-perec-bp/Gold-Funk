@@ -1119,6 +1119,17 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		iconBlendDropDown.selectedLabel = character.iconBlend;
 		healthIconScale.value = character.iconScale;
 		healthFpsStepper.value = character.iconFps24;
+
+		var arrChar:Array<String>;	
+		for (i in 0...4)
+		{
+			arrChar = character.opponentNoteColor[i];
+
+			myNotes.members[i].rgbShader.r = Std.parseInt(arrChar[0]);
+			myNotes.members[i].rgbShader.g = Std.parseInt(arrChar[1]);
+			myNotes.members[i].rgbShader.b = Std.parseInt(arrChar[2]);
+		}
+
 		reloadAnimationDropDown();
 		updateHealthBar();
 	}
