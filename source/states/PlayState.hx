@@ -1387,7 +1387,7 @@ class PlayState extends MusicBeatState
 			if (!note.alive) continue;
 		
 			var targetY:Float = FlxG.height + note.y;
-			if (ClientPrefs.data.downScroll) targetY = 0 - note.height;
+			if (ClientPrefs.data.downScroll) targetY = note.y - FlxG.height;
 			FlxTween.tween(note, {y: targetY}, 0.5,
 			{
 				ease: FlxEase.expoIn
