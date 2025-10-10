@@ -126,9 +126,9 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		
 		#if !mobile
-		var option:Option = new Option('FPS Counter',
-			'If unchecked, hides FPS Counter.',
-			'showFPS',
+		var option:Option = new Option('Debug Display',
+			'If unchecked, hides FPS Counter, memory usage and watermarks.',
+			'showFPS', //TO-DO rename option name
 			BOOL);
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
