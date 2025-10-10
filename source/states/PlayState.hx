@@ -1235,7 +1235,9 @@ class PlayState extends MusicBeatState
 		reloading = true;
 
 		ratingPercent = 0;
+		ratingFC = '';
 		totalPlayed = 0;
+		totalNotesHit = 0;
 		songScore = 0;
 		combo = 0;
 		songMisses = 0;
@@ -1359,7 +1361,9 @@ class PlayState extends MusicBeatState
 		reloading = true;
 
 		ratingPercent = 0;
+		ratingFC = '';
 		totalPlayed = 0;
+		totalNotesHit = 0;
 		songScore = 0;
 		combo = 0;
 		songMisses = 0;
