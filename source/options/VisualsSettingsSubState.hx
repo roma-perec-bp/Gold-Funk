@@ -124,6 +124,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		addOption(option);
+
+		var option:Option = new Option('Subtitles',
+			'If checked, shows subtitles on cutscene and mis-song.',
+			'subtitles',
+			BOOL);
+		addOption(option);
 		
 		#if !mobile
 		var option:Option = new Option('Debug Display',
