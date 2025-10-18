@@ -2223,7 +2223,9 @@ class PlayState extends MusicBeatState
 				solidColBeh.alpha = 0.001;
 				addBehindGF(solidColBeh);
 
-			case 'Subtitles': //creates at event so 
+			case 'Subtitles': //creates at event so
+				if(!ClientPrefs.data.subtitles) return;
+				
 				subtitlesTxt = new FlxText(0, FlxG.height * 0.75, FlxG.width - 800, "", 24);
 				subtitlesTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 				subtitlesTxt.scrollFactor.set();
@@ -3555,6 +3557,8 @@ class PlayState extends MusicBeatState
 				shakeDec = Std.parseInt(value2);
 
 			case 'Subtitles':
+				if(!ClientPrefs.data.subtitles) return;
+
 				var duration:Float = flValue2 ?? 4.0;
 				var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
 				var textCache:FlxText = subtitlesTxt;
