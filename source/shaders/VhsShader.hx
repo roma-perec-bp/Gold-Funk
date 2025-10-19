@@ -31,7 +31,7 @@ class VhsShader extends FlxShader
         return fract(sin(dot(_v, vec2(89.44, 19.36))) * 22189.22);
     }
 
-    float iHash( vec2 _v, vec2 _r )
+    float iHash(vec2 _v, vec2 _r)
     {
         float h00 = hash(vec2(floor(_v * _r + vec2(0.0, 0.0)) / _r));
         float h10 = hash(vec2(floor(_v * _r + vec2(1.0, 0.0)) / _r));
