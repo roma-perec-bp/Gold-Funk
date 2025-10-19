@@ -14,6 +14,8 @@ typedef ShaderEffect = {
   var shader:Dynamic;
 }
 
+// TO-DO. Clean-up and make for splited files
+	
 class BuildingEffect {
   public var shader:BuildingShader = new BuildingShader();
   public function new(){
