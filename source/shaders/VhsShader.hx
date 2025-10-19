@@ -44,7 +44,7 @@ class VhsShader extends FlxShader
     float noise(vec2 _v)
     {
         float sum = 0.;
-        for( int i=1; i<9; i++ )
+        for(int i=1; i<9; i++)
         {
             sum += iHash(_v + vec2(i), vec2(2. * pow(2., float(i)))) / pow(2., float(i));
         }
@@ -56,7 +56,7 @@ class VhsShader extends FlxShader
         vec2 fragCoord = openfl_TextureCoordv;
         vec2 uv = openfl_TextureCoordv;
         vec2 uvn = uv;
-        vec3 col = vec3( 0.0 );
+        vec3 col = vec3(0.0);
 
         uvn.x += (noise(vec2(uvn.y, time)) - 0.5) * 0.005;
         uvn.x += (noise(vec2(uvn.y * 100.0, time * 10.0)) - 0.5) * 0.01;
@@ -65,7 +65,7 @@ class VhsShader extends FlxShader
         float tcNoise = max(noise(vec2(uvn.y * 100.0, time * 10.0)) - 0.5, 0.0);
         uvn.x = uvn.x - tcNoise * tcPhase;
 
-        float snPhase = smoothstep(0.0001, 0.0, uvn.y );
+        float snPhase = smoothstep(0.0001, 0.0, uvn.y);
         uvn.y += snPhase * 0.3;
         uvn.x += snPhase * ((noise(vec2(uv.y * 100.0, time * 10.0)) - 0.5) * 0.2);
 
@@ -75,7 +75,7 @@ class VhsShader extends FlxShader
 
         for(float x = -4.0; x < 2.5; x += 1.0)
         {
-            col.xyz += vec3(tex2D(bitmap, uvn + vec2( x - 0.0, 0.0 ) * 7E-3 ).x, tex2D(bitmap, uvn + vec2( x - 1.0, 0.0 ) * 7E-3 ).y, tex2D(bitmap, uvn + vec2( x - 1.0, 0.0 ) * 7E-3 ).z) * 0.1;
+            col.xyz += vec3(tex2D(bitmap, uvn + vec2(x - 0.0, 0.0) * 7E-3).x, tex2D(bitmap, uvn + vec2(x - 1.0, 0.0) * 7E-3).y, tex2D(bitmap, uvn + vec2(x - 1.0, 0.0) * 7E-3).z) * 0.1;
         }
         col *= 0.75;
 
@@ -85,7 +85,7 @@ class VhsShader extends FlxShader
 
         for(float x = -4.0; x < 2.5; x += 1.0)
         {
-            a += vec4(tex2D(bitmap, uvn + vec2( x - 0.0, 0.0 ) * 7E-3 ).x, tex2D(bitmap, uvn + vec2( x - 2.0, 0.0 ) * 7E-3 ).y, tex2D(bitmap, uvn + vec2( x - 4.0, 0.0 ) * 7E-3 ).z, 0) * 0.1;
+            a += vec4(tex2D(bitmap, uvn + vec2(x - 0.0, 0.0 ) * 7E-3).x, tex2D(bitmap, uvn + vec2(x - 2.0, 0.0) * 7E-3).y, tex2D(bitmap, uvn + vec2(x - 4.0, 0.0) * 7E-3).z, 0) * 0.1;
         }
 
         if(chromaKey)
