@@ -286,6 +286,7 @@ images/ratingPopUps/good: "images/ru-RUS/ratingPopUps/good"
 images/ratingPopUps/bad: "images/ru-RUS/ratingPopUps/bad"
 images/ratingPopUps/shit: "images/ru-RUS/ratingPopUps/shit"
 images/ratingPopUps/miss: "images/ru-RUS/ratingPopUps/miss"
+images/ratingPopUps/combo: "images/ru-RUS/ratingPopUps/combo"
 
 images/pixelUI/ready-pixel: "images/ru-RUS/pixelUI/ready-pixel"
 images/pixelUI/set-pixel: "images/ru-RUS/pixelUI/set-pixel"
@@ -296,3 +297,4 @@ images/pixelUI/ratingPopUps/good-pixel: "images/ru-RUS/pixelUI/ratingPopUps/good
 images/pixelUI/ratingPopUps/bad-pixel: "images/ru-RUS/pixelUI/ratingPopUps//bad-pixel"
 images/pixelUI/ratingPopUps/shit-pixel: "images/ru-RUS/pixelUI/ratingPopUps/shit-pixel"
 images/pixelUI/ratingPopUps/miss-pixel: "images/ru-RUS/pixelUI/ratingPopUps/miss-pixel"
+images/pixelUI/ratingPopUps/combo-pixel: "images/ru-RUS/pixelUI/ratingPopUps/combo-pixel"
