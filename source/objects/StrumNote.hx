@@ -9,6 +9,7 @@ class StrumNote extends FlxSprite
 {
 	public var rgbShader:RGBShaderReference;
 	public var resetAnim:Float = 0;
+	public var holdTimer:Float = 0;
 	private var noteData:Int = 0;
 	public var direction(default, set):Float;
 	public var downScroll:Bool = false;
@@ -181,7 +182,12 @@ class StrumNote extends FlxSprite
 
 		if(player == 1)
 		{
-			if(animation.curAnim.name == 'confirm' && animation.curAnim.finished)
+			if (animation.curAnim.name == 'confirm') 
+				holdTimer += elapsed;
+			else 
+				holdTimer = 0;
+
+			if(animation.curAnim.name == 'confirm' && holdTimer >= Conductor.stepCrochet * 1.25 / 1000 / PlayState.instance.playbackRate)
 			{
 				resetAnim = 0;
 				playAnim('pressed', true);

@@ -1446,6 +1446,16 @@ class PlayState extends MusicBeatState
 		stagesFunc(function(stage:BaseStage) stage.songRestart());
 		callOnScripts('onSongRestart');
 
+		for (spr in comboGroup) {
+			spr.destroy();
+			comboGroup.remove(spr);
+		}
+
+		for (spr in countGroup) {
+			spr.destroy();
+			countGroup.remove(spr);
+		}
+
 		FlxTimer.globalManager.forEach(function(tmr:FlxTimer) tmr.cancel());
 		FlxTween.globalManager.forEach(function(twn:FlxTween) twn.cancel());
 
@@ -5739,7 +5749,8 @@ class PlayState extends MusicBeatState
 				if(!cpuControlled)
 				{
 					var spr = playerStrums.members[note.noteData];
-					if(spr != null) spr.playAnim('confirm', true, [note.rgbShader.r, note.rgbShader.g, note.rgbShader.b]);
+					if(spr != null && !note.isSustainNote) spr.playAnim('confirm', true, [note.rgbShader.r, note.rgbShader.g, note.rgbShader.b]);
+					spr.holdTimer = 0;
 				}
 				else strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate, note);
 			}
@@ -6733,7 +6744,7 @@ class PlayState extends MusicBeatState
 		}
 
 		if(spr != null) {
-			spr.playAnim('confirm', true, [note.rgbShader.r, note.rgbShader.g, note.rgbShader.b]);
+			if(!note.isSustainNote) spr.playAnim('confirm', true, [note.rgbShader.r, note.rgbShader.g, note.rgbShader.b]);
 			spr.resetAnim = time;
 		}
 	}
