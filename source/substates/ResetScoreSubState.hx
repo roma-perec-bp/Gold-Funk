@@ -17,13 +17,15 @@ class ResetScoreSubState extends MusicBeatSubstate
 
 	var song:String;
 	var difficulty:Int;
+	var variation:Int;
 	var week:Int;
 
 	// Week -1 = Freeplay
-	public function new(song:String, difficulty:Int, character:String, week:Int = -1)
+	public function new(song:String, difficulty:Int, variation:Int, character:String, week:Int = -1)
 	{
 		this.song = song;
 		this.difficulty = difficulty;
+		this.variation = variation;
 		this.week = week;
 
 		super();
@@ -32,7 +34,7 @@ class ResetScoreSubState extends MusicBeatSubstate
 		if(week > -1) {
 			name = WeekData.weeksLoaded.get(WeekData.weeksList[week]).weekName;
 		}
-		name += ' (' + Difficulty.getString(difficulty) + ')?';
+		name += ' (' + Difficulty.getDiffString(difficulty) + ')?';
 
 		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0;
@@ -96,9 +98,9 @@ class ResetScoreSubState extends MusicBeatSubstate
 		} else if(controls.ACCEPT) {
 			if(onYes) {
 				if(week == -1) {
-					Highscore.resetSong(song, difficulty);
+					Highscore.resetSong(song, difficulty, variation);
 				} else {
-					Highscore.resetWeek(WeekData.weeksList[week], difficulty);
+					Highscore.resetWeek(WeekData.weeksList[week], difficulty, variation);
 				}
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'), 1);

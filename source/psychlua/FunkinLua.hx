@@ -106,10 +106,16 @@ class FunkinLua {
 
 		set('isStoryMode', PlayState.isStoryMode);
 		set('difficulty', PlayState.storyDifficulty);
+		set('variation', PlayState.variation);
 
-		set('difficultyName', Difficulty.getString(false));
 		set('difficultyPath', Difficulty.getFilePath());
-		set('difficultyNameTranslation', Difficulty.getString(true));
+
+		set('difficultyName', Difficulty.getDiffString(false));
+		set('difficultyNameTranslation', Difficulty.getDiffString(true));
+
+		set('variationName', Difficulty.getVarString(false));
+		set('variationNameTranslation', Difficulty.getVarString(true));
+
 		set('weekRaw', PlayState.storyWeek);
 		set('week', WeekData.weeksList[PlayState.storyWeek]);
 		set('seenCutscene', PlayState.seenCutscene);
@@ -380,15 +386,19 @@ class FunkinLua {
 			#end
 		});
 
-		Lua_helper.add_callback(lua, "loadSong", function(?name:String = null, ?difficultyNum:Int = -1) {
+		Lua_helper.add_callback(lua, "loadSong", function(?name:String = null, ?difficultyNum:Int = -1, ?variationNum:Int = -1) {
 			if(name == null || name.length < 1)
 				name = Song.loadedSongName;
 			if (difficultyNum == -1)
 				difficultyNum = PlayState.storyDifficulty;
 
-			var poop = Highscore.formatSong(name, difficultyNum);
+			if (variationNum == -1)
+				variationNum = PlayState.variation;
+
+			var poop = Highscore.formatSong(name, difficultyNum, variationNum);
 			Song.loadFromJson(poop, name);
 			PlayState.storyDifficulty = difficultyNum;
+			PlayState.variation = variationNum;
 			FlxG.state.persistentUpdate = false;
 			LoadingState.loadAndSwitchState(new PlayState());
 

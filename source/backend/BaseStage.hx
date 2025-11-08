@@ -99,6 +99,7 @@ class BaseStage extends FlxBasic
 
 	// Etc
 	public function songRestart() {}
+	public function songRestartPost() {}
 
 	// Things to replace FlxGroup stuff and inject sprites directly into the state
 	function add(object:FlxBasic) return FlxG.state.add(object);

@@ -405,8 +405,8 @@ class VSlice
 		}
 		else
 		{
-			var diff:String = Difficulty.getString(false);
-			if(diff == null) diff = Difficulty.getDefault();
+			var diff:String = Difficulty.getDiffString(false);
+			if(diff == null) diff = Difficulty.getDefaultDifficult();
 			diff = Paths.formatToSongPath(diff);
 			
 			scrollSpeed.set(diff, songData.speed);

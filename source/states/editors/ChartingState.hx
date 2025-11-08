@@ -68,6 +68,11 @@ enum abstract WaveformTarget(String)
 	var EVERYTHING = 'all';
 }
 
+
+//BIG TO-DO
+//SUPPORT OF DIFFICULTIES AND VARIATIONS IN SONGS INSTEAD OF WEEK
+//SUPPORT OF VARIATION CHART FILE WITH ALL DIFFICULTIES INSIDE
+//CHANGE DIFFICULTY IN CHARD EDITOR
 class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
 	public static final defaultEvents:Array<Array<String>> =
@@ -116,7 +121,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Update Vocals', "Value 1: Bf (main) vocal volume\nValue 2 Dad vocal volume (if exists)"],
 		['Change Character', "Value 1: Character to change (Dad, BF, GF)\nValue 2: New character's name"],
 		['Change Icon', "Value 1: Character icon to change (Dad, BF, GF)\nValue 2: New icon's name"],
-		['Change Scroll Speed', "Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in steps\nValue 3: Ease (Linear, ExpoInOut, etc)."],
+		['Change Scroll Speed', "Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in steps\nValue 3: Ease (Linear, ExpoInOut, etc).\nValue 4: Strumline to change (Player or Opponent, null if both)"],
 		['Change Combo Camera', "Value 1: Is it should be on game camera or hud? (camHUD or camGame)\nValue 2: X, Y (650, 300)"],
 		['Singing Shakes', 'Value 1: Turn on (true or false)\nValue 2: Which character shake'],
 		['Change Note Camera Move Offset', "Value 1: Offset"],
@@ -277,6 +282,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	override function create()
 	{
 		if(Difficulty.list.length < 1) Difficulty.resetList();
+		if(Difficulty.variationList.length < 1) Difficulty.resetVarList();
 		_keysPressedBuffer.resize(keysArray.length);
 		_heldNotes.resize(keysArray.length);
 
@@ -1941,7 +1947,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		try
 		{
-			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song, PlayState.SONG.postfix), 0);
+			var songFile:Array<String> = PlayState.SONG.postfix.split('-');
+			var variationStr:String = songFile[0];
+			var difficultStr:String = songFile[1];
+			
+			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song, variationStr, difficultStr), 0);
 			FlxG.sound.music.pause();
 			FlxG.sound.music.time = time;
 			FlxG.sound.music.onComplete = (function() songFinished = true);
@@ -1958,14 +1968,18 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		{
 			try
 			{
-				var playerVocals:Sound = Paths.voices(PlayState.SONG.song, (characterData.vocalsP1 == null || characterData.vocalsP1.length < 1) ? 'Player' : characterData.vocalsP1, PlayState.SONG.postfix);
-				vocals.loadEmbedded(playerVocals != null ? playerVocals : Paths.voices(PlayState.SONG.song));
+				var songFile:Array<String> = PlayState.SONG.postfix.split('-');
+				var variationStr:String = songFile[0];
+				var difficultStr:String = songFile[1];
+
+				var playerVocals:Sound = Paths.voices(PlayState.SONG.song, (characterData.vocalsP1 == null || characterData.vocalsP1.length < 1) ? 'Player' : characterData.vocalsP1, variationStr, difficultStr);
+				vocals.loadEmbedded(playerVocals != null ? playerVocals : Paths.voices(PlayState.SONG.song, null, variationStr, difficultStr));
 				vocals.volume = 0;
 				vocals.play();
 				vocals.pause();
 				vocals.time = time;
 				
-				var oppVocals:Sound = Paths.voices(PlayState.SONG.song, (characterData.vocalsP2 == null || characterData.vocalsP2.length < 1) ? 'Opponent' : characterData.vocalsP2, PlayState.SONG.postfix);
+				var oppVocals:Sound = Paths.voices(PlayState.SONG.song, (characterData.vocalsP2 == null || characterData.vocalsP2.length < 1) ? 'Opponent' : characterData.vocalsP2, variationStr, difficultStr);
 				if(oppVocals != null && oppVocals.length > 0)
 				{
 					opponentVocals.loadEmbedded(oppVocals);
@@ -4252,7 +4266,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		var reloadJsonButton:PsychUIButton = new PsychUIButton(objX + 205, objY, 'Reload JSON', function()
 		{
 			var cur = Paths.formatToSongPath(songNameInputText.text);
-			var curdiff = Highscore.formatSong(cur, PlayState.storyDifficulty);
+			var curdiff = Highscore.formatSong(cur, PlayState.storyDifficulty, PlayState.variation);
 			var diff = false;
 			var loadedChart:SwagSong = try {
 				diff = true;
@@ -4818,7 +4832,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 								if(diffs != null && diffs.length > 0)
 								{
 									var diffsFound:Array<String> = [];
-									var defaultDiff:String = Paths.formatToSongPath(Difficulty.getDefault());
+									var defaultDiff:String = Paths.formatToSongPath(Difficulty.getDefaultDifficult());
 									for (diff in diffs)
 									{
 										var diffPostfix:String = (diff != defaultDiff) ? '-$diff' : '';
@@ -4977,7 +4991,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 								if(!path.endsWith('/')) path += '/';
 
 								var diffs:Array<String> = metadata.playData.difficulties.copy();
-								var defaultDiff:String = Paths.formatToSongPath(Difficulty.getDefault());
+								var defaultDiff:String = Paths.formatToSongPath(Difficulty.getDefaultDifficult());
 								function nextChart()
 								{
 									while(diffs.length > 0)

@@ -86,6 +86,8 @@ class SustainSplash extends FlxSprite {
   }
 
   public function die(?end:Note = null):Void {
+    //if (destroyTimer != null) destroyTimer.cancel();
+
     kill();
     super.kill();
     if (FlxG.state is PlayState) {

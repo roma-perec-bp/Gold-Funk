@@ -10,13 +10,19 @@ import states.StoryMenuState;
 import states.FreeplayState;
 import options.OptionsState;
 
+import openfl.utils.Assets;
+
 class PauseSubState extends MusicBeatSubstate
 {
+	var curDifficulty:Int = -1;
+	var curVariation:Int = PlayState.variation;
+
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var menuItems:Array<String> = [];
 	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];
 	var difficultyChoices = [];
+	var difficultyNums = [];
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;
@@ -52,10 +58,9 @@ class PauseSubState extends MusicBeatSubstate
 			menuItemsOG.insert(3, 'Skip Time');
 		menuItems = menuItemsOG;
 
-		for (i in 0...Difficulty.list.length) {
-			var diff:String = Difficulty.getString(i);
-			difficultyChoices.push(diff);
-		}
+		setupDifficulties();
+
+		if(difficultyChoices.length < 2) menuItemsOG.remove('Change Difficulty'); //Check again if no variation things
 		difficultyChoices.push('BACK');
 
 		pauseMusic = new FlxSound();
@@ -83,7 +88,7 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "Difficulty: " + Difficulty.getString().toUpperCase(), 32);
+		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "Difficulty: " + Difficulty.getDiffString().toUpperCase(), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();
@@ -214,6 +219,35 @@ class PauseSubState extends MusicBeatSubstate
 
 		super.create();
 	}
+
+	function setupDifficulties()
+	{
+		curDifficulty++;
+
+		if (curDifficulty >= Difficulty.list.length) 
+			return;
+
+		var songLowercase:String = Paths.formatToSongPath(PlayState.instance.songName);
+		var poop:String = Highscore.formatSong(songLowercase, curDifficulty, curVariation);
+
+		static var _lastPath:String;
+		var formattedFolder:String = Paths.formatToSongPath(songLowercase);
+		var formattedSong:String = Paths.formatToSongPath(poop);
+		_lastPath = Paths.json('$formattedFolder/$formattedSong');
+		
+		if (#if MODS_ALLOWED FileSystem.exists(_lastPath) || #end Assets.exists(_lastPath))
+		{
+			var diff:String = Difficulty.getDiffString(curDifficulty);
+			difficultyChoices.push(diff);
+			difficultyNums.push(curDifficulty);
+
+			setupDifficulties();
+		}
+		else
+		{
+			setupDifficulties();
+		}
+	}
 	
 	function getPauseSong()
 	{
@@ -294,17 +328,25 @@ class PauseSubState extends MusicBeatSubstate
 			if (menuItems == difficultyChoices)
 			{
 				var songLowercase:String = Paths.formatToSongPath(PlayState.SONG.song);
-				var poop:String = Highscore.formatSong(songLowercase, curSelected);
+				var poop:String = Highscore.formatSong(songLowercase, difficultyNums[curSelected], PlayState.variation);
 				try
 				{
 					if(menuItems.length - 1 != curSelected && difficultyChoices.contains(daSelected))
 					{
 						Song.loadFromJson(poop, songLowercase);
-						PlayState.storyDifficulty = curSelected;
-						MusicBeatState.resetState();
+						PlayState.storyDifficulty = difficultyNums[curSelected];
+						//MusicBeatState.resetState();
 						FlxG.sound.music.volume = 0;
 						PlayState.changedDifficulty = true;
 						PlayState.chartingMode = false;
+
+						PlayState.instance.canResync = false;
+
+						@:privateAccess
+						PlayState.instance.startedCountdown = false;
+					
+						PlayState.instance.restartSong();
+						close();
 						return;
 					}
 				}

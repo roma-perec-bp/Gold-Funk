@@ -71,6 +71,10 @@ typedef SwagSong =
 	@:optional var opponentArrowSkin:String;
 	@:optional var disableDadRGB:Bool;
 	@:optional var timeBarFake:Float;
+
+	@:optional var fullRestart:Bool;
+	@:optional var toggleTransIn:Bool;
+	@:optional var toggleTransOut:Bool;
 }
 
 typedef SwagSection =
@@ -155,6 +159,10 @@ class Song
 	public var opponentArrowSkin:String;
 	public var disableDadRGB:Bool;
 	public var timeBarFake:Float;
+
+	public var fullRestart:Bool = false;
+	public var toggleTransIn:Bool = false;
+	public var toggleTransOut:Bool = false;
 
 	public var speed:Float = 1;
 	public var stage:String;

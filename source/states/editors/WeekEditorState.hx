@@ -189,6 +189,7 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 
 	var weekBeforeInputText:PsychUIInputText;
 	var difficultiesInputText:PsychUIInputText;
+	var variationsInputText:PsychUIInputText;
 	var lockedCheckbox:PsychUICheckBox;
 	var hiddenUntilUnlockCheckbox:PsychUICheckBox;
 
@@ -214,12 +215,16 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 
 		weekBeforeInputText = new PsychUIInputText(10, hiddenUntilUnlockCheckbox.y + 55, 100, '', 8);
 		difficultiesInputText = new PsychUIInputText(10, weekBeforeInputText.y + 60, 200, '', 8);
+		variationsInputText = new PsychUIInputText(10, difficultiesInputText.y + 60, 200, '', 8);
 		
 		tab_group.add(new FlxText(weekBeforeInputText.x, weekBeforeInputText.y - 28, 0, 'Week File name of the Week you have\nto finish for Unlocking:'));
 		tab_group.add(new FlxText(difficultiesInputText.x, difficultiesInputText.y - 20, 0, 'Difficulties:'));
 		tab_group.add(new FlxText(difficultiesInputText.x, difficultiesInputText.y + 20, 0, 'Default difficulties are "Easy, Normal, Hard"\nwithout quotes.'));
+		tab_group.add(new FlxText(variationsInputText.x, variationsInputText.y - 20, 0, 'Variations:'));
+		tab_group.add(new FlxText(variationsInputText.x, variationsInputText.y + 20, 0, 'Default difficulties are "Default, Erect, Pico"\nwithout quotes.'));
 		tab_group.add(weekBeforeInputText);
 		tab_group.add(difficultiesInputText);
+		tab_group.add(variationsInputText);
 		tab_group.add(hiddenUntilUnlockCheckbox);
 		tab_group.add(lockedCheckbox);
 	}
@@ -246,6 +251,9 @@ class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.Psyc
 
 		difficultiesInputText.text = '';
 		if(weekFile.difficulties != null) difficultiesInputText.text = weekFile.difficulties;
+
+		variationsInputText.text = '';
+		if(weekFile.variations != null) variationsInputText.text = weekFile.variations;
 
 		lockedCheckbox.checked = !weekFile.startUnlocked;
 		lock.visible = lockedCheckbox.checked;

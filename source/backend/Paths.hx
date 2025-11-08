@@ -221,29 +221,53 @@ class Paths
 	inline static public function music(key:String, ?modsAllowed:Bool = true):Sound
 		return returnSound('music/$key', modsAllowed);
 
-	inline static public function inst(song:String, difficulty:String = null, ?modsAllowed:Bool = true):Sound
+	inline static public function inst(song:String, difficulty:String = null, variation:String = null, ?modsAllowed:Bool = true):Sound
 	{
 		var songKey:String = '${formatToSongPath(song)}/Inst';
 
-		var file:String = getPath(Language.getFileTranslation(songKey + difficulty) + '.$SOUND_EXT', SOUND, 'songs', modsAllowed);
-		if (#if MODS_ALLOWED FileSystem.exists(file) || #end Assets.exists(file))
+		//kill me for this code
+		var fileOnlyVar:String = getPath(Language.getFileTranslation(songKey + '-' + variation) + '.$SOUND_EXT', SOUND, 'songs', modsAllowed);
+		var fileOnlyDiff:String = getPath(Language.getFileTranslation(songKey + '-' + difficulty) + '.$SOUND_EXT', SOUND, 'songs', modsAllowed);
+		var fileBoth:String = getPath(Language.getFileTranslation(songKey + '-' + variation + '-' + difficulty) + '.$SOUND_EXT', SOUND, 'songs', modsAllowed);
+
+		if (#if MODS_ALLOWED FileSystem.exists(fileOnlyVar) || #end Assets.exists(fileOnlyVar))
 		{
-			if (difficulty != null && difficulty.length > 1 && difficulty != '') songKey += '-' + difficulty;
+			if (variation != null && variation != '') songKey += '-' + variation;
+		}
+		else if (#if MODS_ALLOWED FileSystem.exists(fileOnlyDiff) || #end Assets.exists(fileOnlyDiff))
+		{
+			if (variation != null && variation != '') songKey += '-' + difficulty;
+		}
+		else if (#if MODS_ALLOWED FileSystem.exists(fileBoth) || #end Assets.exists(fileBoth))
+		{
+			if (variation != null && variation != '') songKey += '-' + variation + '-' + difficulty;
 		}
 
 		//trace('songKey test: $songKey');
 		return returnSound(songKey, 'songs', modsAllowed);
 	}
 
-	inline static public function voices(song:String, postfix:String = null, difficulty:String = null, ?modsAllowed:Bool = true):Sound
+	inline static public function voices(song:String, postfix:String = null, difficulty:String = null, variation:String = null, ?modsAllowed:Bool = true):Sound
 	{
 		var songKey:String = '${formatToSongPath(song)}/Voices';
 		if(postfix != null) songKey += '-' + postfix;
 
-		var file:String = getPath(Language.getFileTranslation(songKey + difficulty) + '.$SOUND_EXT', SOUND, 'songs', modsAllowed);
-		if (#if MODS_ALLOWED FileSystem.exists(file) || #end Assets.exists(file))
+		//kill me for this code
+		var fileOnlyVar:String = getPath(Language.getFileTranslation(songKey + '-' + variation) + '.$SOUND_EXT', SOUND, 'songs', modsAllowed);
+		var fileOnlyDiff:String = getPath(Language.getFileTranslation(songKey + '-' + difficulty) + '.$SOUND_EXT', SOUND, 'songs', modsAllowed);
+		var fileBoth:String = getPath(Language.getFileTranslation(songKey + '-' + variation + '-' + difficulty) + '.$SOUND_EXT', SOUND, 'songs', modsAllowed);
+
+		if (#if MODS_ALLOWED FileSystem.exists(fileOnlyVar) || #end Assets.exists(fileOnlyVar))
 		{
-			if (difficulty != null && difficulty.length > 1 && difficulty != '') songKey += '-' + difficulty;
+			if (variation != null && variation != '') songKey += '-' + variation;
+		}
+		else if (#if MODS_ALLOWED FileSystem.exists(fileOnlyDiff) || #end Assets.exists(fileOnlyDiff))
+		{
+			if (variation != null && variation != '') songKey += '-' + difficulty;
+		}
+		else if (#if MODS_ALLOWED FileSystem.exists(fileBoth) || #end Assets.exists(fileBoth))
+		{
+			if (variation != null && variation != '') songKey += '-' + variation + '-' + difficulty;
 		}
 
 		//trace('songKey test: $songKey');

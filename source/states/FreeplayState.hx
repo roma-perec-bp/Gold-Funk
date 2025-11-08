@@ -25,7 +25,9 @@ class FreeplayState extends MusicBeatState
 	private static var curSelected:Int = 0;
 	var lerpSelected:Float = 0;
 	var curDifficulty:Int = -1;
-	private static var lastDifficultyName:String = Difficulty.getDefault();
+	var curVariation:Int = -1;
+	private static var lastDifficultyName:String = Difficulty.getDefaultDifficult();
+	private static var lastVariationName:String = Difficulty.getDefaultVariation();
 
 	var scoreBG:FlxSprite;
 	var scoreText:FlxText;
@@ -93,14 +95,37 @@ class FreeplayState extends MusicBeatState
 			WeekData.setDirectoryFromWeek(leWeek);
 			for (song in leWeek.songs)
 			{
-				var colors:Array<Int> = song[2];
-				if(colors == null || colors.length < 3)
+				var poop:String = Highscore.formatSong(song[0].toLowerCase(), curDifficulty, curVariation);
+				var songLowercase:String = Paths.formatToSongPath(song[0]);
+
+				static var _lastPath:String;
+				var formattedFolder:String = Paths.formatToSongPath(songLowercase);
+				var formattedSong:String = Paths.formatToSongPath(poop);
+				_lastPath = Paths.json('$formattedFolder/$formattedSong');
+		
+				if (#if MODS_ALLOWED FileSystem.exists(_lastPath) || #end Assets.exists(_lastPath))
 				{
-					colors = [146, 113, 253];
+					var colors:Array<Int> = song[2];
+					if(colors == null || colors.length < 3)
+					{
+						colors = [146, 113, 253];
+					}
+	
+					addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
 				}
-				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
 			}
 		}
+
+		if(songs.length < 1) //check cuz THATS ACTUALLY POSSIBLE IF YOU THINK ABOUT IT
+		{
+			FlxTransitionableState.skipNextTransIn = true;
+			persistentUpdate = false;
+			MusicBeatState.switchState(new states.ErrorState("NO SONGS WITH CHARTS\n\nPress ACCEPT to go to the Chart Editor Menu.\nPress BACK to return to Main Menu.",
+				function() LoadingState.loadAndSwitchState(new states.editors.ChartingState(), false),
+				function() MusicBeatState.switchState(new states.MainMenuState())));
+			return;
+		}
+
 		Mods.loadTopMod();
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -170,6 +195,7 @@ class FreeplayState extends MusicBeatState
 		lerpSelected = curSelected;
 
 		curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(lastDifficultyName)));
+		curVariation = Math.round(Math.max(0, Difficulty.defaultVariationList.indexOf(lastVariationName)));
 
 		bottomBG = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, 26, 0xFF000000);
 		bottomBG.alpha = 0.6;
@@ -336,7 +362,7 @@ class FreeplayState extends MusicBeatState
 				FlxG.sound.music.volume = 0;
 
 				Mods.currentModDirectory = songs[curSelected].folder;
-				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
+				var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty, curVariation);
 				Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
 				if (PlayState.SONG.needsVoices)
 				{
@@ -407,7 +433,7 @@ class FreeplayState extends MusicBeatState
 		{
 			persistentUpdate = false;
 			var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
-			var poop:String = Highscore.formatSong(songLowercase, curDifficulty);
+			var poop:String = Highscore.formatSong(songLowercase, curDifficulty, curVariation);
 
 			try
 			{
@@ -415,6 +441,7 @@ class FreeplayState extends MusicBeatState
 				PlayState.isFirstSongInCampaign = true;
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = curDifficulty;
+				PlayState.variation = curVariation;
 
 				trace('CURRENT WEEK: ' + WeekData.getWeekFileName());
 			}
@@ -456,7 +483,7 @@ class FreeplayState extends MusicBeatState
 		else if(controls.RESET && !player.playingMusic)
 		{
 			persistentUpdate = false;
-			openSubState(new ResetScoreSubState(songs[curSelected].songName, curDifficulty, songs[curSelected].songCharacter));
+			openSubState(new ResetScoreSubState(songs[curSelected].songName, curDifficulty, curVariation, songs[curSelected].songCharacter));
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 
@@ -488,19 +515,84 @@ class FreeplayState extends MusicBeatState
 		opponentVocals = FlxDestroyUtil.destroy(opponentVocals);
 	}
 
-	function changeDiff(change:Int = 0)
+	function checkIfDifficultyExist(change:Int = 0, newSong:Bool = false)
+	{
+		if(newSong)
+		{
+			var songLowercasePrev:String = Paths.formatToSongPath(songs[curSelected].songName);
+			var poopPrev:String = Highscore.formatSong(songLowercasePrev, curDifficulty, curVariation);
+	
+			static var _lastPathPrev:String;
+			var formattedFolderPrev:String = Paths.formatToSongPath(songLowercasePrev);
+			var formattedSongPrev:String = Paths.formatToSongPath(poopPrev);
+			_lastPathPrev = Paths.json('$formattedFolderPrev/$formattedSongPrev');
+	
+			if (#if MODS_ALLOWED FileSystem.exists(_lastPathPrev) || #end Assets.exists(_lastPathPrev))
+				curDifficulty += change;
+			else
+			{
+				curDifficulty = 1;
+				curVariation = 0;
+			}
+		}
+		else
+			curDifficulty += change;
+		
+		if (curDifficulty < 0) 
+		{
+			curVariation--;
+
+			if (curVariation < 0) 
+				curVariation = Difficulty.variationList.length - 1;
+			if (curVariation >= Difficulty.variationList.length) 
+				curVariation = 0;
+
+			curDifficulty = Difficulty.list.length - 1;
+		}
+
+		if (curDifficulty >= Difficulty.list.length)
+		{
+			curVariation++;
+
+			if (curVariation < 0) 
+				curVariation = Difficulty.variationList.length - 1;
+			if (curVariation >= Difficulty.variationList.length) 
+				curVariation = 0;
+
+			curDifficulty = 0;
+		}
+
+		var songLowercase:String = Paths.formatToSongPath(songs[curSelected].songName);
+		var poop:String = Highscore.formatSong(songLowercase, curDifficulty, curVariation);
+
+		static var _lastPath:String;
+		var formattedFolder:String = Paths.formatToSongPath(songLowercase);
+		var formattedSong:String = Paths.formatToSongPath(poop);
+		_lastPath = Paths.json('$formattedFolder/$formattedSong');
+
+		if (#if MODS_ALLOWED FileSystem.exists(_lastPath) || #end Assets.exists(_lastPath))
+			return;
+		else
+			checkIfDifficultyExist(change);
+	}
+
+	function changeDiff(change:Int = 0, newSong:Bool = false)
 	{
 		if (player.playingMusic)
 			return;
 
-		curDifficulty = FlxMath.wrap(curDifficulty + change, 0, Difficulty.list.length-1);
+		//had to use old version of difficulty things due to variations
+		checkIfDifficultyExist(change, newSong);
+
 		#if !switch
-		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		intendedRating = Highscore.getRating(songs[curSelected].songName, curDifficulty);
+		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty, curVariation);
+		intendedRating = Highscore.getRating(songs[curSelected].songName, curDifficulty, curVariation);
 		#end
 
-		lastDifficultyName = Difficulty.getString(curDifficulty, false);
-		var displayDiff:String = Difficulty.getString(curDifficulty);
+		lastDifficultyName = Difficulty.getDiffString(curDifficulty, false);
+		lastVariationName = Difficulty.getVarString(curVariation, false);
+		var displayDiff:String = Difficulty.getDiffString(curDifficulty);
+		
 		if (Difficulty.list.length > 1)
 			diffText.text = '< ' + displayDiff.toUpperCase() + ' >';
 		else
@@ -550,17 +642,32 @@ class FreeplayState extends MusicBeatState
 			curDifficulty = Math.round(Math.max(0, Difficulty.list.indexOf(savedDiff)));
 		else if(lastDiff > -1)
 			curDifficulty = lastDiff;
-		else if(Difficulty.list.contains(Difficulty.getDefault()))
-			curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(Difficulty.getDefault())));
+		else if(Difficulty.list.contains(Difficulty.getDefaultDifficult()))
+			curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(Difficulty.getDefaultDifficult())));
 		else
 			curDifficulty = 0;
 
-		changeDiff();
+		var savedVar:String = songs[curSelected].lastVariationName;
+		var lastVar:Int = Difficulty.variationList.indexOf(lastVariationName);
+		if(savedVar != null && !Difficulty.variationList.contains(savedVar) && Difficulty.variationList.contains(savedVar))
+			curVariation = Math.round(Math.max(0, Difficulty.variationList.indexOf(savedVar)));
+		else if(lastVar > -1)
+			curVariation = lastVar;
+		else if(Difficulty.variationList.contains(Difficulty.getDefaultVariation()))
+			curVariation = Math.round(Math.max(0, Difficulty.defaultVariationList.indexOf(Difficulty.getDefaultVariation())));
+		else
+			curVariation = 0;
+
+		changeDiff(0, true);
 		_updateSongLastDifficulty();
+		_updateSongLastVariation();
 	}
 
 	inline private function _updateSongLastDifficulty()
-		songs[curSelected].lastDifficulty = Difficulty.getString(curDifficulty, false);
+		songs[curSelected].lastDifficulty = Difficulty.getDiffString(curDifficulty, false);
+
+	inline private function _updateSongLastVariation()
+		songs[curSelected].lastVariationName = Difficulty.getVarString(curVariation, false);
 
 	private function positionHighscore()
 	{
@@ -616,6 +723,7 @@ class SongMetadata
 	public var color:Int = -7179779;
 	public var folder:String = "";
 	public var lastDifficulty:String = null;
+	public var lastVariationName:String = null;
 
 	public function new(song:String, week:Int, songCharacter:String, color:Int)
 	{

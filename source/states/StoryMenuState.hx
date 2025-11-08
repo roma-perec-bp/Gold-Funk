@@ -150,7 +150,7 @@ class StoryMenuState extends MusicBeatState
 		Difficulty.resetList();
 		if(lastDifficultyName == '')
 		{
-			lastDifficultyName = Difficulty.getDefault();
+			lastDifficultyName = Difficulty.getDefaultDifficult();
 		}
 		curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(lastDifficultyName)));
 		
@@ -269,7 +269,7 @@ class StoryMenuState extends MusicBeatState
 			else if(controls.RESET)
 			{
 				persistentUpdate = false;
-				openSubState(new ResetScoreSubState('', curDifficulty, '', curWeek));
+				openSubState(new ResetScoreSubState('', curDifficulty, 0, '', curWeek));
 				//FlxG.sound.play(Paths.sound('scrollMenu'));
 			}
 			else if (controls.ACCEPT)
@@ -429,7 +429,7 @@ class StoryMenuState extends MusicBeatState
 
 		WeekData.setDirectoryFromWeek(loadedWeeks[curWeek]);
 
-		var diff:String = Difficulty.getString(curDifficulty, false);
+		var diff:String = Difficulty.getDiffString(curDifficulty, false);
 		var newImage:FlxGraphic = Paths.image('menudifficulties/' + Paths.formatToSongPath(diff));
 		//trace(Mods.currentModDirectory + ', menudifficulties/' + Paths.formatToSongPath(diff));
 
@@ -447,7 +447,7 @@ class StoryMenuState extends MusicBeatState
 		lastDifficultyName = diff;
 
 		#if !switch
-		intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty);
+		intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty, 0);
 		#end
 	}
 
@@ -490,8 +490,8 @@ class StoryMenuState extends MusicBeatState
 		Difficulty.loadFromWeek();
 		difficultySelectors.visible = unlocked;
 
-		if(Difficulty.list.contains(Difficulty.getDefault()))
-			curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(Difficulty.getDefault())));
+		if(Difficulty.list.contains(Difficulty.getDefaultDifficult()))
+			curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(Difficulty.getDefaultDifficult())));
 		else
 			curDifficulty = 0;
 
@@ -534,7 +534,7 @@ class StoryMenuState extends MusicBeatState
 		txtTracklist.x -= FlxG.width * 0.35;
 
 		#if !switch
-		intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty);
+		intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty, 0);
 		#end
 	}
 }
