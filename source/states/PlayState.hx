@@ -1315,6 +1315,40 @@ class PlayState extends MusicBeatState
 
 		reloadChars();
 
+		noteCamOffset = SONG.followCamOffset;
+		skipText.alpha = 0;
+
+		camGame.stopFX();
+		camHUD.stopFX();
+		camOverlayHUD.stopFX();
+		camNotes.stopFX();
+		camOther.stopFX();
+
+		if (PlayState.SONG.fadeOutStart)
+		{
+			if(PlayState.SONG.fadeCount)
+			{
+				if (!PlayState.SONG.inFrontFade)
+					FlxG.camera.fade(FlxColor.BLACK, 0.0001, false, null, true);
+				else
+					camOther.fade(FlxColor.BLACK, 0.0001, false, null, true);
+			}
+			else
+			{
+				if (!PlayState.SONG.inFrontFade)
+					FlxG.camera.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+				else
+					camOther.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+			}
+		}
+
+		BF_X = stageData.boyfriend[0];
+		BF_Y = stageData.boyfriend[1];
+		GF_X = stageData.girlfriend[0];
+		GF_Y = stageData.girlfriend[1];
+		DAD_X = stageData.opponent[0];
+		DAD_Y = stageData.opponent[1];
+
 		reloading = true;
 
 		ratingPercent = 0;
@@ -1421,6 +1455,33 @@ class PlayState extends MusicBeatState
 
 		reloadChars();
 
+		noteCamOffset = SONG.followCamOffset;
+		skipText.alpha = 0;
+
+		camGame.stopFX();
+		camHUD.stopFX();
+		camOverlayHUD.stopFX();
+		camNotes.stopFX();
+		camOther.stopFX();
+
+		if (PlayState.SONG.fadeOutStart)
+		{
+			if(PlayState.SONG.fadeCount)
+			{
+				if (!PlayState.SONG.inFrontFade)
+					FlxG.camera.fade(FlxColor.BLACK, 0.0001, false, null, true);
+				else
+					camOther.fade(FlxColor.BLACK, 0.0001, false, null, true);
+			}
+			else
+			{
+				if (!PlayState.SONG.inFrontFade)
+					FlxG.camera.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+				else
+					camOther.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+			}
+		}
+
 		reloading = true;
 
 		ratingPercent = 0;
@@ -1434,6 +1495,13 @@ class PlayState extends MusicBeatState
 		ratingsData[1].hits = 0;
 		ratingsData[2].hits = 0;
 		ratingsData[3].hits = 0;
+
+		BF_X = stageData.boyfriend[0];
+		BF_Y = stageData.boyfriend[1];
+		GF_X = stageData.girlfriend[0];
+		GF_Y = stageData.girlfriend[1];
+		DAD_X = stageData.opponent[0];
+		DAD_Y = stageData.opponent[1];
 
 		updateScoreText();
 
