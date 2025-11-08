@@ -14,18 +14,25 @@ typedef ShaderEffect = {
   var shader:Dynamic;
 }
 
-class BuildingEffect {
-  public var shader:BuildingShader = new BuildingShader();
-  public function new(){
-    shader.alphaShit.value = [0];
-  }
-  public function addAlpha(alpha:Float){
-    trace(shader.alphaShit.value[0]);
-    shader.alphaShit.value[0]+=alpha;
-  }
-  public function setAlpha(alpha:Float){
-    shader.alphaShit.value[0]=alpha;
-  }
+class BuildingEffect
+{
+  	public var shader:BuildingShader = new BuildingShader();
+
+	public function new()
+	{
+		shader.alphaShit.value = [0];
+  	}
+
+	public function addAlpha(alpha:Float)
+	{
+		trace(shader.alphaShit.value[0]);
+		shader.alphaShit.value[0]+=alpha;
+	}
+
+	public function setAlpha(alpha:Float)
+	{
+		shader.alphaShit.value[0]=alpha;
+	}
 }
 
 class BuildingShader extends FlxShader
@@ -35,94 +42,97 @@ class BuildingShader extends FlxShader
     uniform float alphaShit;
     void main()
     {
+    	vec4 color = flixel_texture2D(bitmap,openfl_TextureCoordv);
+    	if (color.a > 0.0)
+    		color-=alphaShit;
 
-      vec4 color = flixel_texture2D(bitmap,openfl_TextureCoordv);
-      if (color.a > 0.0)
-        color-=alphaShit;
-
-      gl_FragColor = color;
+    	gl_FragColor = color;
     }
-  ')
-  public function new()
-  {
-    super();
-  }
+	')
+
+	public function new()
+	{
+		super();
+	}
 }
 
 class PartyEffect extends Effect
 {
-  public var shader:PartyShader = new PartyShader();
-  public function new(){
-    shader.iTime.value = [0];
-   PlayState.instance.shaderUpdates.push(update);
-  }
+	public var shader:PartyShader = new PartyShader();
 
-  public function update(elapsed:Float){
-    shader.iTime.value[0] += elapsed;
-  }
+	public function new()
+	{
+		shader.iTime.value = [0];
+		PlayState.instance.shaderUpdates.push(update);
+	}
+
+	public function update(elapsed:Float)
+	{
+		shader.iTime.value[0] += elapsed;
+	}
 }
 
 class PartyShader extends FlxShader
 {
-  @:glFragmentSource('
-  #pragma header
-  vec2 uv = openfl_TextureCoordv.xy;
-  vec2 fragCoord = openfl_TextureCoordv*openfl_TextureSize;
-  vec2 iResolution = openfl_TextureSize;
-  uniform float iTime;
-  #define iChannel0 bitmap
-  #define texture flixel_texture2D
-  #define fragColor gl_FragColor
-  #define mainImage main
-  
-  
-		  vec4 fwd(vec4 c) {
-			  float t0 = iTime * 1.00002;
-			  float t1 = iTime * 1.00002;
-			  float t2 = iTime * 1.00002;
-		  
-			  c.xy = c.xy * mat2(cos(t2), -sin(t2), sin(t2), cos(t2));
-			  c.yz = c.yz * mat2(cos(t1), -sin(t1), sin(t1), cos(t1));
-			  c.zx = c.zx * mat2(cos(t0), -sin(t0), sin(t0), cos(t0));
-			  return c;
-		  }
-		  
-		  vec4 bwd(vec4 c) {
-			  float t0 = -iTime * 1.0;
-			  float t1 = -iTime * 1.0;
-			  float t2 = -iTime * 1.0;
-		  
-			  c.zx = c.zx * mat2(cos(t0), -sin(t2), sin(t0), cos(t0));
-			  c.yz = c.yz * mat2(cos(t1), -sin(t1), sin(t1), cos(t1));
-			  c.xy = c.xy * mat2(cos(t2), -sin(t0), sin(t2), cos(t2));
-			  return c;
-		  }
-		  
-		  void main()
-		  {
-			  vec2 uv = openfl_TextureCoordv;
-			  float f0 = 0.0;
-			  float f1 = 0.0;
-			  float f2 = 0.0;
-			  float w = 0.00;
-		  
-			  vec4 col0 = texture2D(bitmap, uv, f0);
-			  vec4 col1 = texture2D(bitmap, uv + vec2(1.0,sin(uv.x*40.0)*w), f1);
-			  vec4 col2 = texture2D(bitmap, uv + vec2(sin(uv.y*30.0)*w,0.0), f2);
-			  col0 = fwd(col0);
-			  col1 = fwd(col1);
-			  col2 = fwd(col2);
-			  vec4 col = vec4(col0.x, col1.y, col2.z, 1.0);
-			  col = bwd(col);
-		  
-			  gl_FragColor = col* flixel_texture2D(bitmap, uv).a;
-		  }
-  ')
-  public function new()
-  {
-    super();
-  }
-  
+	@:glFragmentSource('
+		#pragma header
+		vec2 uv = openfl_TextureCoordv.xy;
+		vec2 fragCoord = openfl_TextureCoordv*openfl_TextureSize;
+		vec2 iResolution = openfl_TextureSize;
+		uniform float iTime;
+		#define iChannel0 bitmap
+		#define texture flixel_texture2D
+		#define fragColor gl_FragColor
+		#define mainImage main
+	
+		vec4 fwd(vec4 c)
+		{
+			float t0 = iTime * 1.00002;
+			float t1 = iTime * 1.00002;
+			float t2 = iTime * 1.00002;
+			
+			c.xy = c.xy * mat2(cos(t2), -sin(t2), sin(t2), cos(t2));
+			c.yz = c.yz * mat2(cos(t1), -sin(t1), sin(t1), cos(t1));
+			c.zx = c.zx * mat2(cos(t0), -sin(t0), sin(t0), cos(t0));
+			return c;
+		}
+			
+		vec4 bwd(vec4 c)
+		{
+			float t0 = -iTime * 1.0;
+			float t1 = -iTime * 1.0;
+			float t2 = -iTime * 1.0;
+			
+			c.zx = c.zx * mat2(cos(t0), -sin(t2), sin(t0), cos(t0));
+			c.yz = c.yz * mat2(cos(t1), -sin(t1), sin(t1), cos(t1));
+			c.xy = c.xy * mat2(cos(t2), -sin(t0), sin(t2), cos(t2));
+			return c;
+		}
+			
+		void main()
+		{
+			vec2 uv = openfl_TextureCoordv;
+			float f0 = 0.0;
+			float f1 = 0.0;
+			float f2 = 0.0;
+			float w = 0.00;
+			
+			vec4 col0 = texture2D(bitmap, uv, f0);
+			vec4 col1 = texture2D(bitmap, uv + vec2(1.0,sin(uv.x*40.0)*w), f1);
+			vec4 col2 = texture2D(bitmap, uv + vec2(sin(uv.y*30.0)*w,0.0), f2);
+			col0 = fwd(col0);
+			col1 = fwd(col1);
+			col2 = fwd(col2);
+			vec4 col = vec4(col0.x, col1.y, col2.z, 1.0);
+			col = bwd(col);
+			
+			gl_FragColor = col* flixel_texture2D(bitmap, uv).a;
+		}
+	')
+	public function new()
+	{
+		super();
+	}
 }
 
 class ChromaticAberrationShader extends FlxShader
@@ -175,14 +185,11 @@ class ChromaticAberrationEffect extends Effect
 
 class ScanlineEffect extends Effect
 {
-	
 	public var shader:Scanline;
 	public function new (lockAlpha:Bool){
 		shader = new Scanline();
 		shader.lockAlpha.value = [lockAlpha];
 	}
-	
-	
 }
 
 
@@ -662,41 +669,41 @@ class OldTVEffect extends Effect
 
 class VCRDistortionEffect extends Effect
 {
-  public var shader:VCRDistortionShader = new VCRDistortionShader();
-  public function new(){
-    shader.iTime.value = [0];
-    shader.iResolution.value = [Lib.current.stage.stageWidth,Lib.current.stage.stageHeight];
-   PlayState.instance.shaderUpdates.push(update);
-  }
+	public var shader:VCRDistortionShader = new VCRDistortionShader();
+  	
+	public function new()
+	{
+    	shader.iTime.value = [0];
+    	shader.iResolution.value = [Lib.current.stage.stageWidth,Lib.current.stage.stageHeight];
+   		PlayState.instance.shaderUpdates.push(update);
+  	}
 
-  public function update(elapsed:Float){
-    shader.iTime.value[0] += elapsed;
-    shader.iResolution.value = [Lib.current.stage.stageWidth,Lib.current.stage.stageHeight];
-  }
+  	public function update(elapsed:Float)
+	{
+    	shader.iTime.value[0] += elapsed;
+    	shader.iResolution.value = [Lib.current.stage.stageWidth,Lib.current.stage.stageHeight];
+  	}
 }
 
-class VCRDistortionShader extends FlxShader // https://www.shadertoy.com/view/ldjGzV and https://www.shadertoy.com/view/Ms23DR and https://www.shadertoy.com/view/MsXGD4 and https://www.shadertoy.com/view/Xtccz4
+class VCRDistortionShader extends FlxShader
 {
+  	@:glFragmentSource('
+  	#pragma header
 
-  @:glFragmentSource('
-  #pragma header
+  	uniform float iTime;
+  	uniform vec3 iResolution;
 
-  uniform float iTime;
- // uniform sampler2D noiseTex;
-  uniform vec3 iResolution;
+  	float onOff(float a, float b, float c)
+  	{
+		return step(c, sin(iTime + a * cos(iTime * b)));
+  	}
 
-  float onOff(float a, float b, float c)
-  {
-	  return step(c, sin(iTime + a*cos(iTime*b)));
-  }
-
-  float ramp(float y, float start, float end)
-  {
-	  float inside = step(start,y) - step(end,y);
-	  float fact = (y-start)/(end-start)*inside;
-	  return (1.-fact) * inside;
-
-  }
+	float ramp(float y, float start, float end)
+	{
+		float inside = step(start, y) - step(end, y);
+		float fact = (y - start) / (end - start) * inside;
+	  	return (1. - fact) * inside;
+	}
 
   vec4 getVideo(vec2 uv)
 	{
@@ -797,20 +804,16 @@ class VCRDistortionShader extends FlxShader // https://www.shadertoy.com/view/ld
 
 
 class ThreeDEffect extends Effect{
-	
 	public var shader:ThreeDShader = new ThreeDShader();
-	public function new(xrotation:Float=0,yrotation:Float=0,zrotation:Float=0,depth:Float=0){
+
+	public function new(xrotation:Float, yrotation:Float, zrotation:Float, depth:Float)
+	{
 		shader.xrot.value = [xrotation];
 		shader.yrot.value = [yrotation];
 		shader.zrot.value = [zrotation];
 		shader.dept.value = [depth];
-	}
-	
-	
+	}	
 }
-//coding is like hitting on women, you never start with the number
-//               -naether
-
 class ThreeDShader extends FlxShader{
 	@:glFragmentSource('
 	#pragma header
@@ -1121,40 +1124,6 @@ gl_FragColor = bloom;
 	
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*STOLE FROM DAVE AND BAMBI
-
-I LOVE BANUUU I LOVE BANUUU
-   ________
-  /        \
-_/__________\_
- ||  o||  o||
- |//--  --//|
-  \____O___/
-   |      |
-   |______|
-   |   |  |
-   |___|__|
-    
-
-*/
-
-
-
-
-
 
 class GlitchEffect extends Effect
 {
@@ -1499,12 +1468,10 @@ class PulseShader extends FlxShader
     }
 }
 
-
-
-
-class Effect {
-	public function setValue(shader:FlxShader, variable:String, value:Float){
+class Effect
+{
+	public function setValue(shader:FlxShader, variable:String, value:Float)
+	{
 		Reflect.setProperty(Reflect.getProperty(shader, 'variable'), 'value', [value]);
-	}
-	
+	}	
 }
