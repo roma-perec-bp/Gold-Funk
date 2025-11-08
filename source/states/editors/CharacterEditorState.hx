@@ -518,6 +518,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	var animationIndicesInputText:PsychUIInputText;
 	var animationFramerate:PsychUINumericStepper;
 	var animationLoopCheckBox:PsychUICheckBox;
+	var animationFlipX:PsychUICheckBox;
 	function addAnimationsUI()
 	{
 		var tab_group = UI_characterbox.getTab('Animations').menu;
@@ -525,8 +526,9 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		animationInputText = new PsychUIInputText(15, 85, 80, '', 8);
 		animationNameInputText = new PsychUIInputText(animationInputText.x, animationInputText.y + 35, 150, '', 8);
 		animationIndicesInputText = new PsychUIInputText(animationNameInputText.x, animationNameInputText.y + 40, 250, '', 8);
-		animationFramerate = new PsychUINumericStepper(animationInputText.x + 170, animationInputText.y, 1, 24, 0, 240, 0);
-		animationLoopCheckBox = new PsychUICheckBox(animationNameInputText.x + 170, animationNameInputText.y - 1, "Should it Loop?", 100);
+		animationFramerate = new PsychUINumericStepper(animationInputText.x + 170, animationInputText.y - 40, 1, 24, 0, 240, 0);
+		animationLoopCheckBox = new PsychUICheckBox(animationNameInputText.x + 170, animationNameInputText.y - 41, "Should it Loop?", 100);
+		animationFlipX = new PsychUICheckBox(animationNameInputText.x + 170, animationNameInputText.y - 1, "Flip X", 100);
 
 		animationDropDown = new PsychUIDropDownMenu(15, animationInputText.y - 55, [''], function(selectedAnimation:Int, pressed:String) {
 			var anim:AnimArray = character.animationsArray[selectedAnimation];
@@ -534,6 +536,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			animationNameInputText.text = anim.name;
 			animationLoopCheckBox.checked = anim.loop;
 			animationFramerate.value = anim.fps;
+			animationFlipX.checked = anim.flipX;
 
 			var indicesStr:String = anim.indices.toString();
 			animationIndicesInputText.text = indicesStr.substr(1, indicesStr.length - 2);
@@ -587,7 +590,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			var addedAnim:AnimArray = newAnim(animationInputText.text, animationNameInputText.text);
 			addedAnim.fps = Math.round(animationFramerate.value);
 			addedAnim.loop = animationLoopCheckBox.checked;
-			addedAnim.flipX = false;
+			addedAnim.flipX = animationFlipX.checked;
 			addedAnim.indices = indices;
 			addedAnim.offsets = lastOffsets;
 			addAnimation(addedAnim.anim, addedAnim.name, addedAnim.fps, addedAnim.loop, addedAnim.indices, addedAnim.flipX);
@@ -636,6 +639,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		tab_group.add(animationIndicesInputText);
 		tab_group.add(animationFramerate);
 		tab_group.add(animationLoopCheckBox);
+		tab_group.add(animationFlipX);
 		tab_group.add(addUpdateButton);
 		tab_group.add(removeButton);
 		tab_group.add(animationDropDown);
