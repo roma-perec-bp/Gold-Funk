@@ -90,18 +90,10 @@ class SustainSplash extends FlxSprite {
 
     kill();
     super.kill();
-    if (FlxG.state is PlayState) 
-      PlayState.instance.grpHoldSplashes.remove(this);
+    if (FlxG.state is PlayState) PlayState.instance.grpHoldSplashes.remove(this);
     
-    if (end != null) 
-      end.extraData['holdSplash'] = null;
-    
+    if (end != null) end.extraData['holdSplash'] = null;
   }
 
-  public function onAnimationFinished(animationName:String):Void
-  {
-    if (animationName.startsWith('start'))
-      animation.play('hold', true, false, 0);
-  }
-
+  public function onAnimationFinished(animationName:String):Void { if (animationName.startsWith('start'))animation.play('hold', true, false, 0);}
 }
