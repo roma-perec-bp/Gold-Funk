@@ -1306,6 +1306,9 @@ class PlayState extends MusicBeatState
 		stagesFunc(function(stage:BaseStage) stage.songRestart());
 		callOnScripts('onSongRestart');
 
+		FlxTimer.globalManager.forEach(function(tmr:FlxTimer) tmr.cancel());
+		FlxTween.globalManager.forEach(function(twn:FlxTween) twn.cancel());
+
 		boyfriend.playInitAnimation();
 		dad.playInitAnimation();
 		if(gf != null) gf.playInitAnimation();
@@ -1343,12 +1346,12 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		BF_X = stageData.boyfriend[0];
-		BF_Y = stageData.boyfriend[1];
-		GF_X = stageData.girlfriend[0];
-		GF_Y = stageData.girlfriend[1];
-		DAD_X = stageData.opponent[0];
-		DAD_Y = stageData.opponent[1];
+		BF_X = stageDataPrefs.boyfriend[0];
+		BF_Y = stageDataPrefs.boyfriend[1];
+		GF_X = stageDataPrefs.girlfriend[0];
+		GF_Y = stageDataPrefs.girlfriend[1];
+		DAD_X = stageDataPrefs.opponent[0];
+		DAD_Y = stageDataPrefs.opponent[1];
 
 		reloading = true;
 
@@ -1443,6 +1446,9 @@ class PlayState extends MusicBeatState
 		stagesFunc(function(stage:BaseStage) stage.songRestart());
 		callOnScripts('onSongRestart');
 
+		FlxTimer.globalManager.forEach(function(tmr:FlxTimer) tmr.cancel());
+		FlxTween.globalManager.forEach(function(twn:FlxTween) twn.cancel());
+
 		if (vwooshTimer != null) vwooshTimer.cancel();
 		if (startTimer != null) startTimer.cancel();
 
@@ -1497,12 +1503,12 @@ class PlayState extends MusicBeatState
 		ratingsData[2].hits = 0;
 		ratingsData[3].hits = 0;
 
-		BF_X = stageData.boyfriend[0];
-		BF_Y = stageData.boyfriend[1];
-		GF_X = stageData.girlfriend[0];
-		GF_Y = stageData.girlfriend[1];
-		DAD_X = stageData.opponent[0];
-		DAD_Y = stageData.opponent[1];
+		BF_X = stageDataPrefs.boyfriend[0];
+		BF_Y = stageDataPrefs.boyfriend[1];
+		GF_X = stageDataPrefs.girlfriend[0];
+		GF_Y = stageDataPrefs.girlfriend[1];
+		DAD_X = stageDataPrefs.opponent[0];
+		DAD_Y = stageDataPrefs.opponent[1];
 
 		updateScoreText();
 
