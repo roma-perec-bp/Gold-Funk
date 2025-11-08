@@ -1299,6 +1299,7 @@ class PlayState extends MusicBeatState
 	}
 
 	var notesVwoosh:FlxTypedSpriteGroup<Note>;
+	var stageDataPrefs:StageFile = StageData.getStageFile(curStage);
 
 	public function revivePlayer()
 	{
