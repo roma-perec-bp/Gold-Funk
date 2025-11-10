@@ -65,6 +65,7 @@ class Note extends FlxSprite
 
 	public var wasGoodHit:Bool = false;
 	public var missed:Bool = false;
+	public var released:Bool = false;
 
 	public var ignoreNote:Bool = false;
 	public var hitByOpponent:Bool = false;
@@ -87,6 +88,7 @@ class Note extends FlxSprite
 	public var sustainType:String = ''; //[stutter, freeze, nothing]
 	public var ghostType:String = '';
 	public var heyAnim:String = '';
+	public var invisibleNote:Bool = false;
 
 	public var isInvisible:Bool = false; //used for skip time feature
 

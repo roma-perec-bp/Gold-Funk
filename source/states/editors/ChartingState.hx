@@ -2123,28 +2123,40 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		swagNote.gfNote = (section.gfSection && gottaHitNote == section.mustHitSection);
 		swagNote.noteType = note[3];
 		swagNote.sustainType = note[4];
+
+		if(note[5] == null) note[5] = '';
 		swagNote.animSuffix = note[5];
+
+		if(note[6] == null) note[6] = 0;
 		swagNote.customSingTime = note[6];
+
+		if(note[7] == null) note[7] = '';
 		swagNote.heyAnim = note[7];
 
-		//only way to put it true by default xd
 		if(note[8] == null) note[8] = true;
 		swagNote.lightStrum = note[8];
 
+		if(note[9] == null) note[9] = false;
 		swagNote.noAnimation = note[9];
 
+		if(note[10] == null) note[10] = '';
 		swagNote.ghostType = note[10];
 
 		if(note[11] == null) note[11] = true;
 		swagNote.catchNote = note[11];
 
-		swagNote.noAnimation = note[12];
+		if(note[12] == null) note[12] = false;
+		swagNote.noMissAnimation = note[12];
 
+		if(note[13] == null) note[13] = false;
 		swagNote.invisibleNote = note[13];
 
 		swagNote.scrollFactor.x = 0;
 		var txt:FlxText = swagNote.findNoteTypeText(swagNote.noteType != null ? noteTypes.indexOf(swagNote.noteType) : 0);
 		if(txt != null) txt.visible = showNoteTypeLabels;
+
+		var txt_pref:FlxText = swagNote.createPrefixsText(swagNote.animSuffix != null ? swagNote.animSuffix : '');
+		if(txt_pref != null) txt_pref.visible = true;
 
 		swagNote.updateHitbox();
 		if(swagNote.width > swagNote.height)
@@ -3419,27 +3431,21 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		sustainDropDown = new PsychUIDropDownMenu(objX + 175, objY, [], function(id:Int, changeToType:String)
 		{
-			var newSelected:Array<MetaNote> = [];
 			var typeSelected:String = sustainTypes[id].trim();
 			for (note in selectedNotes)
 			{
 				if(note == null && !note.isEvent) continue;
+
+				//note.songData[4] = typeSelected;
 
 				if(typeSelected != null && typeSelected.length > 0)
 					note.songData[4] = typeSelected;
 				else
 					note.songData.remove(note.songData[4]);
 
-				var id:Int = notes.indexOf(note);
-				if(id > -1)
-				{
-					notes[id] = createNote(note.songData, curSec);
-					actionReplaceNotes(note, notes[id]);
-					newSelected.push(notes[id]);
-					note.destroy();
-				}
+				note.sustainType = note.songData[4];
+
 			}
-			selectedNotes = newSelected;
 			softReloadNotes();
 		}, 70);
 
@@ -3512,13 +3518,25 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		{
 			if(selectedNotes.length < 1) return;
 
+			var newSelected:Array<MetaNote> = [];
+
 			for (note in selectedNotes)
 			{
 				if(note == null || note.isEvent) continue;
-				
+
 				note.setAnimSuffix(cur);
 				if(cur.trim().length < 1) note.setAnimSuffix('');
+
+				var id:Int = notes.indexOf(note);
+				if(id > -1)
+				{
+					notes[id] = createNote(note.songData, curSec);
+					actionReplaceNotes(note, notes[id]);
+					newSelected.push(notes[id]);
+					note.destroy();
+				}
 			}
+			selectedNotes = newSelected;
 			softReloadNotes();
 		}
 		objY += 40;
@@ -3555,27 +3573,20 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		ghostsDropDown = new PsychUIDropDownMenu(objX, objY, [], function(id:Int, changeToType:String)
 		{
-			var newSelected:Array<MetaNote> = [];
 			var typeSelected:String = ghostTypes[id].trim();
 			for (note in selectedNotes)
 			{
 				if(note == null && !note.isEvent) continue;
 
+				//note.songData[10] = typeSelected;
+
 				if(typeSelected != null && typeSelected.length > 0)
 					note.songData[10] = typeSelected;
 				else
-					note.songData.remove(note.songData[4]);
+					note.songData.remove(note.songData[10]);
 
-				var id:Int = notes.indexOf(note);
-				if(id > -1)
-				{
-					notes[id] = createNote(note.songData, curSec);
-					actionReplaceNotes(note, notes[id]);
-					newSelected.push(notes[id]);
-					note.destroy();
-				}
+				note.ghostType = note.songData[10];
 			}
-			selectedNotes = newSelected;
 			softReloadNotes();
 		}, 70);
 

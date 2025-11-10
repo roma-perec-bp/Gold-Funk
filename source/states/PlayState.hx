@@ -1215,6 +1215,7 @@ class PlayState extends MusicBeatState
 	}
 
 	var startTimer:FlxTimer;
+	var goTimer:FlxTimer;
 	var vwooshTimer:FlxTimer;
 	var finishTimer:FlxTimer = null;
 
@@ -1306,9 +1307,6 @@ class PlayState extends MusicBeatState
 		stagesFunc(function(stage:BaseStage) stage.songRestart());
 		callOnScripts('onSongRestart');
 
-		FlxTimer.globalManager.forEach(function(tmr:FlxTimer) tmr.cancel());
-		FlxTween.globalManager.forEach(function(twn:FlxTween) twn.cancel());
-
 		boyfriend.playInitAnimation();
 		dad.playInitAnimation();
 		if(gf != null) gf.playInitAnimation();
@@ -1321,12 +1319,6 @@ class PlayState extends MusicBeatState
 
 		noteCamOffset = SONG.followCamOffset;
 		skipText.alpha = 0;
-
-		camGame.stopFX();
-		camHUD.stopFX();
-		camOverlayHUD.stopFX();
-		camNotes.stopFX();
-		camOther.stopFX();
 
 		if (PlayState.SONG.fadeOutStart)
 		{
@@ -1446,21 +1438,24 @@ class PlayState extends MusicBeatState
 		stagesFunc(function(stage:BaseStage) stage.songRestart());
 		callOnScripts('onSongRestart');
 
+		//FlxTimer.globalManager.forEach(function(tmr:FlxTimer) tmr.cancel());
+		//FlxTween.globalManager.forEach(function(twn:FlxTween) twn.cancel());
+
+		if (vwooshTimer != null) vwooshTimer.cancel();
+		if (startTimer != null) startTimer.cancel();
+		if (goTimer != null) goTimer.cancel();
+
 		for (spr in comboGroup) {
 			spr.destroy();
 			comboGroup.remove(spr);
 		}
 
 		for (spr in countGroup) {
+			FlxTween.cancelTweensOf(spr);
+			FlxTween.cancelTweensOf(spr.scale);
 			spr.destroy();
 			countGroup.remove(spr);
 		}
-
-		FlxTimer.globalManager.forEach(function(tmr:FlxTimer) tmr.cancel());
-		FlxTween.globalManager.forEach(function(twn:FlxTween) twn.cancel());
-
-		if (vwooshTimer != null) vwooshTimer.cancel();
-		if (startTimer != null) startTimer.cancel();
 
 		boyfriend.playInitAnimation();
 		dad.playInitAnimation();
@@ -1870,34 +1865,43 @@ class PlayState extends MusicBeatState
 		{
 			new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, function(tmr:FlxTimer)
 			{
-				countGroup.remove(spr);
-				spr.destroy();
+				if(spr != null)
+				{
+					countGroup.remove(spr);
+					spr.destroy();
+				}
 			});
 		}
 		else if(stageUI == "normal" && image == "go")
 		{
-			new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
+			goTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 			{
-				FlxTween.tween(spr.scale, {x: 0, y: 0}, Conductor.stepCrochet * 2 / 1000 / playbackRate, {
-					ease: FlxEase.expoIn,
+				if(spr != null)
+				{
+					FlxTween.tween(spr.scale, {x: 0, y: 0}, Conductor.stepCrochet * 2 / 1000 / playbackRate, {
+						ease: FlxEase.expoIn,
+						onComplete: function(twn:FlxTween)
+						{
+							countGroup.remove(spr);
+							spr.destroy();
+						}
+					});
+				}
+			});
+		}
+		else
+		{
+			if(spr != null)
+			{
+				FlxTween.tween(spr, {y: spr.y + 50, alpha: 0}, Conductor.crochet / 1000 / playbackRate, {
+					ease: FlxEase.cubeIn,
 					onComplete: function(twn:FlxTween)
 					{
 						countGroup.remove(spr);
 						spr.destroy();
 					}
 				});
-			});
-		}
-		else
-		{
-			FlxTween.tween(spr, {y: spr.y + 50, alpha: 0}, Conductor.crochet / 1000 / playbackRate, {
-				ease: FlxEase.cubeIn,
-				onComplete: function(twn:FlxTween)
-				{
-					countGroup.remove(spr);
-					spr.destroy();
-				}
-			});
+			}
 		}
 		return spr;
 	}
@@ -3256,6 +3260,16 @@ class PlayState extends MusicBeatState
 
 				if (vwooshTimer != null) vwooshTimer.cancel();
 				if (startTimer != null) startTimer.cancel();
+				if (goTimer != null) goTimer.cancel();
+
+				//FlxTimer.globalManager.forEach(function(tmr:FlxTimer) tmr.cancel());
+				//FlxTween.globalManager.forEach(function(twn:FlxTween) twn.cancel());
+
+				camGame.stopFX();
+				camHUD.stopFX();
+				camOverlayHUD.stopFX();
+				camNotes.stopFX();
+				camOther.stopFX();
 
 				canResync = false;
 				canPause = false;
@@ -3273,6 +3287,8 @@ class PlayState extends MusicBeatState
 				}
 
 				for (spr in countGroup) {
+					FlxTween.cancelTweensOf(spr);
+					FlxTween.cancelTweensOf(spr.scale);
 					spr.destroy();
 					countGroup.remove(spr);
 				}
@@ -4783,8 +4799,8 @@ class PlayState extends MusicBeatState
 					trace('LOADING NEXT SONG');
 					trace(Paths.formatToSongPath(PlayState.storyPlaylist[0]) + difficulty);
 
-					FlxTransitionableState.skipNextTransIn = true;
-					FlxTransitionableState.skipNextTransOut = true;
+					FlxTransitionableState.skipNextTransIn = SONG.toggleTransIn;
+					FlxTransitionableState.skipNextTransOut = SONG.toggleTransOut;
 
 					Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, PlayState.storyPlaylist[0]);
 					FlxG.sound.music.stop();
@@ -5208,6 +5224,7 @@ class PlayState extends MusicBeatState
 			spr.playAnim('static');
 			spr.resetAnim = 0;
 		}
+
 		callOnScripts('onKeyRelease', [key]);
 	}
 
@@ -5261,6 +5278,17 @@ class PlayState extends MusicBeatState
 
 						if (!released)
 							goodNoteHit(n);
+						else
+						{
+							if (!n.released && n.active)
+							{
+								noteMiss(n);
+								n.active = false;
+								n.released = true;
+								n.alpha = 0;
+								n.multAlpha = 0;
+							}
+						}
 					}
 				}
 			}
@@ -5441,8 +5469,8 @@ class PlayState extends MusicBeatState
 
 			var parentNote:Note = note.parent;
 			if (parentNote.wasGoodHit && parentNote.tail.length > 0) {
-				parentNote.alpha = 0.35;
-				parentNote.multAlpha = 0.35;
+				parentNote.alpha = 0;
+				parentNote.multAlpha = 0;
 				for (child in parentNote.tail) if (child != note) {
 					child.missed = true;
 					child.alpha = parentNote.alpha;

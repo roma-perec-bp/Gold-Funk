@@ -257,34 +257,37 @@ class GameOverSubstate extends MusicBeatSubstate
 
 			  // confirm music length divided by 7000
       		// this is here so mods with longer confirm sounds don't have it cut off!!!
-      		final FADE_TIMER:Float = (endSoundName?.length ?? 0) / 7000;
+      		final FADE_TIMER:Float = (endSoundName?.length ?? 0) / 3500;
 
 			new FlxTimer().start(FADE_TIMER, function(tmr:FlxTimer)
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 				{
-					if(PlayState.SONG.swapPlayers)
-						PlayState.instance.dad.stunned = false;
+					if(PlayState.SONG.fullRestart) 
+						MusicBeatState.resetState();
 					else
-						PlayState.instance.boyfriend.stunned = false;
-
-					PlayState.instance.health = 1;
-					//PlayState.instance.add(PlayState.instance.boyfriend);
-
-					new FlxTimer().start(1, function(tmr:FlxTimer)
 					{
-						PlayState.instance.camOther.fade(FlxColor.BLACK, 1, true, null, true); //cuz hud
-						FlxTween.tween(PlayState.instance.camHUD, {alpha: 1}, 1);
-						FlxG.camera.fade(FlxColor.BLACK, 1, true, null, true);
-						PlayState.instance.revivePlayer();
-						PlayState.instance.boyfriend.playInitAnimation();
-						PlayState.instance.dad.playInitAnimation();
-						if(PlayState.instance.gf != null) PlayState.instance.gf.playInitAnimation();
-
-						close();
-					});
-
-					//MusicBeatState.resetState();
+						if(PlayState.SONG.swapPlayers)
+							PlayState.instance.dad.stunned = false;
+						else
+							PlayState.instance.boyfriend.stunned = false;
+	
+						PlayState.instance.health = 1;
+						//PlayState.instance.add(PlayState.instance.boyfriend);
+	
+						new FlxTimer().start(1, function(tmr:FlxTimer)
+						{
+							if (!PlayState.SONG.fadeOutStart) PlayState.instance.camOther.fade(FlxColor.BLACK, 1, true, null, true); //cuz hud
+							FlxTween.tween(PlayState.instance.camHUD, {alpha: 1}, 1);
+							if (!PlayState.SONG.fadeOutStart) FlxG.camera.fade(FlxColor.BLACK, 1, true, null, true);
+							PlayState.instance.revivePlayer();
+							PlayState.instance.boyfriend.playInitAnimation();
+							PlayState.instance.dad.playInitAnimation();
+							if(PlayState.instance.gf != null) PlayState.instance.gf.playInitAnimation();
+	
+							close();
+						});
+					}
 				});
 			});
 			PlayState.instance.callOnScripts('onGameOverConfirm', [true]);

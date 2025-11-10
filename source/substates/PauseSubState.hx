@@ -335,7 +335,7 @@ class PauseSubState extends MusicBeatSubstate
 					{
 						Song.loadFromJson(poop, songLowercase);
 						PlayState.storyDifficulty = difficultyNums[curSelected];
-						//MusicBeatState.resetState();
+
 						FlxG.sound.music.volume = 0;
 						PlayState.changedDifficulty = true;
 						PlayState.chartingMode = false;
@@ -345,7 +345,11 @@ class PauseSubState extends MusicBeatSubstate
 						@:privateAccess
 						PlayState.instance.startedCountdown = false;
 					
-						PlayState.instance.restartSong();
+						if(PlayState.SONG.fullRestart) 
+							MusicBeatState.resetState();
+						else
+							PlayState.instance.restartSong();
+						
 						close();
 						return;
 					}
@@ -386,13 +390,20 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.changedDifficulty = true;
 					practiceText.visible = PlayState.instance.practiceMode;
 				case "Restart Song":
-					PlayState.instance.canResync = false;
+					if(PlayState.SONG.fullRestart)
+					{
+						restartSong();
+					}
+					else
+					{
+						PlayState.instance.canResync = false;
 
-					@:privateAccess
-					PlayState.instance.startedCountdown = false;
-					
-					PlayState.instance.restartSong();
-					close();
+						@:privateAccess
+						PlayState.instance.startedCountdown = false;
+						
+						PlayState.instance.restartSong();
+						close();
+					}
 				case "Leave Charting Mode":
 					restartSong();
 					PlayState.chartingMode = false;

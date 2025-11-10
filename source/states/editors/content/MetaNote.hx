@@ -12,7 +12,7 @@ class MetaNote extends Note
 	public var sustainSprite:EditorSustain;
 	public var chartY:Float = 0;
 	public var chartNoteData:Int = 0;
-	public var invisibleNote:Bool = true;
+	//public var invisibleNote:Bool = true;
 
 	public function new(time:Float, data:Int, songData:Array<Dynamic>)
 	{
@@ -148,6 +148,7 @@ class MetaNote extends Note
 	var _noteTypeText:FlxText;
 	public function findNoteTypeText(num:Int)
 	{
+		trace(num);
 		var txt:FlxText = null;
 		if(num != 0)
 		{
@@ -165,6 +166,22 @@ class MetaNote extends Note
 			else txt = noteTypeTexts.get(num);
 		}
 		return (_noteTypeText = txt);
+	}
+
+	var _prefixText:FlxText;
+	public function createPrefixsText(text:String)
+	{
+		var txtPref:FlxText = null;
+
+		txtPref = new FlxText(0, 0, ChartingState.GRID_SIZE, text, 9);
+		txtPref.autoSize = false;
+		txtPref.alignment = CENTER;
+		txtPref.borderStyle = SHADOW;
+		txtPref.shadowOffset.set(2, 2);
+		txtPref.borderColor = FlxColor.BLACK;
+		txtPref.scrollFactor.x = 0;
+
+		return (_prefixText = txtPref);
 	}
 
 	override function draw()
@@ -188,6 +205,15 @@ class MetaNote extends Note
 			_noteTypeText.y = this.y + this.height/2 - _noteTypeText.height/2;
 			_noteTypeText.alpha = this.alpha;
 			_noteTypeText.draw();
+		}
+
+		if(_prefixText != null && _prefixText.exists && _prefixText.visible)
+		{
+			_prefixText.x = this.x + this.width/2 - _prefixText.width/2;
+			_prefixText.y = this.y + this.height/2 - _prefixText.height/2;
+			_prefixText.y += 15;
+			_prefixText.alpha = this.alpha;
+			_prefixText.draw();
 		}
 	}
 
