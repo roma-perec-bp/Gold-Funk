@@ -261,7 +261,6 @@ class PlayState extends MusicBeatState
 	public var healthGain:Float = 1;
 	public var healthLoss:Float = 1;
 
-	public var guitarHeroSustains:Bool = false;
 	public var instakillOnMiss:Bool = false;
 	public var cpuControlled:Bool = false;
 	public var practiceMode:Bool = false;
@@ -402,7 +401,6 @@ class PlayState extends MusicBeatState
 		instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
 		practiceMode = ClientPrefs.getGameplaySetting('practice');
 		cpuControlled = ClientPrefs.getGameplaySetting('botplay');
-		guitarHeroSustains = ClientPrefs.data.guitarHeroSustains;
 
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = initPsychCamera();
@@ -2983,7 +2981,7 @@ class PlayState extends MusicBeatState
 		
 				if (holdNote.noteWasHit && !holdNote.missed && holdNote.isSustainNote)
 				{
-					if(!isPixelStage && ClientPrefs.data.sustainGain) health += 0.05 * healthGain * elapsed;
+					if(!isPixelStage) health += 0.05 * healthGain * elapsed;
 		
 					if(!cpuControlled && !practiceMode)
 					{
@@ -5270,8 +5268,7 @@ class PlayState extends MusicBeatState
 					var canHit:Bool = (n != null && !strumsBlocked[n.noteData] && n.canBeHit
 						&& n.mustPress && !n.tooLate && !n.wasGoodHit && !n.blockHit && n.visible);
 
-					if (guitarHeroSustains)
-						canHit = canHit && n.parent != null && n.parent.wasGoodHit;
+					canHit = canHit && n.parent != null && n.parent.wasGoodHit;
 
 					if (canHit && n.isSustainNote) {
 						var released:Bool = !holdArray[n.noteData];
@@ -5439,7 +5436,7 @@ class PlayState extends MusicBeatState
 		if(note != null) subtract = note.missHealth;
 
 		// GUITAR HERO SUSTAIN CHECK LOL!!!!
-		if (note != null && guitarHeroSustains && note.parent == null) {
+		if (note != null && note.parent == null) {
 			if(note.tail.length > 0) {
 				note.alpha = 0.35;
 				note.multAlpha = 0.35;
@@ -5463,7 +5460,7 @@ class PlayState extends MusicBeatState
 			if (note.missed)
 				return;
 		}
-		if (note != null && guitarHeroSustains && note.parent != null && note.isSustainNote) {
+		if (note != null && note.parent != null && note.isSustainNote) {
 			if (note.missed)
 				return;
 
@@ -5800,7 +5797,7 @@ class PlayState extends MusicBeatState
 				health += note.hitHealth * healthGain;
 			}
 
-			if(isPixelStage && ClientPrefs.data.sustainGain) if (note.isSustainNote) health += note.hitHealth * healthGain; //so it wont be smooth in week 6
+			if(isPixelStage) if (note.isSustainNote) health += note.hitHealth * healthGain; //so it wont be smooth in week 6
 
 		}
 		else //Notes that count as a miss if you hit them (Hurt notes for example)

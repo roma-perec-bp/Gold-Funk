@@ -60,18 +60,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Sustains as One Note',
-			"If checked, Hold Notes can't be pressed if you miss,\nand count as a single Hit/Miss.\nUncheck this if you prefer the old Input System.",
-			'guitarHeroSustains',
-			BOOL);
-		addOption(option);
-
-		var option:Option = new Option('Gain Health from Sustain Note',
-			"If checked, Health can be gained from Hold Notes.",
-			'sustainGain',
-			BOOL);
-		addOption(option);
-
 		var option:Option = new Option('Hitsound Volume',
 			'Funny notes does \"Tick!\" when you hit them.',
 			'hitsoundVolume',

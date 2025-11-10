@@ -63,7 +63,6 @@ class EditorPlayState extends MusicBeatSubstate
 
 	var scoreTxt:FlxText;
 	var dataTxt:FlxText;
-	var guitarHeroSustains:Bool = false;
 
 	var _noteList:Array<Note>;
 	public function new(noteList:Array<Note>, allVocals:Array<FlxSound>)
@@ -90,7 +89,6 @@ class EditorPlayState extends MusicBeatSubstate
 		timerToStart = startOffset;
 
 		cachePopUpScore();
-		guitarHeroSustains = ClientPrefs.data.guitarHeroSustains;
 		if(ClientPrefs.data.hitsoundVolume > 0) Paths.sound('hitsound');
 
 		/* setting up Editor PlayState stuff */
@@ -763,8 +761,7 @@ class EditorPlayState extends MusicBeatSubstate
 				var canHit:Bool = (n != null && n.canBeHit && n.mustPress &&
 					!n.tooLate && !n.wasGoodHit && !n.blockHit);
 
-				if (guitarHeroSustains)
-					canHit = canHit && n.parent != null && n.parent.wasGoodHit;
+				canHit = canHit && n.parent != null && n.parent.wasGoodHit;
 
 				if (canHit && n.isSustainNote) {
 					var released:Bool = !holdArray[n.noteData];
@@ -839,7 +836,7 @@ class EditorPlayState extends MusicBeatSubstate
 				invalidateNote(daNote);
 		});
 
-		if (daNote != null && guitarHeroSustains && daNote.parent == null) {
+		if (daNote != null && daNote.parent == null) {
 			if(daNote.tail.length > 0) {
 				daNote.alpha = 0.35;
 				for(childNote in daNote.tail) {
@@ -857,7 +854,7 @@ class EditorPlayState extends MusicBeatSubstate
 				return;
 		}
 
-		if (daNote != null && guitarHeroSustains && daNote.parent != null && daNote.isSustainNote) {
+		if (daNote != null && daNote.parent != null && daNote.isSustainNote) {
 			if (daNote.missed)
 				return; 
 			
