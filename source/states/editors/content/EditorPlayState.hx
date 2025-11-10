@@ -17,7 +17,12 @@ class EditorPlayState extends MusicBeatSubstate
 {
 	// Borrowed from original PlayState
 	var finishTimer:FlxTimer = null;
-	var noteKillOffset:Float = 350;
+
+	public var noteKillOffset:Float = 600;
+	public var missOffset:Float = 350;
+	public var noteKillOffsetOppo:Float = 600;
+	public var missOffsetOppo:Float = 350;
+
 	var spawnTime:Float = 2000;
 	var startingSong:Bool = true;
 
@@ -51,6 +56,7 @@ class EditorPlayState extends MusicBeatSubstate
 	var songMisses:Int = 0;
 	var songLength:Float = 0;
 	var songSpeed:Float = 1;
+	var songSpeedOpponent:Float = 1;
 	
 	var showCombo:Bool = false;
 	var showComboNum:Bool = true;
@@ -186,7 +192,12 @@ class EditorPlayState extends MusicBeatSubstate
 		if (unspawnNotes[0] != null)
 		{
 			var time:Float = spawnTime * playbackRate;
-			if(songSpeed < 1) time /= songSpeed;
+
+			if(!unspawnNotes[0].mustPress)
+				if(songSpeedOpponent < 1) time /= songSpeedOpponent;
+			else
+				if(songSpeed < 1) time /= songSpeed;
+
 			if(unspawnNotes[0].multSpeed < 1) time /= unspawnNotes[0].multSpeed;
 
 			while (unspawnNotes.length > 0 && unspawnNotes[0].strumTime - Conductor.songPosition < time)
@@ -210,22 +221,30 @@ class EditorPlayState extends MusicBeatSubstate
 				if(!daNote.mustPress) strumGroup = opponentStrums;
 
 				var strum:StrumNote = strumGroup.members[daNote.noteData];
-				daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
+				daNote.followStrumNote(strum, fakeCrochet, (daNote.mustPress) ? songSpeed : songSpeedOpponent / playbackRate);
 
 				if(!daNote.mustPress && daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
 					opponentNoteHit(daNote);
 
 				if(daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumNote(strum);
 
-				// Kill extremely late notes and cause misses
-				if (Conductor.songPosition - daNote.strumTime > noteKillOffset)
+				// Cause misses if note is off screen
+				if (daNote.mustPress && Conductor.songPosition - daNote.strumTime > missOffset)
 				{
-					if (daNote.mustPress && !daNote.ignoreNote && (daNote.tooLate || !daNote.wasGoodHit))
+					if (!daNote.ignoreNote && (daNote.tooLate || !daNote.wasGoodHit))
 						noteMiss(daNote);
 
-					daNote.active = daNote.visible = false;
+						daNote.active = false;
+					}
+
+				if (!daNote.mustPress && Conductor.songPosition - daNote.strumTime > missOffsetOppo)
+					daNote.active = false;
+
+				// Kill extremely late notes
+				if (daNote.mustPress && Conductor.songPosition - daNote.strumTime > noteKillOffset / 0.95)
 					invalidateNote(daNote);
-				}
+				else if (!daNote.mustPress && Conductor.songPosition - daNote.strumTime > noteKillOffsetOppo / 0.95)
+					invalidateNote(daNote);
 			});
 		}
 		
@@ -296,15 +315,23 @@ class EditorPlayState extends MusicBeatSubstate
 	{
 		// FlxG.log.add(ChartParser.parse());
 		songSpeed = PlayState.SONG.speed;
+		songSpeedOpponent = PlayState.SONG.speed;
 		var songSpeedType:String = ClientPrefs.getGameplaySetting('scrolltype');
 		switch(songSpeedType)
 		{
 			case "multiplicative":
 				songSpeed = PlayState.SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed');
+				songSpeedOpponent = PlayState.SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed');
 			case "constant":
 				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed');
+				songSpeedOpponent = ClientPrefs.getGameplaySetting('scrollspeed');
 		}
-		noteKillOffset = Math.max(Conductor.stepCrochet, 350 / songSpeed * playbackRate);
+
+		noteKillOffset = Math.max(Conductor.stepCrochet, 600 / songSpeed * playbackRate);
+		missOffset = Math.max(Conductor.stepCrochet, 350 / songSpeed * playbackRate);
+
+		noteKillOffsetOppo = Math.max(Conductor.stepCrochet, 600 / songSpeedOpponent * playbackRate);
+		missOffsetOppo = Math.max(Conductor.stepCrochet, 350 / songSpeedOpponent * playbackRate);
 
 		var songData = PlayState.SONG;
 		Conductor.bpm = songData.bpm;
@@ -370,6 +397,9 @@ class EditorPlayState extends MusicBeatSubstate
 			swagNote.mustPress = note.mustPress;
 			swagNote.sustainLength = note.sustainLength;
 			swagNote.gfNote = note.gfNote;
+
+			swagNote.inTestEditor = true;
+
 			swagNote.noteType = note.noteType;
 
 			swagNote.scrollFactor.set();
@@ -386,6 +416,7 @@ class EditorPlayState extends MusicBeatSubstate
 					var sustainNote:Note = new Note(swagNote.strumTime + (curStepCrochet * susNote), note.noteData, oldNote, true, this);
 					sustainNote.mustPress = swagNote.mustPress;
 					sustainNote.gfNote = swagNote.gfNote;
+					sustainNote.inTestEditor = true;
 					sustainNote.noteType = swagNote.noteType;
 					sustainNote.scrollFactor.set();
 					sustainNote.parent = swagNote;
@@ -502,17 +533,19 @@ class EditorPlayState extends MusicBeatSubstate
 		Conductor.songPosition = FlxG.sound.music.time = vocals.time = opponentVocals.time = startPos - Conductor.offset;
 		close();
 	}
-	
+
 	private function cachePopUpScore()
 	{
-		var uiFolder:String = "";
+		var uiFolder:String = "ratingPopUps/";
 		if (PlayState.stageUI != "normal")
-			uiFolder = PlayState.uiPrefix + "UI/";
+			uiFolder = PlayState.uiPrefix + "UI/ratingPopUps/";
 
-		for (rating in ratingsData)
-			Paths.image(uiFolder + rating.image + PlayState.uiPostfix);
-		for (i in 0...10)
-			Paths.image(uiFolder + 'num' + i + PlayState.uiPostfix);
+		for (rating in ratingsData) Paths.image(uiFolder + rating.image + PlayState.uiPostfix);
+
+		for (i in 0...10) Paths.image(uiFolder + 'num' + i + PlayState.uiPostfix);
+
+		Paths.image(uiFolder + 'combo' + PlayState.uiPostfix);
+		//Paths.image(uiFolder + 'miss' + uiPostfix);
 	}
 
 	private function popUpScore(note:Note = null):Void
@@ -549,11 +582,11 @@ class EditorPlayState extends MusicBeatSubstate
 		if(!note.ratingDisabled)
 			songHits++;
 
-		var uiFolder:String = "";
+		var uiFolder:String = "ratingPopUps/";
 		var antialias:Bool = ClientPrefs.data.antialiasing;
 		if (PlayState.stageUI != "normal")
 		{
-			uiFolder = PlayState.uiPrefix + "UI/";
+			uiFolder = PlayState.uiPrefix + "UI/ratingPopUps/";
 			antialias = !PlayState.isPixelStage;
 		}
 

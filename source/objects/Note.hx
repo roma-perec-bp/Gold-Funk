@@ -103,6 +103,7 @@ class Note extends FlxSprite
 	public static var globalRgbShaders:Array<RGBPalette> = [];
 	var colorSwap:ColorSwap;
 	public var inEditor:Bool = false;
+	public var inTestEditor:Bool = false;
 
 	public var animSuffix:String = '';
 	public var gfNote:Bool = false;
@@ -195,7 +196,7 @@ class Note extends FlxSprite
 
 	public function defaultRGB()
 	{
-		if(inEditor)
+		if(inEditor || inTestEditor)
 		{
 			var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
 			if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];

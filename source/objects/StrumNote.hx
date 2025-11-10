@@ -187,7 +187,7 @@ class StrumNote extends FlxSprite
 			else 
 				holdTimer = 0;
 
-			if(animation.curAnim.name == 'confirm' && holdTimer >= Conductor.stepCrochet * 1.25 / 1000 / PlayState.instance.playbackRate)
+			if(animation.curAnim.name == 'confirm' && holdTimer >= Conductor.stepCrochet * 1.25 / 1000 / (PlayState.instance?.playbackRate ?? 1))
 			{
 				resetAnim = 0;
 				playAnim('pressed', true);

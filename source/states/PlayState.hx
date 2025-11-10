@@ -2877,7 +2877,7 @@ class PlayState extends MusicBeatState
 			var time:Float = spawnTime * playbackRate;
 
 			if(!unspawnNotes[0].mustPress)
-				if(songSpeed < 1) time /= songSpeedOpponent;
+				if(songSpeedOpponent < 1) time /= songSpeedOpponent;
 			else
 				if(songSpeed < 1) time /= songSpeed;
 
