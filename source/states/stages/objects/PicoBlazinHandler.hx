@@ -327,7 +327,7 @@ class PicoBlazinHandler
 
 	function isDarnellInUppercut()
 	{
-		return dad.getAnimationName() == 'uppercut' || dad.getAnimationName() == 'uppercut-hold';
+		return dad.getAnimationName() == 'uppercut' || dad.getAnimationName() == 'uppercut-loop';
 	}
 
 	function wasNoteHitPoorly(rating:String)
@@ -342,22 +342,20 @@ class PicoBlazinHandler
 	
 	function moveToBack()
 	{
-		var bfPos:Int = FlxG.state.members.indexOf(boyfriendGroup);
-		var dadPos:Int = FlxG.state.members.indexOf(dadGroup);
-		if(bfPos < dadPos) return;
-
-		FlxG.state.members[dadPos] = boyfriendGroup;
-		FlxG.state.members[bfPos] = dadGroup;
+		boyfriendGroup.zIndex = 2000;
+    	PlayState.instance.refresh();
 	}
 
 	function moveToFront()
 	{
-		var bfPos:Int = FlxG.state.members.indexOf(boyfriendGroup);
-		var dadPos:Int = FlxG.state.members.indexOf(dadGroup);
-		if(bfPos > dadPos) return;
+		boyfriendGroup.zIndex = 3000;
+    	PlayState.instance.refresh();
+	}
 
-		FlxG.state.members[dadPos] = boyfriendGroup;
-		FlxG.state.members[bfPos] = dadGroup;
+	public function retry()
+	{
+		playIdleAnim();
+    	cantUppercut = false;
 	}
 
 	var boyfriend(get, never):Character;

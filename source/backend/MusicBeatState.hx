@@ -1,8 +1,10 @@
 package backend;
 
 import openfl.display.BitmapData;
+import flixel.util.FlxSort;
 import flixel.FlxState;
 import backend.PsychCamera;
+import backend.CoolUtil;
 
 @:bitmap("assets/embed/images/ui/cursor.png")
 private class FunkinCursor extends BitmapData {}
@@ -203,6 +205,14 @@ class MusicBeatState extends FlxState
 			stage.curSection = curSection;
 			stage.sectionHit();
 		});
+	}
+
+	/**
+	 * Refreshes the stage, by redoing the render order of all props.
+	 * It does this based on the `zIndex` of each prop.
+	 */
+	 public function refresh() {
+		sort(CoolUtil.byZIndex, FlxSort.ASCENDING);
 	}
 
 	function stagesFunc(func:BaseStage->Void)

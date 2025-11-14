@@ -328,22 +328,20 @@ class DarnellBlazinHandler
 	
 	function moveToBack()
 	{
-		var dadPos:Int = FlxG.state.members.indexOf(dadGroup);
-		var bfPos:Int = FlxG.state.members.indexOf(boyfriendGroup);
-		if(dadPos < bfPos) return;
-
-		FlxG.state.members[bfPos] = dadGroup;
-		FlxG.state.members[dadPos] = boyfriendGroup;
+		dadGroup.zIndex = 2000;
+    	PlayState.instance.refresh();
 	}
 
 	function moveToFront()
 	{
-		var dadPos:Int = FlxG.state.members.indexOf(dadGroup);
-		var bfPos:Int = FlxG.state.members.indexOf(boyfriendGroup);
-		if(dadPos > bfPos) return;
+		dadGroup.zIndex = 3000;
+    	PlayState.instance.refresh();
+	}
 
-		FlxG.state.members[bfPos] = dadGroup;
-		FlxG.state.members[dadPos] = boyfriendGroup;
+	public function retry()
+	{
+		playIdleAnim();
+    	cantUppercut = false;
 	}
 
 	var boyfriend(get, never):Character;

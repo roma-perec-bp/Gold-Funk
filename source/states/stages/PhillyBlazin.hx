@@ -263,4 +263,27 @@ class PhillyBlazin extends BaseStage
 		picoFight.noteMiss(note);
 		darnellFight.noteMiss(note);
 	}
+
+	var vwooshTimer:FlxTimer;
+	override function songRestartPost()
+	{
+		if (vwooshTimer != null) vwooshTimer.cancel();
+		
+		//trace('opponent hit!');
+		picoFight.retry();
+		darnellFight.retry();
+
+		//TO-DO: prb add onNoteGenerated shit
+		vwooshTimer = new FlxTimer().start(0.6, function(_) {
+			var unspawnNotes:Array<Note> = cast game.unspawnNotes;
+			for (note in unspawnNotes)
+			{
+				if(note == null) continue;
+
+				//override animations for note types
+				note.noAnimation = true;
+				note.noMissAnimation = true;
+			}
+		});
+	}
 }
