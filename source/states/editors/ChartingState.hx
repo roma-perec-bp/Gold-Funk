@@ -2688,6 +2688,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var timeBarFakeNumStepper:PsychUINumericStepper;
 	var showYouCheckBox:PsychUICheckBox;
 	var differentOpponentSkinIputText:PsychUIInputText;
+	var transInCheckBox:PsychUICheckBox;
+	var transOutCheckBox:PsychUICheckBox;
+	var fullRestartCheckBox:PsychUICheckBox;
+
 	function addDataTab()
 	{
 		var tab_group = mainBox.getTab('Data').menu;
@@ -2784,7 +2788,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					noRGBCheckBox.cameras = state.cameras;
 					state.add(noRGBCheckBox);
 
-					disableTimeBarCheckBox = new PsychUICheckBox(noRGBCheckBox.x + 200, state.bg.y + 90, 'Force Disable TimeBar', 100, updateTimeBar);
+					disableTimeBarCheckBox = new PsychUICheckBox(noRGBCheckBox.x + 200, state.bg.y + 90, 'Force Disable TimeBar', 100, function(){PlayState.SONG.disableTimeBar = disableTimeBarCheckBox.checked;});
 					disableTimeBarCheckBox.cameras = state.cameras;
 					state.add(disableTimeBarCheckBox);
 
@@ -2856,7 +2860,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						if(cur.trim().length < 1) PlayState.SONG.holdSkin = null;
 					}
 
-					orignalColorsBox = new PsychUICheckBox(holdCoverInputText.x + 200, state.bg.y + 230, 'Original Health Bar color', 100, updateBars);
+					orignalColorsBox = new PsychUICheckBox(holdCoverInputText.x + 200, state.bg.y + 230, 'Original Health Bar color', 100, function(){PlayState.SONG.originalHealthColors = orignalColorsBox.checked;});
 					orignalColorsBox.cameras = state.cameras;
 					state.add(orignalColorsBox);
 
@@ -2875,11 +2879,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						trace('selected $character');
 					});
 
-					opponentBox = new PsychUICheckBox(staticArrowsMove.x + 200, state.bg.y + 300, 'Force Disable Opponent\'s notes', 100, updateDisableDad);
+					opponentBox = new PsychUICheckBox(staticArrowsMove.x + 200, state.bg.y + 300, 'Force Disable Opponent\'s notes', 100, function(){PlayState.SONG.opponentDisabled = opponentBox.checked;});
 					opponentBox.cameras = state.cameras;
 					state.add(opponentBox);
 
-					camGameComboCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 370, 'Put Combo Grafix on game camera', 100, updateCombo);
+					camGameComboCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 370, 'Put Combo Grafix on game camera', 100, function(){PlayState.SONG.comboInGameCam = camGameComboCheckBox.checked;});
 					camGameComboCheckBox.cameras = state.cameras;
 					state.add(camGameComboCheckBox);
 
@@ -2942,15 +2946,15 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					btn.cameras = state.cameras;
 					state.add(btn);
 
-					quietCountCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 90, 'Quiet Countdown', 100, updateQuiet);
+					quietCountCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 90, 'Quiet Countdown', 100, function(){PlayState.SONG.quietCountdown = quietCountCheckBox.checked;});
 					quietCountCheckBox.cameras = state.cameras;
 					state.add(quietCountCheckBox);
 
-					skipCountCheckBox = new PsychUICheckBox(quietCountCheckBox.x + 200, state.bg.y + 90, 'Skip Countdown', 100, updateSkip);
+					skipCountCheckBox = new PsychUICheckBox(quietCountCheckBox.x + 200, state.bg.y + 90, 'Skip Countdown', 100, function(){PlayState.SONG.skipCountdown = skipCountCheckBox.checked;});
 					skipCountCheckBox.cameras = state.cameras;
 					state.add(skipCountCheckBox);
 
-					skipArrowCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 160, 'Skip Arrow Tween', 100, updateArrowTween);
+					skipArrowCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 160, 'Skip Arrow Tween', 100, function(){PlayState.SONG.skipArrowTween = skipArrowCheckBox.checked;});
 					skipArrowCheckBox.cameras = state.cameras;
 					state.add(skipArrowCheckBox);
 
@@ -3014,15 +3018,15 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					state.add(countdownSuffixInputText);
 					state.add(new FlxText(countdownSuffixInputText.x, countdownSuffixInputText.y - 15, 500, 'Countdown Sound PostFix (EX: "-beatbox"):'));
 
-					swapMustHitCheckBox = new PsychUICheckBox(countdownSuffixInputText.x + 200, state.bg.y + 370, 'Swap Notes', 100, updateMust);
+					swapMustHitCheckBox = new PsychUICheckBox(countdownSuffixInputText.x + 200, state.bg.y + 370, 'Swap Notes', 100, function(){PlayState.SONG.swapMustPlay = swapMustHitCheckBox.checked;});
 					swapMustHitCheckBox.cameras = state.cameras;
 					state.add(swapMustHitCheckBox);
 
-					swapNotesCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 440, 'Swap Strums (MiddleScroll Won\'t work)', 100, updateSwap);
+					swapNotesCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 440, 'Swap Strums (MiddleScroll Won\'t work)', 100, function(){PlayState.SONG.swapNotes = swapNotesCheckBox.checked;});
 					swapNotesCheckBox.cameras = state.cameras;
 					state.add(swapNotesCheckBox);
 
-					swapPlayersCheckBox = new PsychUICheckBox(quietCountCheckBox.x + 200, state.bg.y + 440, 'Swap Singers', 100, updateSingers);
+					swapPlayersCheckBox = new PsychUICheckBox(quietCountCheckBox.x + 200, state.bg.y + 440, 'Swap Singers', 100, function(){PlayState.SONG.swapPlayers = swapPlayersCheckBox.checked;});
 					swapPlayersCheckBox.cameras = state.cameras;
 					state.add(swapPlayersCheckBox);
 
@@ -3118,18 +3122,18 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		{
 			upperBox.isMinimized = true;
 			upperBox.bg.visible = false;
-			openSubState(new BasePrompt(400, 500, 'Extra MetaData',
+			openSubState(new BasePrompt(400, 650, 'Extra MetaData',
 				function(state:BasePrompt)
 				{
 					var btn:PsychUIButton = new PsychUIButton(state.bg.x + state.bg.width - 40, state.bg.y, 'X', state.close, 40);
 					btn.cameras = state.cameras;
 					state.add(btn);
 
-					fadeOutStartCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 90, 'Fade Out at The Start of the Song', 100, updateFadeOut);
+					fadeOutStartCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 90, 'Fade Out at The Start of the Song', 100, function(){PlayState.SONG.fadeOutStart = fadeOutStartCheckBox.checked;});
 					fadeOutStartCheckBox.cameras = state.cameras;
 					state.add(fadeOutStartCheckBox);
 
-					fadeCountCheckBox = new PsychUICheckBox(fadeOutStartCheckBox.x + 200, state.bg.y + 90, 'Start FadeOut at Countdown', 100, updateFadeCountdown);
+					fadeCountCheckBox = new PsychUICheckBox(fadeOutStartCheckBox.x + 200, state.bg.y + 90, 'Start FadeOut at Countdown', 100, function(){PlayState.SONG.fadeCount = fadeCountCheckBox.checked;});
 					fadeCountCheckBox.cameras = state.cameras;
 					state.add(fadeCountCheckBox);
 
@@ -3143,23 +3147,23 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 					state.add(new FlxText(fadeDurationNumStepper.x, fadeDurationNumStepper.y - 15, 100, 'Fade Duration:'));
 
-					inFrontFadeCheckbox = new PsychUICheckBox(fadeDurationNumStepper.x + 200, state.bg.y + 160, 'Fade In Front of HUD', 100, updateInFrontFade);
+					inFrontFadeCheckbox = new PsychUICheckBox(fadeDurationNumStepper.x + 200, state.bg.y + 160, 'Fade In Front of HUD', 100, function(){PlayState.SONG.inFrontFade = inFrontFadeCheckbox.checked;});
 					inFrontFadeCheckbox.cameras = state.cameras;
 					state.add(inFrontFadeCheckbox);
 
-					disableSplashCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 230, 'Disable Splash', 100, disableSplashUpdate);
+					disableSplashCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 230, 'Disable Splash', 100, function(){PlayState.SONG.disableSplash = disableSplashCheckBox.checked;});
 					disableSplashCheckBox.cameras = state.cameras;
 					state.add(disableSplashCheckBox);
 
-					disableHoldCoverCheckBox = new PsychUICheckBox(disableSplashCheckBox.x + 200, state.bg.y + 230, 'Disable Hold Cover', 100, disableHoldCoverUpdate);
+					disableHoldCoverCheckBox = new PsychUICheckBox(disableSplashCheckBox.x + 200, state.bg.y + 230, 'Disable Hold Cover', 100, function(){PlayState.SONG.disableHoldCover = disableHoldCoverCheckBox.checked;});
 					disableHoldCoverCheckBox.cameras = state.cameras;
 					state.add(disableHoldCoverCheckBox);
 
-					disableHoldSparkleCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 300, 'Disable Hold Sparkle', 100, disableHoldSparkleUpdate);
+					disableHoldSparkleCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 300, 'Disable Hold Sparkle', 100, function(){PlayState.SONG.disableHoldSparkle = disableHoldSparkleCheckBox.checked;});
 					disableHoldSparkleCheckBox.cameras = state.cameras;
 					state.add(disableHoldSparkleCheckBox);
 
-					disableOpponentRGB = new PsychUICheckBox(disableHoldSparkleCheckBox.x + 200, state.bg.y + 300, 'Disable Opponent RGB Shader', 100, disableOpponentRGBUpdate);
+					disableOpponentRGB = new PsychUICheckBox(disableHoldSparkleCheckBox.x + 200, state.bg.y + 300, 'Disable Opponent RGB Shader', 100, function(){PlayState.SONG.disableDadRGB = disableOpponentRGB.checked;});
 					disableOpponentRGB.cameras = state.cameras;
 					state.add(disableOpponentRGB);
 
@@ -3171,7 +3175,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					};
 					state.add(timeBarFakeNumStepper);
 
-					showYouCheckBox = new PsychUICheckBox(timeBarFakeNumStepper.x + 200, state.bg.y + 370, 'Show YOU text under strums at the start', 100, showYOUupdate);
+					showYouCheckBox = new PsychUICheckBox(timeBarFakeNumStepper.x + 200, state.bg.y + 370, 'Show YOU text under strums at the start', 100, function(){PlayState.SONG.showYOUtext = showYouCheckBox.checked;});
 					showYouCheckBox.cameras = state.cameras;
 					state.add(showYouCheckBox);
 
@@ -3190,6 +3194,18 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 					state.add(new FlxText(differentOpponentSkinIputText.x, differentOpponentSkinIputText.y - 15, 180, 'Opponent Note Texture:'));
 
+					fullRestartCheckBox = new PsychUICheckBox(differentOpponentSkinIputText.x + 200, state.bg.y + 440, 'Full Reset On Restart', 100, function(){PlayState.SONG.fullRestart = fullRestartCheckBox.checked;});
+					fullRestartCheckBox.cameras = state.cameras;
+					state.add(fullRestartCheckBox);
+
+					transInCheckBox = new PsychUICheckBox(state.bg.x + 35, state.bg.y + 480, 'Transition In (StoryMode only)', 100, function(){PlayState.SONG.toggleTransIn = transInCheckBox.checked;});
+					transInCheckBox.cameras = state.cameras;
+					state.add(transInCheckBox);
+
+					transOutCheckBox = new PsychUICheckBox(transInCheckBox.x + 200, state.bg.y + 480, 'Transition Out (StoryMode only)', 100, function(){PlayState.SONG.toggleTransOut = transOutCheckBox.checked;});
+					transOutCheckBox.cameras = state.cameras;
+					state.add(transOutCheckBox);
+
 					fadeOutStartCheckBox.checked = (PlayState.SONG.fadeOutStart == true);
 					fadeCountCheckBox.checked = (PlayState.SONG.fadeCount == true);
 					fadeDurationNumStepper.value = PlayState.SONG.fadeDuration;
@@ -3201,6 +3217,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					timeBarFakeNumStepper.value = PlayState.SONG.timeBarFake;
 					disableOpponentRGB.checked = (PlayState.SONG.showYOUtext == true);
 					differentOpponentSkinIputText.text = PlayState.SONG.opponentArrowSkin;
+					fullRestartCheckBox.checked = (PlayState.SONG.fullRestart == true);
+					transInCheckBox.checked = (PlayState.SONG.toggleTransIn == true);
+					transOutCheckBox.checked = (PlayState.SONG.toggleTransOut == true);
 				}
 			));
 
@@ -5766,61 +5785,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		for (note in strumLineNotes)
 			note.rgbShader.enabled = !noRGBCheckBox.checked;
 	}
-
-	//TO DO: Later in six years add whole function with switch statements cuz.... yea....
-	inline public function updateTimeBar()
-		PlayState.SONG.disableTimeBar = disableTimeBarCheckBox.checked;
-
-	inline public function updateBars()
-		PlayState.SONG.originalHealthColors = orignalColorsBox.checked;
-
-	inline public function updateDisableDad()
-		PlayState.SONG.opponentDisabled = opponentBox.checked;
-
-	inline public function updateCombo()
-		PlayState.SONG.comboInGameCam = camGameComboCheckBox.checked;
-
-	inline public function updateQuiet()
-		PlayState.SONG.quietCountdown = quietCountCheckBox.checked;
-
-	inline public function updateSkip()
-		PlayState.SONG.skipCountdown = skipCountCheckBox.checked;
-
-	inline public function updateArrowTween()
-		PlayState.SONG.skipArrowTween = skipArrowCheckBox.checked;
-
-	inline public function updateSwap()
-		PlayState.SONG.swapNotes = swapNotesCheckBox.checked;
-
-	inline public function updateSingers()
-		PlayState.SONG.swapPlayers = swapPlayersCheckBox.checked;
-
-	inline public function updateMust()
-		PlayState.SONG.swapMustPlay = swapMustHitCheckBox.checked;
-
-	inline public function updateFadeOut()
-		PlayState.SONG.fadeOutStart = fadeOutStartCheckBox.checked;
-
-	inline public function updateInFrontFade()
-		PlayState.SONG.inFrontFade = inFrontFadeCheckbox.checked;
-
-	inline public function updateFadeCountdown()
-		PlayState.SONG.fadeCount = fadeCountCheckBox.checked;
-
-	inline public function disableSplashUpdate()
-		PlayState.SONG.disableSplash = disableSplashCheckBox.checked;
-
-	inline public function disableHoldCoverUpdate()
-		PlayState.SONG.disableHoldCover = disableHoldCoverCheckBox.checked;
-
-	inline public function disableHoldSparkleUpdate()
-		PlayState.SONG.disableHoldSparkle = disableHoldSparkleCheckBox.checked;
-
-	inline public function disableOpponentRGBUpdate()
-		PlayState.SONG.disableDadRGB = disableOpponentRGB.checked;
-
-	inline public function showYOUupdate()
-		PlayState.SONG.showYOUtext = showYouCheckBox.checked;
 
 	function updateGridVisibility()
 	{
