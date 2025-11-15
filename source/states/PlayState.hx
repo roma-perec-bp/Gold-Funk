@@ -3624,10 +3624,13 @@ class PlayState extends MusicBeatState
 				var leObj:FlxBasic = LuaUtils.getObjectDirectly(value1);
 				if(leObj != null)
 				{
-					var groupOrArray:Dynamic = CustomSubstate.instance != null ? CustomSubstate.instance : LuaUtils.getTargetInstance();
+					leObj.zIndex = value2;
+					refresh();
+
+					/*var groupOrArray:Dynamic = CustomSubstate.instance != null ? CustomSubstate.instance : LuaUtils.getTargetInstance();
 					groupOrArray.remove(leObj, true);
 					groupOrArray.insert(Std.parseInt(value2), leObj);
-					return;
+					return;*/
 				}
 				addTextToDebug('Change Object Layer event: Object $value3 doesn\'t exist!', FlxColor.RED);
 
