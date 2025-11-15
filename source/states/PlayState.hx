@@ -3624,8 +3624,14 @@ class PlayState extends MusicBeatState
 				var leObj:FlxBasic = LuaUtils.getObjectDirectly(value1);
 				if(leObj != null)
 				{
-					leObj.zIndex = value2;
+					var layer:Int = Std.parseInt(value2);
+
+					if(Math.isNaN(layer)) layer = 0;
+
+					leObj.zIndex = layer;
 					refresh();
+
+					return;
 
 					/*var groupOrArray:Dynamic = CustomSubstate.instance != null ? CustomSubstate.instance : LuaUtils.getTargetInstance();
 					groupOrArray.remove(leObj, true);
