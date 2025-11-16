@@ -7,6 +7,8 @@ import flixel.input.keyboard.FlxKey;
 import flixel.system.debug.log.LogStyle;
 import openfl.display.BitmapData;
 
+import backend.FullScreenScaleMode;
+
 import backend.WeekData;
 import backend.Highscore;
 import backend.Progression;
@@ -79,6 +81,8 @@ class InitState extends FlxState
 		#end
 
         setupFlixelDebug();
+
+        FlxG.scaleMode = new FullScreenScaleMode();
 
 		FlxG.switchState(new states.TitleState());
     }
