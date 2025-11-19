@@ -36,6 +36,8 @@ typedef CharacterFile = {
 	var iconBlend:String;
 	var iconFps24:Int;
 
+	var updateCamera:Bool;
+
 	var opponentArrows:Array<Array<String>>;
 
 	@:optional var _editor_isPlayer:Null<Bool>;
@@ -88,6 +90,8 @@ class Character extends FlxSprite
 	public var dropNoteCounts(default, null):Array<Int>;
 
 	public var loopedIdle:Bool = false;
+
+	public var followCharacter:Bool = false;
 
 	public var healthIcon:String = 'face';
 	public var iconOffsets:Array<Float> = [0, 0];
@@ -296,6 +300,8 @@ class Character extends FlxSprite
 		originalIconFlipX = (json.iconFlipX != isPlayer);
 		iconBlend = json.iconBlend;
 		iconFps24 = json.iconFps24 != null ? json.iconFps24 : 24;
+
+		followCharacter = json.updateCamera;
 		
 		//notes
 		opponentNoteColor = (json.opponentArrows != null ? json.opponentArrows : (PlayState.isPixelStage ? defaultPixelStringColor : defaultStringColor));

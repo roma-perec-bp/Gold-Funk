@@ -170,7 +170,6 @@ class PlayState extends MusicBeatState
 	public var eventNotes:Array<EventNote> = [];
 
 	public var cameraFollowPoint:FlxObject = new FlxObject();
-	var followCharacter:Bool = false;
     var noteCamOffset:Float = 30;
 
 	var curFocusedChar:String;
@@ -188,6 +187,8 @@ class PlayState extends MusicBeatState
 
 	var defaultNotesCameraZoom:Float = 0.95;
 	var camNotesBopMult:Float = 1.0;
+
+	var canUpdate:Bool = true;
 
 	public var camZoomingDecay:Float = 1;
 	public var camZoomingDecayHud:Float = 1;
@@ -364,6 +365,8 @@ class PlayState extends MusicBeatState
 
 	private static var _lastLoadedModDirectory:String = '';
 	public static var nextReloadAll:Bool = false;
+
+	var preloadedVideoAtLeastOnce:Bool = false;
 	override public function create()
 	{
 		//trace('Playback Rate: ' + playbackRate);
@@ -2518,7 +2521,25 @@ class PlayState extends MusicBeatState
 				Paths.sound(event.value1); //Precache sound
 
 			case 'Play Video':
-				startVideo(event.value1, true, true, false, false); //Precache video
+				/**
+				 * We have to do this to avoid issues with lag or the video being misplaced.
+				 * CREDITS TO INCOMPETENT PSYCH FOR THIS
+				*/
+				if(!preloadedVideoAtLeastOnce)
+				{
+					preloadedVideoAtLeastOnce = true;
+					videoCutscene = new VideoSprite(Paths.video('lol'), false, false, false);
+   			 		videoCutscene.alpha = 0.001;
+    				add(videoCutscene);
+				}
+
+				#if hxvlc
+				videoCutscene.play();
+				startVideo(event.value1, true, false, false, false);
+				trace('pre-loaded ' +  event.value1);
+				#end
+
+				//startVideo(event.value1, true, true, false, false); //Precache video
 		}
 		stagesFunc(function(stage:BaseStage) stage.eventPushedUnique(event));
 	}
@@ -2729,7 +2750,7 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float)
 	{
-		if(/*!inCutscene && */!paused && !freezeCamera) {
+		if(canUpdate && !paused && !freezeCamera) {
 			FlxG.camera.followLerp = 0.04 * cameraSpeed * playbackRate;
 			var idleAnim:Bool = ((PlayState.SONG.swapPlayers ? dad : boyfriend).getAnimationName().startsWith('idle') || (PlayState.SONG.swapPlayers ? dad : boyfriend).getAnimationName().startsWith('danceLeft') || (PlayState.SONG.swapPlayers ? dad : boyfriend).getAnimationName().startsWith('danceRight'));
 			if(!startingSong && !endingSong && idleAnim) {
@@ -2847,10 +2868,21 @@ class PlayState extends MusicBeatState
 			else
 				charBF = boyfriend;
 
-			if(curFocusedChar == 'bf' && charBF.getAnimationName() == "idle" || charBF.getAnimationName() == "danceLeft" || charBF.getAnimationName() == "danceRight")
+			if(curFocusedChar == 'bf')
 			{
-				FlxG.camera.targetOffset.x = 0;
-				FlxG.camera.targetOffset.y = 0;
+
+				if (charBF.followCharacter && canUpdate)
+				{
+					resetCamera(false, false, false);
+					//cancelCameraFollowTween();
+					cameraFollowPoint.setPosition(boyfriend.getMidpoint().x - boyfriend.cameraPosition[0] + boyfriendCameraOffset[0] - 100, boyfriend.getMidpoint().y + boyfriend.cameraPosition[1] + boyfriendCameraOffset[1] - 100);
+				}
+
+				if (charBF.getAnimationName() == "idle" || charBF.getAnimationName() == "danceLeft" || charBF.getAnimationName() == "danceRight")
+				{
+					FlxG.camera.targetOffset.x = 0;
+					FlxG.camera.targetOffset.y = 0;
+				}
 			}
 
 			if (SONG.notes[curSection].gfSection)
@@ -2858,10 +2890,20 @@ class PlayState extends MusicBeatState
 			else
 				char = dad;
 
-			if(curFocusedChar == 'dad' && (char.getAnimationName() == "idle" || char.getAnimationName() == "danceLeft" || char.getAnimationName() == "danceRight"))
+			if(curFocusedChar == 'dad')
 			{
-				FlxG.camera.targetOffset.x = 0;
-                FlxG.camera.targetOffset.y = 0;
+				if (char.followCharacter && canUpdate)
+				{
+					resetCamera(false, false, false);
+					//cancelCameraFollowTween();
+					cameraFollowPoint.setPosition(dad.getMidpoint().x + dad.cameraPosition[0] + opponentCameraOffset[0] + 150, dad.getMidpoint().y + dad.cameraPosition[1] + opponentCameraOffset[1] - 100);
+				}
+
+				if (char.getAnimationName() == "idle" || char.getAnimationName() == "danceLeft" || char.getAnimationName() == "danceRight")
+				{
+					FlxG.camera.targetOffset.x = 0;
+					FlxG.camera.targetOffset.y = 0;
+				}
 			}
 		}
 
@@ -5687,12 +5729,16 @@ class PlayState extends MusicBeatState
 				{
 					case 0:
 						FlxG.camera.targetOffset.x = -noteCamOffset;
+						FlxG.camera.targetOffset.y = 0;
 					case 1:
 						FlxG.camera.targetOffset.y = noteCamOffset;
+						FlxG.camera.targetOffset.x = 0;
 					case 2:
 						FlxG.camera.targetOffset.y = -noteCamOffset;
+						FlxG.camera.targetOffset.x = 0;
 					case 3:
 						FlxG.camera.targetOffset.x = noteCamOffset;
+						FlxG.camera.targetOffset.y = 0;
 				}
 			}
 		}
@@ -5854,12 +5900,16 @@ class PlayState extends MusicBeatState
 				{
 					case 0:
 						FlxG.camera.targetOffset.x = -noteCamOffset;
+						FlxG.camera.targetOffset.y = 0;
 					case 1:
 						FlxG.camera.targetOffset.y = noteCamOffset;
+						FlxG.camera.targetOffset.x = 0;
 					case 2:
 						FlxG.camera.targetOffset.y = -noteCamOffset;
+						FlxG.camera.targetOffset.x = 0;
 					case 3:
 						FlxG.camera.targetOffset.x = noteCamOffset;
+						FlxG.camera.targetOffset.y = 0;
 				}
 			}
 		}
@@ -6408,6 +6458,8 @@ class PlayState extends MusicBeatState
 		{
 			// Disable camera following for the duration of the tween.
 			FlxG.camera.target = null;
+
+			canUpdate = false;
 		
 			// Follow tween! Caching it so we can cancel/pause it later if needed.
 			var followPos:FlxBasePoint = FlxBasePoint.get(cameraFollowPoint.x - FlxG.camera.width * .5, cameraFollowPoint.y - FlxG.camera.height * .5);
@@ -6415,6 +6467,7 @@ class PlayState extends MusicBeatState
 			{
 				ease: ease,
 				onComplete: function(_) {
+					canUpdate = true;
 					resetCamera(false, false); // Re-enable camera following when the tween is complete.
 				}
 			});
