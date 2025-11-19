@@ -459,7 +459,9 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				iconScale: 1,
 				iconFlipX: false,
 				iconBlend: '',
-				iconFps24: 24
+				iconFps24: 24,
+
+				updateCamera: false
 			};
 
 			character.loadCharacterFile(_template);
