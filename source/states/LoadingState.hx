@@ -729,11 +729,11 @@ class LoadingState extends MusicBeatState
 			var isAnimateAtlas:Bool = false;
 			var img:String = character.image;
 			img = img.trim();
-			#if flxanimate
+
 			var animToFind:String = Paths.getPath('images/$img/Animation.json', TEXT);
 			if (#if MODS_ALLOWED FileSystem.exists(animToFind) || #end Assets.exists(animToFind))
 				isAnimateAtlas = true;
-			#end
+
 
 			if(!isAnimateAtlas)
 			{
@@ -743,7 +743,6 @@ class LoadingState extends MusicBeatState
 					imagesToPrepare.push(file.trim());
 				}
 			}
-			#if flxanimate
 			else
 			{
 				for (i in 0...10)
@@ -759,7 +758,6 @@ class LoadingState extends MusicBeatState
 					}
 				}
 			}
-			#end
 	
 			if (prefixVocals != null && character.vocals_file != null && character.vocals_file.length > 0)
 			{

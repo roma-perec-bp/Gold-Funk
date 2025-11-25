@@ -404,7 +404,7 @@ class PhillyStreets extends BaseStage
 		else
 			abot.lookLeft();
 
-		if(finishInstantly) abot.eyes.anim.curFrame = abot.eyes.anim.length - 1;
+		if(finishInstantly) abot.eyes.anim.frameIndex = 24;
 	}
 
 	override function startSong()
@@ -444,7 +444,7 @@ class PhillyStreets extends BaseStage
 		function createCan()
 		{
 			if(didCreateCan) return;
-			spraycan = new SpraycanAtlasSprite(spraycanPile.x + 530, spraycanPile.y - 240);
+			spraycan = new SpraycanAtlasSprite(spraycanPile.x + 250, spraycanPile.y - 840);
 			add(spraycan);
 
 			lightCanSnd = new FlxSound();

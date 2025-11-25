@@ -145,8 +145,7 @@ class Tank extends BaseStage
 		inCutscene = true;
 
 		tankman = new FlxAnimate(dad.x + 419, dad.y + 225);
-		tankman.showPivot = false;
-		Paths.loadAnimateAtlas(tankman, 'cutscenes/tankman');
+		tankman.frames = Paths.loadAnimateAtlas('cutscenes/tankman',null, null, 'week7');
 		tankman.antialiasing = ClientPrefs.data.antialiasing;
 		addBehindDad(tankman);
 		cutsceneHandler.push(tankman);
@@ -280,6 +279,7 @@ class Tank extends BaseStage
 		});
 	}
 	var dualWieldAnimPlayed = 0;
+	var _lastPlayedAnimation:String;
 	function stressIntro()
 	{
 		prepareCutscene();
@@ -296,8 +296,7 @@ class Tank extends BaseStage
 		Paths.sound('stressCutscene');
 
 		pico = new FlxAnimate(gf.x + 150, gf.y + 450);
-		pico.showPivot = false;
-		Paths.loadAnimateAtlas(pico, 'cutscenes/picoAppears');
+		pico.frames = Paths.loadAnimateAtlas('cutscenes/picoAppears',null, null, 'week7');
 		pico.antialiasing = ClientPrefs.data.antialiasing;
 		pico.anim.addBySymbol('dance', 'GF Dancing at Gunpoint', 24, true);
 		pico.anim.addBySymbol('dieBitch', 'GF Time to Die sequence', 24, false);
@@ -309,9 +308,10 @@ class Tank extends BaseStage
 
 		// prepare pico animation cycle
 		function picoStressCycle() {
-			switch (pico.anim.curInstance.symbol.name) {
-				case "dieBitch", "GF Time to Die sequence":
+			switch (_lastPlayedAnimation) {
+				case "dieBitch":
 					pico.anim.play('picoAppears', true);
+					_lastPlayedAnimation = 'picoAppears';
 					boyfriendGroup.alpha = 1;
 					boyfriendCutscene.visible = false;
 					boyfriend.playAnim('bfCatch', true);
@@ -323,16 +323,19 @@ class Tank extends BaseStage
 							boyfriend.animation.curAnim.finish(); //Instantly goes to last frame
 						}
 					};
-				case "picoAppears", "Pico Saves them sequence":
+				case "picoAppears":
 					pico.anim.play('picoEnd', true);
-				case "picoEnd", "Pico Dual Wield on Speaker idle":
+					_lastPlayedAnimation = 'picoEnd';
+				case "picoEnd":
 					gfGroup.alpha = 1;
+
 					pico.visible = false;
-					if (pico.anim.onComplete.has(picoStressCycle)) // for safety
-						pico.anim.onComplete.remove(picoStressCycle);
+					if (pico.anim.onFinish.has((_name:String) -> {picoStressCycle();}))  // for safety
+						pico.anim.onFinish.remove((_name:String) -> {picoStressCycle();});
+
 			}
 		}
-		pico.anim.onComplete.add(picoStressCycle);
+		pico.anim.onFinish.add((_name:String) -> {picoStressCycle();});
 
 		boyfriendCutscene = new FlxSprite(boyfriend.x + 5, boyfriend.y + 20);
 		boyfriendCutscene.antialiasing = ClientPrefs.data.antialiasing;
@@ -362,6 +365,7 @@ class Tank extends BaseStage
 			game.cameraFollowPoint.setPosition(650, 300);
 
 			pico.anim.play('dieBitch', true);
+			_lastPlayedAnimation = 'dieBitch';
 		});
 
 		cutsceneHandler.timer(17.5, function()

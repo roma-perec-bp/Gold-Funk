@@ -6478,6 +6478,8 @@ class PlayState extends MusicBeatState
 	{
 		if (cameraFollowTween != null)
 			cameraFollowTween.cancel();
+
+		canUpdate = true;
 	}
 		
 	/**

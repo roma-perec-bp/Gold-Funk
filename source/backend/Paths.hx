@@ -545,12 +545,12 @@ class Paths
 	}
 	#end
 
-	#if flxanimate
-	public static function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:Dynamic, spriteJson:Dynamic = null, animationJson:Dynamic = null)
+	public static function loadAnimateAtlas(folderOrImg:Dynamic, spriteJson:Dynamic = null, animationJson:Dynamic = null, parentFolder:String = null):FlxAnimateFrames
 	{
 		var changedAnimJson = false;
 		var changedAtlasJson = false;
 		var changedImage = false;
+		var originalPath:String = '';
 		
 		if(spriteJson != null)
 		{
@@ -567,7 +567,7 @@ class Paths
 		// is folder or image path
 		if(Std.isOfType(folderOrImg, String))
 		{
-			var originalPath:String = folderOrImg;
+			originalPath = folderOrImg;
 			for (i in 0...10)
 			{
 				var st:String = '$i';
@@ -612,7 +612,7 @@ class Paths
 		//trace(folderOrImg);
 		//trace(spriteJson);
 		//trace(animationJson);
-		spr.loadAtlasEx(folderOrImg, spriteJson, animationJson);
+		var parentFrames:FlxAnimateFrames = FlxAnimateFrames.fromAnimate(getPath('images/' + originalPath, parentFolder));
+		return parentFrames;
 	}
-	#end
 }
