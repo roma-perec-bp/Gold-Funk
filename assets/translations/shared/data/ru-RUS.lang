@@ -135,13 +135,13 @@ description_discord_rich_presence: "Uncheck this to prevent accidental leaks, it
 //setting_combo_stacking: "Combo Stacking"
 description_combo_stacking: "If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read"
 
-//setting_downscroll: "Downscroll"
+//setting_downscroll: "Низкий Скролл"
 description_downscroll: "If checked, notes go Down instead of Up, simple enough."
 
-//setting_middlescroll: "Middlescroll"
+//setting_middlescroll: "Средний Скролл"
 description_middlescroll: "If checked, your notes get centered."
 
-setting_opponent_notes: "Opponent Notes"
+setting_opponent_notes: "Ноты Противника"
 description_opponent_notes: "If unchecked, opponent notes get hidden."
 
 setting_ghost_tapping: "Ghost Tapping"
