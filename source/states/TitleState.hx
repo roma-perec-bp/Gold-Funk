@@ -234,9 +234,7 @@ class TitleState extends MusicBeatState
 					}
 				}
 				catch(e:haxe.Exception)
-				{
 					trace('[WARN] Title JSON might broken, ignoring issue...\n${e.details()}');
-				}
 			}
 			else trace('[WARN] No Title JSON detected, using default values.');
 		}
@@ -289,9 +287,7 @@ class TitleState extends MusicBeatState
 		var swagGoodArray:Array<Array<String>> = [];
 
 		for (i in firstArray)
-		{
 			swagGoodArray.push(i.split('--'));
-		}
 
 		return swagGoodArray;
 	}
@@ -312,12 +308,7 @@ class TitleState extends MusicBeatState
 
 		#if mobile
 		for (touch in FlxG.touches.list)
-		{
-			if (touch.justPressed)
-			{
-				pressedEnter = true;
-			}
-		}
+			if (touch.justPressed) pressedEnter = true;
 		#end
 
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
@@ -436,9 +427,7 @@ class TitleState extends MusicBeatState
 		}
 
 		if (initialized && pressedEnter && !skippedIntro)
-		{
 			skipIntro();
-		}
 
 		if(swagShader != null)
 		{
@@ -626,9 +615,7 @@ class TitleState extends MusicBeatState
 				{
 					FlxG.sound.music.fadeOut();
 					if(FreeplayState.vocals != null)
-					{
 						FreeplayState.vocals.fadeOut();
-					}
 				}
 				#end
 			}

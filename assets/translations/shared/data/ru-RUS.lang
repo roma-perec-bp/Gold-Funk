@@ -135,13 +135,13 @@ description_discord_rich_presence: "Uncheck this to prevent accidental leaks, it
 //setting_combo_stacking: "Combo Stacking"
 description_combo_stacking: "If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read"
 
-//setting_downscroll: "Downscroll"
+//setting_downscroll: "Низкий Скролл"
 description_downscroll: "If checked, notes go Down instead of Up, simple enough."
 
-//setting_middlescroll: "Middlescroll"
+//setting_middlescroll: "Средний Скролл"
 description_middlescroll: "If checked, your notes get centered."
 
-setting_opponent_notes: "Opponent Notes"
+setting_opponent_notes: "Ноты Противника"
 description_opponent_notes: "If unchecked, opponent notes get hidden."
 
 setting_ghost_tapping: "Ghost Tapping"
@@ -170,9 +170,6 @@ description_bad_hit_window: "Changes the amount of time you have\nfor hitting a 
 
 setting_safe_frames: "Safe Frames"
 description_safe_frames: "Changes how many frames you have for\nhitting a note earlier or late."
-
-setting_sustains_as_one_note: "Sustains as One Note"
-description_sustains_as_one_note: "If checked, Hold Notes can't be pressed if you miss,\nand count as a single Hit/Miss.\nUncheck this if you prefer the old Input System."
 
 // Control Rebinding
 controls_rebinding: "Rebinding {1}"
@@ -235,12 +232,12 @@ personal_best: "РЕКОРД: {1} ({2}%)"
 
 now_loading: "Загрузка{1}"
 
-reload_button: "RELOAD"
-enable_all_button: "ENABLE ALL"
-disable_all_button: "DISABLE ALL"
-no_mods_installed: "NO MODS INSTALLED\nPRESS BACK TO EXIT OR INSTALL A MOD"
-no_mods_found: "No Mods found."
-mod_restart: "* Moving or Toggling On/Off this Mod will restart the game."
+reload_button: "ПЕРЕЗАГРУЗКА"
+enable_all_button: "ВКЛЮЧИТЬ ВСЁ"
+disable_all_button: "ВЫКЛЮЧИТЬ ВСЕ"
+no_mods_installed: "МОДЫ НЕ УСТАНОВЛЕНЫ\nНАЖМИТЕ «НАЗАД» ЧТОБЫ ВЫХОДИТЬ ИЛИ УСТАНОВИТЬ МОД."
+no_mods_found: "Моды не найдены."
+mod_restart: "* Перемещение или включение/выключение этого мода перезапустит игру."
 
 botplay: "Ботплей"
 
