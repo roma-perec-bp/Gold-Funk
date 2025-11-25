@@ -171,9 +171,6 @@ description_bad_hit_window: "Changes the amount of time you have\nfor hitting a 
 setting_safe_frames: "Safe Frames"
 description_safe_frames: "Changes how many frames you have for\nhitting a note earlier or late."
 
-setting_sustains_as_one_note: "Sustains as One Note"
-description_sustains_as_one_note: "If checked, Hold Notes can't be pressed if you miss,\nand count as a single Hit/Miss.\nUncheck this if you prefer the old Input System."
-
 // Control Rebinding
 controls_rebinding: "Rebinding {1}"
 controls_rebinding2: "Hold ESC to Cancel\nHold Backspace to Delete"
@@ -235,12 +232,12 @@ personal_best: "РЕКОРД: {1} ({2}%)"
 
 now_loading: "Загрузка{1}"
 
-reload_button: "RELOAD"
-enable_all_button: "ENABLE ALL"
-disable_all_button: "DISABLE ALL"
-no_mods_installed: "NO MODS INSTALLED\nPRESS BACK TO EXIT OR INSTALL A MOD"
-no_mods_found: "No Mods found."
-mod_restart: "* Moving or Toggling On/Off this Mod will restart the game."
+reload_button: "ПЕРЕЗАГРУЗКА"
+enable_all_button: "ВКЛЮЧИТЬ ВСЁ"
+disable_all_button: "ВЫКЛЮЧИТЬ ВСЕ"
+no_mods_installed: "МОДЫ НЕ УСТАНОВЛЕНЫ\nНАЖМИТЕ «НАЗАД» ЧТОБЫ ВЫХОДИТЬ ИЛИ УСТАНОВИТЬ МОД."
+no_mods_found: "Моды не найдены."
+mod_restart: "* Перемещение или включение/выключение этого мода перезапустит игру."
 
 botplay: "Ботплей"
 
