@@ -1,5 +1,7 @@
 package backend;
 
+//CODE FROM WEDNESDAY INFIDELITY
+
 class Progression
 {
 	public static var weekProgress:Map<String, {song:Array<String>, weekMisees:Int, weekSocre:Int}> = [];
