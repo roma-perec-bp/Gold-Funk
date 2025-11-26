@@ -54,6 +54,7 @@ class PauseSubState extends MusicBeatSubstate
 			menuItemsOG.insert(3 + num, 'End Song');
 			menuItemsOG.insert(4 + num, 'Toggle Practice Mode');
 			menuItemsOG.insert(5 + num, 'Toggle Botplay');
+			if (PlayState.isStoryMode && PlayState.storyPlaylist.length <= 0) menuItemsOG.insert(6 + num, 'Skip Song');
 		} else if(PlayState.instance.practiceMode && !PlayState.instance.startingSong)
 			menuItemsOG.insert(3, 'Skip Time');
 		menuItems = menuItemsOG;
@@ -422,6 +423,11 @@ class PauseSubState extends MusicBeatSubstate
 						}
 						close();
 					}
+				case 'Skip Song':
+					close();
+					PlayState.chartingMode = false;
+					PlayState.instance.KillNotes();
+					FlxG.sound.music.onComplete();
 				case 'End Song':
 					close();
 					PlayState.instance.notes.clear();

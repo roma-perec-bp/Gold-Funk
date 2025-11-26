@@ -24,7 +24,7 @@ class GraphicCursorCross extends BitmapData {}
 class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
 	var character:Character;
-	var ghost:FlxAnimate;
+	var ghost:Character;
 	var cameraFollowPointer:FlxSprite;
 	var isAnimateSprite:Bool = false;
 
@@ -103,11 +103,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		silhouettes.add(boyfriend);
 
 		silhouettes.alpha = 0.25;
-
-		ghost = new FlxAnimate();
-		ghost.visible = false;
-		ghost.alpha = ghostAlpha;
-		add(ghost);
 		
 		animsTxt = new FlxText(10, 32, 400, '');
 		animsTxt.setFormat(null, 16, FlxColor.WHITE, LEFT, OUTLINE_FAST, FlxColor.BLACK);
@@ -246,14 +241,15 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 	function addCharacter(reload:Bool = false)
 	{
-		var pos:Int = -1;
 		if(character != null)
 		{
-			pos = members.indexOf(character);
+			remove(ghost);
+			ghost.destroy();
+
 			remove(character);
 			character.destroy();
 		}
-
+		
 		var isPlayer = (reload ? character.isPlayer : !predictCharacterIsNotPlayer(_char));
 		character = new Character(0, 0, _char, isPlayer);
 		if(!reload && character.editorIsPlayer != null && isPlayer != character.editorIsPlayer)
@@ -265,9 +261,26 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		}
 		character.debugMode = true;
 		character.missingCharacter = false;
+		add(character);
 
-		if(pos > -1) insert(pos, character);
-		else add(character);
+		ghost = new Character(0, 0, _char, isPlayer);
+		if(!reload && ghost.editorIsPlayer != null && isPlayer != ghost.editorIsPlayer)
+		{
+			ghost.isPlayer = !ghost.isPlayer;
+			ghost.flipX = (ghost.originalFlipX != ghost.isPlayer);
+			ghost.iconFlipX = (ghost.originalIconFlipX != ghost.isPlayer);
+			if(check_player != null) check_player.checked = ghost.isPlayer;
+		}
+		ghost.debugMode = true;
+		ghost.missingCharacter = false;
+
+		ghost.visible = false;
+		ghost.alpha = ghostAlpha;
+		add(ghost);
+
+		character.zIndex = 200;
+		ghost.zIndex = 100;
+		refresh();
 		updateCharacterPositions();
 		reloadAnimList();
 		if(healthBar != null && healthIcon != null) updateHealthBar();
@@ -302,58 +315,35 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	{
 		var tab_group = UI_box.getTab('Ghost').menu;
 
-		//var hideGhostButton:PsychUIButton = null;
 		var makeGhostButton:PsychUIButton = new PsychUIButton(25, 15, "Make Ghost", function() {
-			var anim = anims[curAnim];
-			if(!character.isAnimationNull())
+			var myAnim = anims[curAnim];
+			if(!character.isAnimateAtlas)
 			{
-				var myAnim = anims[curAnim];
-				if(!character.isAnimateAtlas)
-				{
-					ghost.loadGraphic(character.graphic);
-					ghost.frames.frames = character.frames.frames;
-					ghost.anim.copyFrom(character.anim);
-					ghost.anim.play(character.anim.curAnim.name, true, false, character.animation.curAnim.curFrame);
-				}
-				else
-				{
-					ghost.frames = Paths.loadAnimateAtlas(character.imageFile);
-					
-					if(myAnim.indices != null && myAnim.indices.length > 0)
-						ghost.anim.addBySymbolIndices('anim', myAnim.name, myAnim.indices, 0, false);
-					else
-						ghost.anim.addBySymbol('anim', myAnim.name, 0, false);
+				ghost.animation.play(character.animation.curAnim.name, true, false, character.animation.curAnim.curFrame);
+				ghost.animation.pause();
 
-					ghost.anim.play('anim', true, false);
-				}
-
-				ghost.anim.pause();
-				
-				ghost.setPosition(character.x, character.y);
-				ghost.antialiasing = character.antialiasing;
-				ghost.flipX = character.flipX;
-				ghost.alpha = ghostAlpha;
-
-				ghost.scale.set(character.scale.x, character.scale.y);
-				ghost.updateHitbox();
-
-				ghost.offset.set(character.offset.x, character.offset.y);
-				ghost.visible = true;
-
-				var otherSpr:FlxAnimate = ghost;
-				if(otherSpr != null) otherSpr.visible = false;
-
-				trace('created ghost image');
+				trace('non');
 			}
-		});
+			else
+			{
+				ghost.anim.play(character.animation.curAnim.name, true, false, character.animation.curAnim.curFrame);
+				ghost.anim.pause();
 
-		/*hideGhostButton = new PsychUIButton(20 + makeGhostButton.width, makeGhostButton.y, "Hide Ghost", function() {
-			ghost.visible = false;
-			hideGhostButton.active = false;
-			hideGhostButton.alpha = 0.6;
+				trace('yeah');
+			}
+				
+			ghost.setPosition(character.x, character.y);
+			ghost.antialiasing = character.antialiasing;
+			ghost.flipX = character.flipX;
+			ghost.alpha = ghostAlpha;
+
+			ghost.scale.copyFrom(ghost.scale);
+			ghost.updateHitbox();
+
+			ghost.offset.set(character.offset.x, character.offset.y);
+			ghost.visible = true;
+			trace('created ghost image');
 		});
-		hideGhostButton.active = false;
-		hideGhostButton.alpha = 0.6;*/
 
 		var highlightGhost:PsychUICheckBox = new PsychUICheckBox(20 + makeGhostButton.x + makeGhostButton.width, makeGhostButton.y, "Highlight Ghost", 100);
 		highlightGhost.onClick = function()
