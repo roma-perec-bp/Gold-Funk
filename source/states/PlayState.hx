@@ -5425,7 +5425,7 @@ class PlayState extends MusicBeatState
 
 		var charMiss:Character = daNote.gfNote ? gf : boyfriend;
 		if(PlayState.SONG.swapPlayers) char = dad;
-		if (charMiss != null && !charMiss.isAnimateAtlas) frozenCharacters.set(charMiss, false);
+		if (charMiss != null) frozenCharacters.set(charMiss, false);
 	}
 
 	function opponentNoteMiss(daNote:Note):Void {
@@ -5654,7 +5654,7 @@ class PlayState extends MusicBeatState
 
 		var charPlay:Character = note.gfNote ? gf : dad;
 		if(PlayState.SONG.swapPlayers) charPlay = boyfriend;
-		if (charPlay != null && !charPlay.isAnimateAtlas) preNoteHitCheck(note, charPlay);
+		if (charPlay != null) preNoteHitCheck(note, charPlay);
 
 		var heyAnimation:String = 'hey';
 
@@ -5749,7 +5749,7 @@ class PlayState extends MusicBeatState
 
 		var charSus:Character = note.gfNote ? gf : dad;
 		if(PlayState.SONG.swapPlayers) charSus = boyfriend;
-		if (charSus != null && !charSus.isAnimateAtlas) noteHitCheck(note, charSus);
+		if (charSus != null) noteHitCheck(note, charSus);
 
 		if (!note.isSustainNote) invalidateNote(note);
 	}
@@ -5770,7 +5770,7 @@ class PlayState extends MusicBeatState
 
 		var charPlay:Character = note.gfNote ? gf : boyfriend;
 		if(PlayState.SONG.swapPlayers) charPlay = dad;
-		if (charPlay != null && !charPlay.isAnimateAtlas) preNoteHitCheck(note, charPlay);
+		if (charPlay != null) preNoteHitCheck(note, charPlay);
 
 		note.wasGoodHit = true;
 		note.noteWasHit = true; //пиздец что эту переменную не использовали
@@ -5928,7 +5928,7 @@ class PlayState extends MusicBeatState
 
 		var charSus:Character = note.gfNote ? gf : boyfriend;
 		if(PlayState.SONG.swapPlayers) charSus = dad;
-		if (charSus != null && !charSus.isAnimateAtlas) noteHitCheck(note, charSus);
+		if (charSus != null) noteHitCheck(note, charSus);
 
 		if(!note.isSustainNote && !note.badassed) invalidateNote(note);
 	}
@@ -6711,12 +6711,9 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
-	//TO DOL FIX SHIT FOR ATLAS SPRITES
 	function doGhostAnim(char:String, animToPlay:String, mode:String, ?noteNum:Int)
 	{
 		//if(onlyChart) return;
-
-		var ghost:FlxSprite = new FlxSprite();
 		var player:Character = dad;
 	
 		switch(char.toLowerCase().trim())
@@ -6728,105 +6725,101 @@ class PlayState extends MusicBeatState
 			case 'gf':
 				player = gf;
 		}
+
+		var ghost:Character = new Character(0, 0, player.curCharacter, player.isPlayer);
+
+		ghost.flipX = player.flipX;
+		ghost.debugMode = true;
 	
-		if (player.animation != null)
+		ghost.setPosition(player.x, player.y);
+
+		if(!ghost.isAnimateAtlas)
+			ghost.animation.play(player.animation.curAnim.name, true, false, player.animation.curAnim.curFrame);
+		else
+			ghost.anim.play(player.animation.curAnim.name, true, false, player.animation.curAnim.curFrame);
+
+		ghost.scale.copyFrom(player.scale);
+		ghost.updateHitbox();
+
+		if(player.blend == null)
+			ghost.blend = LuaUtils.blendModeFromString('HARDLIGHT');
+		else
+			ghost.blend = player.blend;
+
+		ghost.scrollFactor.set(player.scrollFactor.x, player.scrollFactor.y);
+
+		ghost.offset.set(player.offset.x, player.offset.y);
+
+		ghost.alpha = player.alpha - 0.3;
+		ghost.shader = player.shader;
+		ghost.angle = player.angle;
+		ghost.antialiasing = ClientPrefs.data.antialiasing ? !player.noAntialiasing : false;
+		ghost.visible = true;
+
+		ghost.color = FlxColor.fromRGB(player.healthColorArray[0] + 50, player.healthColorArray[1] + 50, player.healthColorArray[2] + 50);
+
+		ghost.velocity.x = 0;
+		ghost.velocity.y = 0;
+
+		switch (mode)
 		{
-			ghost.frames = player.frames;
-	
-			// Check for null before copying from player.animation
-			if (player.animation != null)
-				ghost.animation.copyFrom(player.animation);
-	
-			ghost.x = player.x;
-			ghost.y = player.y;
-			ghost.animation.play(animToPlay, true, false);
-			
-			ghost.scale.copyFrom(player.scale);
-			ghost.updateHitbox();
-	
-			// Check for null before accessing animOffsets
-			if (player.animOffsets != null && player.animOffsets.exists(animToPlay))
-				ghost.offset.set(player.animOffsets.get(animToPlay)[0], player.animOffsets.get(animToPlay)[1]);
-	
-			ghost.flipX = player.flipX;
-			ghost.flipY = player.flipY;
+			case 'Arrow Movement Ghost':
+				switch(noteNum)
+				{
+					case 0:
+						ghost.velocity.x = -140;
+					case 1:
+						ghost.velocity.y = 140;
+					case 2:
+						ghost.velocity.y = -140;
+					case 3:
+						ghost.velocity.x = 140;
+				}
+			case 'Ascend Ghost':
+				ghost.velocity.y = FlxG.random.int(-240, -275);
+				ghost.velocity.x = FlxG.random.int(-100, 100);
 
-			if(player.blend == '')
-				ghost.blend = HARDLIGHT;
-			else
-				ghost.blend = player.blend;
+			case 'Fall Ghost':
+				ghost.velocity.y = FlxG.random.int(240, 275);
+				ghost.velocity.x = FlxG.random.int(-100, 100);
 
-			ghost.scrollFactor.set(player.scrollFactor.x, player.scrollFactor.y);
+			case 'Left Velocity Ghost':
+				ghost.velocity.x = -140;
 
-			ghost.alpha = player.alpha - 0.3;
-			ghost.shader = player.shader;
-			ghost.angle = player.angle;
-			ghost.antialiasing = ClientPrefs.data.antialiasing ? !player.noAntialiasing : false;
-			ghost.visible = true;
+			case 'Right Velocity Ghost':
+				ghost.velocity.x = 140;
 
-			ghost.color = FlxColor.fromRGB(player.healthColorArray[0] + 50, player.healthColorArray[1] + 50, player.healthColorArray[2] + 50);
-
-			ghost.velocity.x = 0;
-			ghost.velocity.y = 0;
-
-			switch (mode)
-			{
-				case 'Arrow Movement Ghost':
-					switch(noteNum)
-					{
-						case 0:
-							ghost.velocity.x = -140;
-						case 1:
-							ghost.velocity.y = 140;
-						case 2:
-							ghost.velocity.y = -140;
-						case 3:
-							ghost.velocity.x = 140;
-					}
-				case 'Ascend Ghost':
-					ghost.velocity.y = FlxG.random.int(-240, -275);
-					ghost.velocity.x = FlxG.random.int(-100, 100);
-
-				case 'Fall Ghost':
-					ghost.velocity.y = FlxG.random.int(240, 275);
-					ghost.velocity.x = FlxG.random.int(-100, 100);
-
-				case 'Left Velocity Ghost':
-					ghost.velocity.x = -140;
-
-				case 'Right Velocity Ghost':
-					ghost.velocity.x = 140;
-
-				case 'Left and Right Velocity Ghost':
-					switch(noteNum)
-					{
-						case 0 | 1:
-							ghost.velocity.x = -140;
-						case 2 | 3:
-							ghost.velocity.x = 140;
-					}
-				case 'Random Left and Right Velocity Ghost':
-					ghost.velocity.x = FlxG.random.int(-140, 140);
-			}
-
-			switch(char.toLowerCase().trim())
-			{
-				case 'bf' | 'boyfriend':
-					insert(members.indexOf(boyfriendGroup), ghost);
-				case 'dad':
-					insert(members.indexOf(dadGroup), ghost);
-				case 'gf':
-					insert(members.indexOf(gfGroup), ghost);
-			}
-	
-			FlxTween.tween(ghost, {alpha: 0}, Conductor.crochet * 0.002, {
-				ease: FlxEase.linear,
-					onComplete: function(twn:FlxTween)
-					{
-						ghost.destroy();
-					}
-			});
+			case 'Left and Right Velocity Ghost':
+				switch(noteNum)
+				{
+					case 0 | 1:
+						ghost.velocity.x = -140;
+					case 2 | 3:
+						ghost.velocity.x = 140;
+				}
+			case 'Random Left and Right Velocity Ghost':
+				ghost.velocity.x = FlxG.random.int(-140, 140);
 		}
+
+		switch(char.toLowerCase().trim())
+		{
+			case 'bf' | 'boyfriend':
+				insert(members.indexOf(boyfriendGroup), ghost);
+			case 'dad':
+				insert(members.indexOf(dadGroup), ghost);
+			case 'gf':
+				insert(members.indexOf(gfGroup), ghost);
+		}
+	
+		FlxTween.tween(ghost, {alpha: 0}, Conductor.crochet * 0.002, {
+			ease: FlxEase.linear,
+				onComplete: function(twn:FlxTween)
+				{
+					ghost.destroy();
+					ghost.kill();
+					remove(ghost, true);
+				}
+		});
 	}
 
 	function strumPlayAnim(isDad:Bool, id:Int, time:Float, note:Note) {

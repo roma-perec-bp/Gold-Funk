@@ -256,7 +256,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		{
 			character.isPlayer = !character.isPlayer;
 			character.flipX = (character.originalFlipX != character.isPlayer);
-			character.iconFlipX = (character.originalIconFlipX != character.isPlayer);
 			if(check_player != null) check_player.checked = character.isPlayer;
 		}
 		character.debugMode = true;
@@ -321,15 +320,11 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			{
 				ghost.animation.play(character.animation.curAnim.name, true, false, character.animation.curAnim.curFrame);
 				ghost.animation.pause();
-
-				trace('non');
 			}
 			else
 			{
 				ghost.anim.play(character.animation.curAnim.name, true, false, character.animation.curAnim.curFrame);
 				ghost.anim.pause();
-
-				trace('yeah');
 			}
 				
 			ghost.setPosition(character.x, character.y);
@@ -337,7 +332,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			ghost.flipX = character.flipX;
 			ghost.alpha = ghostAlpha;
 
-			ghost.scale.copyFrom(ghost.scale);
+			ghost.scale.copyFrom(character.scale);
 			ghost.updateHitbox();
 
 			ghost.offset.set(character.offset.x, character.offset.y);
