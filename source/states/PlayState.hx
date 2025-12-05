@@ -282,6 +282,8 @@ class PlayState extends MusicBeatState
 	public var songScore:Int = 0;
 	public var songHits:Int = 0;
 	public var songMisses:Int = 0;
+	public var rank:Int = 0;
+
 	public var scoreTxt:FlxText;
 	public var subtitlesTxt:FlxText;
 	var timeTxt:FlxText;
@@ -777,16 +779,6 @@ class PlayState extends MusicBeatState
 		{
 			for (event in eventNotes) event.strumTime -= eventEarlyTrigger(event);
 			eventNotes.sort(sortByTime);
-		}
-
-		if (unspawnNotes[0] != null)
-		{
-			for (i in unspawnNotes)
-				if(!i.ignoreNote && !i.isInvisible && !i.hitCausesMiss)
-				{
-					skipTime = i.strumTime - Conductor.crochet;
-					break;
-				}
 		}
 
 		startCallback();
@@ -1324,7 +1316,6 @@ class PlayState extends MusicBeatState
 		reloadChars();
 
 		noteCamOffset = SONG.followCamOffset;
-		skipText.alpha = 0;
 
 		if (PlayState.SONG.fadeOutStart)
 		{
@@ -1366,8 +1357,6 @@ class PlayState extends MusicBeatState
 		ratingsData[3].hits = 0;
 
 		updateScoreText();
-		
-		startedCountdown = false;
 
 		FlxG.sound.music.pause();
 		vocals.pause();
@@ -1377,6 +1366,15 @@ class PlayState extends MusicBeatState
 		vocals.time = 0;
 		opponentVocals.time = 0;
 		Conductor.songPosition = 0;
+
+		startingSong = true;
+		startedCountdown = false;
+		updateTime = false;
+		timeTxt.alpha = 0;
+		timeBar.alpha = 0;
+		timeBarBG.alpha = 0;
+		songLength = 0;
+		canResync = false;
 
 		isDead = false;
 
@@ -1425,6 +1423,8 @@ class PlayState extends MusicBeatState
 
 		vwooshTimer = new FlxTimer().start(vwooshDelay, function(_) {
 			needsToReset = true;
+			updateTime = true;
+			canResync = true;
 			generateNotes(true);
 
 			if(eventNotes.length > 0)
@@ -1532,6 +1532,15 @@ class PlayState extends MusicBeatState
 		opponentVocals.time = 0;
 		Conductor.songPosition = 0;
 
+		startingSong = true;
+		startedCountdown = false;
+		updateTime = false;
+		timeTxt.alpha = 0;
+		timeBar.alpha = 0;
+		timeBarBG.alpha = 0;
+		songLength = 0;
+		canResync = false;
+
 		health = 1;
 
 		for (note in notes.members)
@@ -1592,6 +1601,8 @@ class PlayState extends MusicBeatState
 
 		vwooshTimer = new FlxTimer().start(vwooshDelay, function(_) {
 			needsToReset = true;
+			updateTime = true;
+			canResync = true;
 			generateNotes(true);
 
 			if(eventNotes.length > 0)
@@ -1764,14 +1775,13 @@ class PlayState extends MusicBeatState
 					case 4:
 						tick = START;
 
-						canResync = true;
-
 						if(needsToReset)
 						{
 							//FlxG.sound.music.play();
 							@:privateAccess
 							FlxG.sound.playMusic(inst._sound, 1, false);
 							#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
+							FlxG.sound.music.onComplete = finishSong.bind();
 
 							vocals.play();
 							opponentVocals.play();
@@ -2007,6 +2017,31 @@ class PlayState extends MusicBeatState
 			if (songMisses < 10) ratingFC = 'SDCB';
 			else ratingFC = 'Clear';
 		}
+
+		//TO DO: this will be for future win screen shit
+		//for now it's here for other mods and stuff
+
+		// calculate shit
+
+		if (sicks == totalNotes)
+		{
+			rank = 0;
+			return;
+		}
+
+		// Grade % (only good and sick), 1.00 is a full combo
+		var grade = (sicks + goods - songMisses) / totalNotes;
+		// Clear % (including bad and shit). 1.00 is a full clear but not a full combo
+		var clear = (songHits) / totalNotes;
+
+		if (grade == 1.00)
+			rank = 1;
+		else if (grade >= 0.80)
+			rank = 2;
+		else if (grade >= 0.60)
+			rank = 3;
+		else if (grade >= 0.50)
+			rank = 4;
 	}
 
 	public function doScoreBop():Void {
@@ -2078,6 +2113,8 @@ class PlayState extends MusicBeatState
 	function startSong():Void
 	{
 		startingSong = false;
+
+		trace('start');
 
 		@:privateAccess
 		FlxG.sound.playMusic(inst._sound, 1, false);
@@ -2211,6 +2248,10 @@ class PlayState extends MusicBeatState
 
 			noteTypes = [];
 			eventsPushed = [];
+
+			totalNotes = 0;
+
+			canSkip = true;
 		}
 
 		try
@@ -2275,6 +2316,10 @@ class PlayState extends MusicBeatState
 									tail.destroy();
 									unspawnNotes.remove(tail);
 								}
+
+							if (evilNote.mustPress == true && evilNote.lowPriority == false && evilNote.hitCausesMiss == false && evilNote.isSustainNote == false)
+								totalNotes -= 1;
+
 							evilNote.destroy();
 							unspawnNotes.remove(evilNote);
 							ghostNotesCaught++;
@@ -2313,6 +2358,10 @@ class PlayState extends MusicBeatState
 				swagNote.isInvisible = !swagNote.visible;
 				
 				swagNote.scrollFactor.set();
+
+				if (swagNote.mustPress == true && swagNote.lowPriority == false && swagNote.hitCausesMiss == false && swagNote.isSustainNote == false)
+					totalNotes++;
+
 				unspawnNotes.push(swagNote);
 
 				var curStepCrochet:Float = 60 / daBpm * 1000 / 4.0;
@@ -2406,6 +2455,16 @@ class PlayState extends MusicBeatState
 				makeEvent(event, i);
 
 		unspawnNotes.sort(sortByTime);
+
+		if (unspawnNotes[0] != null)
+		{
+			for (i in unspawnNotes)
+				if(!i.ignoreNote && !i.isInvisible && !i.hitCausesMiss && !i.lowPriority)
+				{
+					skipTime = i.strumTime - Conductor.crochet;
+					break;
+				}
+		}
 	}
 
 	// called only once per different event (Used for precaching)
@@ -2968,7 +3027,10 @@ class PlayState extends MusicBeatState
 							if(!daNote.mustPress) strumGroup = opponentStrums;
 
 							var strum:StrumNote = strumGroup.members[daNote.noteData];
-							daNote.followStrumNote(strum, fakeCrochet, (daNote.mustPress) ? songSpeed : songSpeedOpponent / playbackRate);
+							if(daNote.mustPress)
+								daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
+							else
+								daNote.followStrumNote(strum, fakeCrochet, songSpeedOpponent / playbackRate);
 
 							if(daNote.mustPress)
 							{
@@ -3226,7 +3288,7 @@ class PlayState extends MusicBeatState
 		FlxG.sound.play(Paths.sound('confirmMenu'));
 		camOther.flash(0x55FFFFFF, Conductor.crochet * 0.001, null, true);
 		setSongTime(skipTime);
-		skipText.visible = false;
+		skipText.alpha = 0;
 		canSkip = false;
 		stagesFunc(function(stage:BaseStage) stage.skipIntroFunc());
 		callOnLuas('onSkipIntro', []);
@@ -4744,6 +4806,8 @@ class PlayState extends MusicBeatState
 		opponentVocals.volume = 0;
 		opponentVocals.pause();
 
+		trace('finish');
+
 		if(ClientPrefs.data.noteOffset <= 0 || ignoreNoteOffset) {
 			endCallback();
 		} else {
@@ -4893,6 +4957,7 @@ class PlayState extends MusicBeatState
 
 	public var totalPlayed:Int = 0;
 	public var totalNotesHit:Float = 0.0;
+	public var totalNotes:Int = 0;
 
 	public var showMiss:Bool = true;
 	public var showCombo:Bool = true;

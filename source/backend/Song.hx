@@ -9,6 +9,7 @@ typedef SwagSong =
 {
 	var song:String;
 	var postfix:String; //mostly for chart editor
+	var displayName:String; //it has no use rn but will be used on freeplay shit in future
 	var notes:Array<SwagSection>;
 	var events:Array<Dynamic>;
 	var bpm:Float;

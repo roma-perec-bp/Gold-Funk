@@ -664,6 +664,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	{
 		var song:SwagSong = {
 			song: 'Test',
+			displayName: 'Test',
 			postfix: '',
 			notes: [],
 			events: [],

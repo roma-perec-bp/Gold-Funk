@@ -250,6 +250,7 @@ class VSlice
 
 			var swagSong:SwagSong = {
 				song: metadata.songName,
+				displayName: metadata.songName,
 				postfix: '', //TO DO: uhh variations suppoert
 				notes: sectionData,
 				events: [],
