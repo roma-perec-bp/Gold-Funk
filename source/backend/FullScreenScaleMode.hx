@@ -2,6 +2,8 @@ package backend;
 
 import flixel.FlxObject;
 import flixel.system.scaleModes.BaseScaleMode;
+import flixel.util.FlxHorizontalAlign;
+import flixel.util.FlxVerticalAlign;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.math.FlxPoint;
@@ -97,6 +99,15 @@ class FullScreenScaleMode extends BaseScaleMode
   @:noCompletion
   private static var cutoutBitmaps:Array<Bitmap> = [null, null];
 
+  @:noCompletion
+  private static var mustAwait:Bool = false;
+
+  @:noCompletion
+  private static var awaitedSize:FlxPoint = FlxPoint.get(0, 0);
+
+  @:noCompletion
+  private static var finishingAwait:Bool = false;
+
   /**
    * Constructor for `FullScreenScaleMode`.
    */
@@ -119,6 +130,61 @@ class FullScreenScaleMode extends BaseScaleMode
    */
   override public function onMeasure(Width:Int, Height:Int):Void
   {
+    if (mustAwait)
+    {
+      onMeasureAwait(Width, Height);
+    }
+    else
+    {
+      onMeasureInstant(Width, Height);
+      mustAwait = true;
+    }
+  }
+
+  /**
+   * Locks the game to the current aspect ratio and assignes the requested resolution as awaited for later.
+   * @param Width The width of the screen.
+   * @param Height The height of the screen.
+   */
+  public function onMeasureAwait(Width:Int, Height:Int):Void
+  {
+    horizontalAlign = CENTER;
+    verticalAlign = CENTER;
+
+    updateGameSize(FlxG.width, FlxG.height);
+    updateDeviceSize(Width, Height);
+    /*#if mobile
+    updateDeviceNotch(funkin.mobile.util.ScreenUtil.getNotchRect());
+    #end*/
+    updateScaleOffset();
+    updateGamePosition();
+
+    awaitedSize.set(Width, Height);
+  }
+
+  /**
+   * Unlock the game resolution and swap into the awaited one.
+   */
+  public function onMeasurePostAwait():Void
+  {
+    if (awaitedSize.x == 0 && awaitedSize.y == 0) return;
+
+    horizontalAlign = enabled ? LEFT : CENTER;
+    verticalAlign = enabled ? TOP : CENTER;
+    onMeasureInstant(Math.ceil(awaitedSize.x), Math.ceil(awaitedSize.y));
+    FlxG.cameras.reset(new PsychCamera());
+
+    awaitedSize.set(0, 0);
+  }
+
+  /**
+   * Instantly apply the measured resolution to the game
+   * @param Width The width of the screen.
+   * @param Height The height of the screen.
+   */
+  public function onMeasureInstant(Width:Int, Height:Int):Void
+  {
+    finishingAwait = true;
     untyped FlxG.width = FlxG.initialWidth;
     untyped FlxG.height = FlxG.initialHeight;
 
@@ -132,6 +198,8 @@ class FullScreenScaleMode extends BaseScaleMode
     updateGamePosition();
 
     adjustGameSize();
+
+    finishingAwait = false;
   }
 
   /**
@@ -204,7 +272,7 @@ class FullScreenScaleMode extends BaseScaleMode
     {
       if (bitmap == null)
       {
-        trace("[WARNING] Tried to remove a cutout bar but there don't seem to be any.");
+        trace(" WARNING Tried to remove a cutout bar but there don't seem to be any.");
         continue;
       }
 
@@ -269,10 +337,48 @@ class FullScreenScaleMode extends BaseScaleMode
 
   override public function updateScaleOffset():Void
   {
-    scale.x = ratioAxis == X ? logicalSize.x / FlxG.width : deviceSize.x / FlxG.width;
-    scale.y = ratioAxis == Y ? logicalSize.y / FlxG.height : deviceSize.y / FlxG.height;
+    if (finishingAwait)
+    {
+      scale.x = ratioAxis == X ? logicalSize.x / FlxG.width : deviceSize.x / FlxG.width;
+      scale.y = ratioAxis == Y ? logicalSize.y / FlxG.height : deviceSize.y / FlxG.height;
+    }
+    else
+    {
+      scale.x = deviceSize.x / FlxG.width;
+      scale.y = deviceSize.y / FlxG.height;
+
+      if (scale.x > scale.y) scale.x = scale.y;
+      else
+        scale.y = scale.x;
+    }
     updateOffsetX();
     updateOffsetY();
+  }
+
+  override function updateOffsetX():Void
+  {
+    offset.x = switch (horizontalAlign)
+    {
+      case FlxHorizontalAlign.LEFT:
+        0;
+      case FlxHorizontalAlign.CENTER:
+        Math.ceil(finishingAwait ? (deviceSize.x - gameSize.x) : (deviceSize.x - (gameSize.x * scale.x)) * 0.5);
+      case FlxHorizontalAlign.RIGHT:
+        deviceSize.x - gameSize.x;
+    }
+  }
+
+  override function updateOffsetY():Void
+  {
+    offset.y = switch (verticalAlign)
+    {
+      case FlxVerticalAlign.TOP:
+        0;
+      case FlxVerticalAlign.CENTER:
+        Math.ceil(finishingAwait ? (deviceSize.y - gameSize.y) : (deviceSize.y - (gameSize.y * scale.y)) * 0.5);
+      case FlxVerticalAlign.BOTTOM:
+        deviceSize.y - gameSize.y;
+    }
   }
 
   /*#if mobile
@@ -323,7 +429,7 @@ class FullScreenScaleMode extends BaseScaleMode
         var gameHeight:Float = gameSize.y / scale.y;
 
         #if desktop
-        if (gcd(FlxG.width, Math.ceil(gameHeight)) == 1)
+        if (gcd(FlxG.width, Math.ceil(gameHeight)) == 1 || maxRatioAxis != ratioAxis)
         {
           gameSize.y -= cutoutSize.y;
           offset.y = Math.ceil((deviceSize.y - gameSize.y) * 0.5);
@@ -361,7 +467,7 @@ class FullScreenScaleMode extends BaseScaleMode
         var gameWidth:Float = gameSize.x / scale.x;
 
         #if desktop
-        if (gcd(Math.ceil(gameWidth), FlxG.height) == 1)
+        if (gcd(Math.ceil(gameWidth), FlxG.height) == 1 || maxRatioAxis != ratioAxis)
         {
           gameSize.x -= cutoutSize.x;
           offset.x = Math.ceil((deviceSize.x - gameSize.x) * 0.5);
@@ -430,6 +536,7 @@ class FullScreenScaleMode extends BaseScaleMode
 
     if (instance != null)
     {
+      mustAwait = false;
       instance.horizontalAlign = active ? LEFT : CENTER;
       instance.verticalAlign = active ? TOP : CENTER;
       instance.onMeasure(FlxG.stage.stageWidth, FlxG.stage.stageHeight);

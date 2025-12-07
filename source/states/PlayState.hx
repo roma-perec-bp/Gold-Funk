@@ -1315,6 +1315,14 @@ class PlayState extends MusicBeatState
 
 		reloadChars();
 
+		#if VIDEOS_ALLOWED
+		if(videoCutscene != null)
+		{
+			videoCutscene.destroy();
+			videoCutscene = null;
+		}
+		#end
+
 		noteCamOffset = SONG.followCamOffset;
 
 		if (PlayState.SONG.fadeOutStart)
@@ -1462,6 +1470,14 @@ class PlayState extends MusicBeatState
 			spr.destroy();
 			countGroup.remove(spr);
 		}
+
+		#if VIDEOS_ALLOWED
+		if(videoCutscene != null)
+		{
+			videoCutscene.destroy();
+			videoCutscene = null;
+		}
+		#end
 
 		boyfriend.playInitAnimation();
 		dad.playInitAnimation();
