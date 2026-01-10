@@ -21,6 +21,7 @@ class ErrorState extends MusicBeatState
 	{
 		var bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = FlxColor.GRAY;
+		bg.setGraphicSize(Std.int(FlxG.width * 1.1));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
 		bg.screenCenter();

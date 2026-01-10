@@ -27,6 +27,7 @@ class CreditsState extends MusicBeatState
 		persistentUpdate = true;
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
+		bg.setGraphicSize(Std.int(FlxG.width * 1.1));
 		add(bg);
 		bg.screenCenter();
 		
@@ -109,23 +110,21 @@ class CreditsState extends MusicBeatState
 		
 		descBox = new AttachedSprite();
 		descBox.makeGraphic(1, 1, FlxColor.BLACK);
-		descBox.xAdd = -10;
-		descBox.yAdd = -10;
 		descBox.alphaMult = 0.6;
 		descBox.alpha = 0.6;
 		add(descBox);
 
-		descText = new FlxText(50, FlxG.height + offsetThing - 25, 1180, "", 32);
+		descText = new FlxText(0, FlxG.height + offsetThing - 25, 1180, "", 32);
 		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
 		descText.scrollFactor.set();
 		//descText.borderSize = 2.4;
-		descBox.sprTracker = descText;
 		add(descText);
 
 		bg.color = CoolUtil.colorFromString(creditsStuff[curSelected][4]);
 		intendedColor = bg.color;
-		changeSelection();
 		super.create();
+
+		changeSelection();
 	}
 
 	var quitting:Bool = false;
@@ -203,6 +202,7 @@ class CreditsState extends MusicBeatState
 	}
 
 	var moveTween:FlxTween = null;
+	var moveBGTween:FlxTween = null;
 	function changeSelection(change:Int = 0)
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
@@ -236,13 +236,19 @@ class CreditsState extends MusicBeatState
 		if(descText.text.trim().length > 0)
 		{
 			descText.visible = descBox.visible = true;
+			descText.screenCenter();
 			descText.y = FlxG.height - descText.height + offsetThing - 60;
+
+			descBox.setGraphicSize(FlxG.width, Std.int(descText.height + 25));
+			//descBox.screenCenter();
+			descBox.y = FlxG.height - descText.height + offsetThing - 70;
+			descBox.updateHitbox();
 	
 			if(moveTween != null) moveTween.cancel();
-			moveTween = FlxTween.tween(descText, {y : descText.y + 75}, 0.25, {ease: FlxEase.sineOut});
-	
-			descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 25));
-			descBox.updateHitbox();
+			moveTween = FlxTween.tween(descText, {y : descText.y + 25}, 0.25, {ease: FlxEase.sineOut});
+
+			if(moveBGTween != null) moveBGTween.cancel();
+			moveBGTween = FlxTween.tween(descBox, {y : descBox.y + 25}, 0.25, {ease: FlxEase.sineOut});
 		}
 		else descText.visible = descBox.visible = false;
 	}

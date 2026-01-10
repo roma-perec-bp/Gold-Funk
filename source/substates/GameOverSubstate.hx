@@ -257,9 +257,9 @@ class GameOverSubstate extends MusicBeatSubstate
 
 			  // confirm music length divided by 7000
       		// this is here so mods with longer confirm sounds don't have it cut off!!!
-      		final FADE_TIMER:Float = (endSoundName?.length ?? 0) / 3500;
+     		 final FADE_TIMER:Float = (endSoundName?.length ?? 0) / 7000;
 
-			new FlxTimer().start(FADE_TIMER, function(tmr:FlxTimer)
+			new FlxTimer().start(FADE_TIMER * 1000, function(tmr:FlxTimer)
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 				{

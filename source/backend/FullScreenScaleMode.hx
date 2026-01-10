@@ -1,18 +1,16 @@
 package backend;
 
-import flixel.FlxObject;
-import flixel.system.scaleModes.BaseScaleMode;
-import flixel.util.FlxHorizontalAlign;
-import flixel.util.FlxVerticalAlign;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.math.FlxPoint;
 import flixel.util.FlxAxes;
+import flixel.util.FlxHorizontalAlign;
+import flixel.util.FlxVerticalAlign;
 import flixel.FlxG;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 
-class FullScreenScaleMode extends BaseScaleMode
+class FullScreenScaleMode extends flixel.system.scaleModes.BaseScaleMode
 {
   /**
    * The size of the screen cutout (e.g., for notches or camera cutouts).
@@ -95,7 +93,6 @@ class FullScreenScaleMode extends BaseScaleMode
    */
   public static var hasFakeCutouts:Bool = false;
 
-  private static var active:Bool;
   @:noCompletion
   private static var cutoutBitmaps:Array<Bitmap> = [null, null];
 
@@ -110,17 +107,19 @@ class FullScreenScaleMode extends BaseScaleMode
 
   /**
    * Constructor for `FullScreenScaleMode`.
+   *
+   * @param enable Whether fullscreen scaling should be enabled by default.
    */
-  public function new():Void
+  public function new(enable:Bool = true):Void
   {
     super();
 
     instance = this;
 
-    // Required so we can check on which axies is the game wide.
+    // Required so we can check on which axis the game is wide on.
     if (FlxG.stage != null) updateGameSize(FlxG.stage.stageWidth, FlxG.stage.stageHeight);
 
-    enabled = true;
+    enabled = enable;
   }
 
   /**
@@ -130,7 +129,8 @@ class FullScreenScaleMode extends BaseScaleMode
    */
   override public function onMeasure(Width:Int, Height:Int):Void
   {
-    if (mustAwait)
+    #if desktop
+    if (mustAwait && enabled)
     {
       onMeasureAwait(Width, Height);
     }
@@ -139,6 +139,9 @@ class FullScreenScaleMode extends BaseScaleMode
       onMeasureInstant(Width, Height);
       mustAwait = true;
     }
+    #else
+    onMeasureInstant(Width, Height);
+    #end
   }
 
   /**
@@ -153,9 +156,9 @@ class FullScreenScaleMode extends BaseScaleMode
 
     updateGameSize(FlxG.width, FlxG.height);
     updateDeviceSize(Width, Height);
-    /*#if mobile
-    updateDeviceNotch(funkin.mobile.util.ScreenUtil.getNotchRect());
-    #end*/
+    #if mobile
+    //updateDeviceNotch(funkin.mobile.util.ScreenUtil.getNotchRect());
+    #end
     updateScaleOffset();
     updateGamePosition();
 
@@ -167,6 +170,7 @@ class FullScreenScaleMode extends BaseScaleMode
    */
   public function onMeasurePostAwait():Void
   {
+    #if desktop
     if (awaitedSize.x == 0 && awaitedSize.y == 0) return;
 
     horizontalAlign = enabled ? LEFT : CENTER;
@@ -175,6 +179,7 @@ class FullScreenScaleMode extends BaseScaleMode
     FlxG.cameras.reset(new PsychCamera());
 
     awaitedSize.set(0, 0);
+    #end
   }
 
   /**
@@ -191,9 +196,9 @@ class FullScreenScaleMode extends BaseScaleMode
     updateGameSize(Width, Height);
     updateDeviceSize(Width, Height);
     updateDeviceCutout(Width, Height);
-    /*#if mobile
-    updateDeviceNotch(mobile.backend.ScreenUtil.getNotchRect());
-    #end*/
+    #if mobile
+    //updateDeviceNotch(funkin.mobile.util.ScreenUtil.getNotchRect());
+    #end
     updateScaleOffset();
     updateGamePosition();
 
@@ -272,7 +277,7 @@ class FullScreenScaleMode extends BaseScaleMode
     {
       if (bitmap == null)
       {
-        trace(" WARNING Tried to remove a cutout bar but there don't seem to be any.");
+        trace(" WARNING: Tried to remove a cutout bar but there don't seem to be any.");
         continue;
       }
 
@@ -295,14 +300,12 @@ class FullScreenScaleMode extends BaseScaleMode
 
   private function updateDeviceCutout(Width:Int, Height:Int):Void
   {
-    if (active)
+    if (enabled)
     {
-
       cutoutSize.x = ratioAxis == X ? Math.ceil(Width - logicalSize.x) : 0;
       cutoutSize.y = ratioAxis == Y ? Math.ceil(Height - logicalSize.y) : 0;
       gameCutoutSize.copyFrom(cutoutSize);
       gameCutoutSize /= logicalSize.x / FlxG.initialWidth;
-      
     }
     else
     {
@@ -316,7 +319,6 @@ class FullScreenScaleMode extends BaseScaleMode
     gameRatio = FlxG.width / FlxG.height;
     screenRatio = Width / Height;
     ratioAxis = screenRatio < gameRatio ? FlxAxes.Y : FlxAxes.X;
-    active = ratioAxis == X && enabled;
 
     logicalSize.set(Width, Height);
 
@@ -324,15 +326,14 @@ class FullScreenScaleMode extends BaseScaleMode
     {
       gameSize.x = Width;
       logicalSize.y = Math.ceil(gameSize.x / gameRatio);
-      gameSize.y = active ? Height : logicalSize.y;
+      gameSize.y = enabled ? Height : logicalSize.y;
     }
     else
     {
       gameSize.y = Height;
       logicalSize.x = Math.ceil(gameSize.y * gameRatio);
-      gameSize.x = active ? Width : logicalSize.x;
+      gameSize.x = enabled ? Width : logicalSize.x;
     }
-    
   }
 
   override public function updateScaleOffset():Void
@@ -362,7 +363,7 @@ class FullScreenScaleMode extends BaseScaleMode
       case FlxHorizontalAlign.LEFT:
         0;
       case FlxHorizontalAlign.CENTER:
-        Math.ceil(finishingAwait ? (deviceSize.x - gameSize.x) : (deviceSize.x - (gameSize.x * scale.x)) * 0.5);
+        Math.ceil((finishingAwait && enabled) ? (deviceSize.x - gameSize.x) : (deviceSize.x - (gameSize.x #if desktop * scale.x #end)) * 0.5);
       case FlxHorizontalAlign.RIGHT:
         deviceSize.x - gameSize.x;
     }
@@ -375,17 +376,18 @@ class FullScreenScaleMode extends BaseScaleMode
       case FlxVerticalAlign.TOP:
         0;
       case FlxVerticalAlign.CENTER:
-        Math.ceil(finishingAwait ? (deviceSize.y - gameSize.y) : (deviceSize.y - (gameSize.y * scale.y)) * 0.5);
+        Math.ceil((finishingAwait && enabled) ? (deviceSize.y - gameSize.y) : (deviceSize.y - (gameSize.y #if desktop * scale.y #end)) * 0.5);
       case FlxVerticalAlign.BOTTOM:
         deviceSize.y - gameSize.y;
     }
   }
 
-  /*#if mobile
+  /*
+  #if mobile
   private function updateDeviceNotch(notch:lime.math.Rectangle):Void
   {
-    notchPosition.set(active ? notch.x : 0, active ? notch.y : 0);
-    notchSize.set(active ? notch.width : 0, active ? notch.height : 0);
+    notchPosition.set(enabled ? notch.x : 0, enabled ? notch.y : 0);
+    notchSize.set(enabled ? notch.width : 0, enabled ? notch.height : 0);
     gameNotchPosition.copyFrom(notchPosition);
     gameNotchSize.copyFrom(notchSize);
 
@@ -406,7 +408,8 @@ class FullScreenScaleMode extends BaseScaleMode
     gameNotchSize /= 2;
     #end
   }
-  #end*/
+  #end
+  */
 
   public function reset():Void
   {
@@ -420,7 +423,7 @@ class FullScreenScaleMode extends BaseScaleMode
 
   private function adjustGameSize():Void
   {
-    if ((cutoutSize.x > 0 || cutoutSize.y > 0) && active)
+    if ((cutoutSize.x > 0 || cutoutSize.y > 0) && enabled)
     {
       wideScale.set(1, 1);
 
@@ -522,23 +525,21 @@ class FullScreenScaleMode extends BaseScaleMode
   private static function set_enabled(Value:Bool):Bool
   {
     if (ratioAxis == FlxAxes.X #if android
-      && (AndroidVersion.SDK_INT  >= AndroidVersionCode.P
-        || AndroidTools.isTablet()) #end)
+      && (extension.androidtools.os.Build.VERSION.SDK_INT >= extension.androidtools.os.Build.VERSION_CODES.P
+        || extension.androidtools.Tools.isTablet()) #end)
     {
       enabled = Value;
-      active = Value;
     }
     else
     {
-      enabled = Value;
-      active = false;
+      enabled = false;
     }
 
     if (instance != null)
     {
       mustAwait = false;
-      instance.horizontalAlign = active ? LEFT : CENTER;
-      instance.verticalAlign = active ? TOP : CENTER;
+      instance.horizontalAlign = enabled ? LEFT : CENTER;
+      instance.verticalAlign = enabled ? TOP : CENTER;
       instance.onMeasure(FlxG.stage.stageWidth, FlxG.stage.stageHeight);
 
       FlxG.signals.gameResized.dispatch(FlxG.stage.stageWidth, FlxG.stage.stageHeight);

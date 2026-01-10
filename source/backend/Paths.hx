@@ -419,6 +419,25 @@ class Paths
 		return parentFrames;
 	}
 
+	static public function getMultiAnimateAtlas(keys:Array<String>, ?parentFolder:String = null):FlxAnimateFrames
+	{
+		
+		var parentFrames:FlxAnimateFrames = Paths.loadAnimateAtlas(keys[0].trim());
+		if(keys.length > 1)
+		{
+			var original:FlxAnimateFrames = parentFrames;
+			parentFrames = new FlxAnimateFrames(parentFrames.parent);
+			parentFrames.addAtlas(original, true);
+			for (i in 1...keys.length)
+			{
+				var extraFrames:FlxAnimateFrames = Paths.loadAnimateAtlas(keys[i].trim(), parentFolder);
+				if(extraFrames != null)
+					parentFrames.addAtlas(extraFrames, true);
+			}
+		}
+		return parentFrames;
+	}
+
 	inline static public function getSparrowAtlas(key:String, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAtlasFrames
 	{
 		if(key.contains('psychic')) trace(key, parentFolder, allowGPU);
@@ -545,24 +564,21 @@ class Paths
 	}
 	#end
 
-	public static function loadAnimateAtlas(folderOrImg:Dynamic, spriteJson:Dynamic = null, animationJson:Dynamic = null, parentFolder:String = null):FlxAnimateFrames
+	public static function loadAnimateAtlas(folderOrImg:Dynamic, parentFolder:String = null):FlxAnimateFrames
 	{
 		var changedAnimJson = false;
 		var changedAtlasJson = false;
 		var changedImage = false;
 		var originalPath:String = '';
-		
-		if(spriteJson != null)
-		{
-			changedAtlasJson = true;
-			spriteJson = File.getContent(spriteJson);
-		}
 
-		if(animationJson != null) 
-		{
-			changedAnimJson = true;
-			animationJson = File.getContent(animationJson);
-		}
+		var spriteJson:Dynamic;
+		var animationJson:Dynamic;
+
+		changedAtlasJson = true;
+		//spriteJson = File.getContent(spriteJson);
+
+		changedAnimJson = true;
+		//animationJson = File.getContent(animationJson);
 
 		// is folder or image path
 		if(Std.isOfType(folderOrImg, String))
@@ -609,9 +625,6 @@ class Paths
 			}
 		}
 
-		//trace(folderOrImg);
-		//trace(spriteJson);
-		//trace(animationJson);
 		var parentFrames:FlxAnimateFrames = FlxAnimateFrames.fromAnimate(getPath('images/' + originalPath, parentFolder));
 		return parentFrames;
 	}

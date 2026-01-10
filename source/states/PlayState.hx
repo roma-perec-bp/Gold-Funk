@@ -15,6 +15,8 @@ import flixel.addons.effects.FlxTrailArea;
 
 import flixel.ui.FlxBar;
 
+import backend.FullScreenScaleMode;
+
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;
@@ -2130,8 +2132,6 @@ class PlayState extends MusicBeatState
 	{
 		startingSong = false;
 
-		trace('start');
-
 		@:privateAccess
 		FlxG.sound.playMusic(inst._sound, 1, false);
 		#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
@@ -2660,6 +2660,8 @@ class PlayState extends MusicBeatState
 	public var skipArrowStartTween:Bool = false; //for lua
 	private function generateStaticArrows(player:Int):Void
 	{
+		final cutoutSize = FullScreenScaleMode.gameCutoutSize.x / 2.5;
+
 		switch(PlayState.SONG.strumOffset)
 		{
 			case 'Player Focus':
@@ -2668,7 +2670,7 @@ class PlayState extends MusicBeatState
 				STRUM_X = 84;
 		}
 
-		var strumLineX:Float = (ClientPrefs.data.middleScroll || PlayState.SONG.strumOffset == 'Forced MiddleScroll') ? STRUM_X_MIDDLESCROLL : STRUM_X;
+		var strumLineX:Float = (ClientPrefs.data.middleScroll || PlayState.SONG.strumOffset == 'Forced MiddleScroll') ? STRUM_X_MIDDLESCROLL : STRUM_X  + cutoutSize;
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
 		for (i in 0...4)
 		{
@@ -2920,18 +2922,21 @@ class PlayState extends MusicBeatState
 				timeTxt.text = FlxStringUtil.formatTime(secondsTotal, false);
 		}
 
-		if (cameraZoomRate > 0.0)
+		var decayRate:Float = 0.95;
+		var dt:Float = elapsed * 60;
+	
+		if (subState == null && cameraZoomRate > 0.0)
 		{
-			cameraBopMultiplier = FlxMath.lerp(1.0, cameraBopMultiplier, 0.95 * camZoomingDecay / (ClientPrefs.data.framerate / 60) / playbackRate); // Lerp bop multiplier back to 1.0x
+			cameraBopMultiplier = FlxMath.lerp(1.0, cameraBopMultiplier, Math.pow(decayRate * camZoomingDecay, dt));
 			var zoomPlusBop:Float = currentCameraZoom * cameraBopMultiplier; // Apply camera bop multiplier.
 			FlxG.camera.zoom = zoomPlusBop; // Actually apply the zoom to the camera.
 		
-			camHudBopMult = FlxMath.lerp(1, camHudBopMult, 0.95 * camZoomingDecayHud / (ClientPrefs.data.framerate / 60) / playbackRate); // Lerp bop multiplier back to 1.0x
+			camHudBopMult = FlxMath.lerp(1.0, camHudBopMult, Math.pow(decayRate * camZoomingDecayHud, dt));
 			var zoomHudPlusBop:Float = defaultHUDCameraZoom * camHudBopMult; // Apply camera bop multiplier.
 			camHUD.zoom = zoomHudPlusBop;  // Actually apply the zoom to the camera.
 			camOverlayHUD.zoom = zoomHudPlusBop;  // ditto
 
-			camNotesBopMult = FlxMath.lerp(1, camNotesBopMult, 0.95 * camZoomingDecayHud / (ClientPrefs.data.framerate / 60) / playbackRate); // Lerp bop multiplier back to 1.0x
+			camNotesBopMult = FlxMath.lerp(1.0, camNotesBopMult, Math.pow(decayRate * camZoomingDecayHud, dt));
 			var zoomNotesPlusBop:Float = defaultNotesCameraZoom * camNotesBopMult; // Apply camera bop multiplier.
 			camNotes.zoom = zoomNotesPlusBop;  // Actually apply the zoom to the camera.
 		}
@@ -5637,7 +5642,13 @@ class PlayState extends MusicBeatState
 			comboGot = lastCombo;
 
 		health -= subtract * healthLoss;
-		if(!practiceMode) songScore -= 10;
+		if(!practiceMode) 
+		{
+			if(note != null)
+				songScore -= 100;
+			else
+				songScore -= 10;
+		}
 
 		if(!practiceMode) RecalculateRating(true);
 

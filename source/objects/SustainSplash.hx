@@ -71,13 +71,7 @@ class SustainSplash extends FlxSprite {
 
     destroyTimer.start(timeThingy, (idk:FlxTimer) -> {
       if (tailEnd.mustPress && !(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && ClientPrefs.data.splashAlpha != 0 && !PlayState.SONG.disableHoldSparkle) {
-        alpha = ClientPrefs.data.splashAlpha;
-        animation.play('end', true, false, 0);
-        animation.curAnim.looped = false;
-        clipRect = null;
-        animation.finishCallback = (idkEither:Dynamic) -> {
-          die(tailEnd);
-        }
+        playEnd(tailEnd);
         return;
       }
       die(tailEnd);
@@ -93,6 +87,16 @@ class SustainSplash extends FlxSprite {
     if (FlxG.state is PlayState) PlayState.instance.grpHoldSplashes.remove(this);
     
     if (end != null) end.extraData['holdSplash'] = null;
+  }
+
+  public function playEnd(tailEnd:Note):Void {
+    alpha = ClientPrefs.data.splashAlpha;
+    animation.play('end', true, false, 0);
+    animation.curAnim.looped = false;
+    clipRect = null;
+    animation.finishCallback = (idkEither:Dynamic) -> {
+      die(tailEnd);
+    }
   }
 
   public function onAnimationFinished(animationName:String):Void { if (animationName.startsWith('start'))animation.play('hold', true, false, 0);}

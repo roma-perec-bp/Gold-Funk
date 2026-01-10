@@ -23,7 +23,7 @@ class MusicBeatState extends FlxState
 
 	public function new()
 	{
-		if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
+		//if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
 
 		super();
 	}
@@ -40,6 +40,8 @@ class MusicBeatState extends FlxState
 		return getState().variables;
 
 	override function create() {
+		if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
+
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
 		//? Should fix the funkin cursor for good
 		if(!(FlxG.mouse.cursor?.bitmapData is FunkinCursor)) FlxG.mouse.load(new FunkinCursor(0,0));

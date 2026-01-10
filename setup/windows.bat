@@ -15,9 +15,7 @@ haxelib install flxgif
 haxelib install tjson 1.4.0
 haxelib install hxdiscord_rpc 1.2.4
 haxelib install hxvlc 2.2.2 --skip-dependencies
-haxelib set lime 8.2.2
-haxelib set openfl 9.4.1
-haxelib git flixel-animate https://github.com/MaybeMaru/flixel-animate 9aacdf7afe5ffdcd086a2898ebb7abb966b95a3d --quiet --skip-dependencies
+haxelib git flixel-animate https://github.com/MaybeMaru/flixel-animate c61476f4b3a3d225631ab3065e4e925a4b63c076 --quiet --skip-dependencies
 haxelib git linc_luajit https://github.com/superpowers04/linc_luajit 1906c4a96f6bb6df66562b3f24c62f4c5bba14a7
 haxelib git funkin.vis https://github.com/FunkinCrew/funkVis 22b1ce089dd924f15cdc4632397ef3504d464e90
 haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git cbf91e2180fd2e374924fe74844086aab7891666

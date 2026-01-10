@@ -122,6 +122,9 @@ class Character extends FlxAnimate
 		['0xFF71E300', '0xFFF6FFE6', '0xFF003100'],
 		['0xFFFF884E', '0xFFFFFAF5', '0xFF6C0000']];
 
+	public var renderTexture:Bool = false;
+	public var stageMatrix:Bool = false;
+
 	//Used on Character Editor
 	public var imageFile:String = '';
 	public var jsonScale:Float = 1;
@@ -250,7 +253,11 @@ class Character extends FlxAnimate
 		}
 		else
 		{
-			frames = Paths.loadAnimateAtlas(json.image);
+			//TO DO: MAKE THEM EDITABLE
+			applyStageMatrix = stageMatrix ?? false;
+			useRenderTexture = renderTexture ?? false;
+
+			frames = Paths.getMultiAnimateAtlas(json.image.split(','));
 			//frames = FlxAnimateFrames.fromAnimate(Paths.getPath('images/' + json.image));
 		}
 
@@ -325,7 +332,6 @@ class Character extends FlxAnimate
 				if (animAnim == 'idle' && animLoop == true) loopedIdle = true;
 			}
 		}
-		//trace('Loaded file to character ' + curCharacter);
 	}
 
 	override function update(elapsed:Float)

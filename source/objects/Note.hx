@@ -641,6 +641,9 @@ class Note extends FlxSprite
 	override public function destroy()
 	{
 		super.destroy();
+		if (this.extraData['holdSplash'] != null)
+			this.extraData['holdSplash'].playEnd(this);
+
 		_lastValidChecked = '';
 	}
 
