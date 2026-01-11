@@ -54,6 +54,8 @@ class InitState extends FlxState
         FlxG.game.focusLostFramerate = 30;
         FlxG.keys.preventDefaultKeys = [TAB];
 
+        //FlxG.inputs.resetOnStateSwitch = false;
+
         #if LUA_ALLOWED
         Mods.pushGlobalMods();
         #end
@@ -74,65 +76,85 @@ class InitState extends FlxState
         DiscordClient.prepare();
         #end
 
+        FlxG.signals.focusLost.add(onLostFocus);
+        FlxG.signals.focusGained.add(onGainFocus);
+
         // Sets the window to dark mode or white, depends.
         #if (cpp && windows)
 		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
 		WindowColorMode.redrawWindowHeader();
 		#end
 
+        #if debug
         setupFlixelDebug();
+        #end
 
         FlxG.scaleMode = new FullScreenScaleMode();
 
 		FlxG.switchState(new states.TitleState());
     }
 
+    @:noCompletion var _lastFocusVolume:Null<Float>;
+
+    function onLostFocus()
+    {
+      if (FlxG.sound.muted || FlxG.sound.volume == 0 || FlxG.autoPause) return;
+      _lastFocusVolume = FlxG.sound.volume;
+      FlxG.sound.volume *= 0.5;
+    }
+  
+    function onGainFocus()
+    {
+      if (FlxG.sound.muted || FlxG.autoPause) return;
+      if (_lastFocusVolume != null) FlxG.sound.volume = _lastFocusVolume;
+    }
+
+    #if debug
     function setupFlixelDebug():Void
     {
-        #if debug
-         // Make errors and warnings less annoying.
+        #if !debug
+        // Make errors less annoying on release builds.
+        LogStyle.ERROR.openConsole = false;
+        LogStyle.ERROR.errorSound = null;
+        #end
+
+        // Make errors and warnings less annoying.
         LogStyle.WARNING.openConsole = false;
         LogStyle.WARNING.errorSound = null;
 
-        FlxG.debugger.toggleKeys = [F2];
 
-        FlxG.debugger.addButton(LEFT, new BitmapData(200, 200), function() {
-            FlxG.debugger.visible = false;
-      
-            // Make errors and warnings less annoying.
-            // Forcing this always since I have never been happy to have the debugger to pop up
-            LogStyle.ERROR.openConsole = false;
-            LogStyle.ERROR.errorSound = null;
-            LogStyle.WARNING.openConsole = false;
-            LogStyle.WARNING.errorSound = null;
-        });
+        FlxG.debugger.toggleKeys = [F2];
 
         // Adds a red button to the debugger.
         // This pauses the game AND the music! This ensures the Conductor stops.
         FlxG.debugger.addButton(CENTER, new BitmapData(20, 20, true, 0xFFCC2233), function() {
-            if (FlxG.vcr.paused)
+        if (FlxG.vcr.paused)
+        {
+            FlxG.vcr.resume();
+      
+            for (snd in FlxG.sound.list)
             {
-                FlxG.vcr.resume();
-  
-                for (snd in FlxG.sound.list)
-                    snd.resume();
-  
-                FlxG.sound.music.resume();
+                snd.resume();
             }
-            else
+      
+            FlxG.sound.music.resume();
+        }
+        else
+        {
+            FlxG.vcr.pause();
+      
+            for (snd in FlxG.sound.list)
             {
-                FlxG.vcr.pause();
-  
-                for (snd in FlxG.sound.list)
-                    snd.pause();
+                snd.pause();
             }
-            
+      
             FlxG.sound.music.pause();
+        }
         });
   
-      // Adds a blue button to the debugger.
-      // This skips forward in the song.
-      FlxG.debugger.addButton(CENTER, new BitmapData(20, 20, true, 0xFF2222CC), function() {
+        // Adds a blue button to the debugger.
+        // This skips forward in the song.
+        FlxG.debugger.addButton(CENTER, new BitmapData(20, 20, true, 0xFF2222CC), function() {
         FlxG.game.debugger.vcr.onStep();
   
         for (snd in FlxG.sound.list)
@@ -143,7 +165,7 @@ class InitState extends FlxState
   
         FlxG.sound.music.pause();
         FlxG.sound.music.time += FlxG.elapsed * 1000;
-      });
-        #end
+        });
     }
+    #end
 }

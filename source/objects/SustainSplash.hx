@@ -5,6 +5,7 @@ class SustainSplash extends FlxSprite {
 
   public static var startCrochet:Float;
   public var destroyTimer:FlxTimer;
+  public var playedEnd:Bool = false;
 
   public static var defaultNoteSplash(default, never):String = "holdSplashes/holdSplash";
 
@@ -90,12 +91,16 @@ class SustainSplash extends FlxSprite {
   }
 
   public function playEnd(tailEnd:Note):Void {
-    alpha = ClientPrefs.data.splashAlpha;
-    animation.play('end', true, false, 0);
-    animation.curAnim.looped = false;
-    clipRect = null;
-    animation.finishCallback = (idkEither:Dynamic) -> {
-      die(tailEnd);
+    if(!playedEnd)
+    {
+      alpha = ClientPrefs.data.splashAlpha;
+      animation.play('end', true, false, 0);
+      animation.curAnim.looped = false;
+      clipRect = null;
+      playedEnd = true;
+      animation.finishCallback = (idkEither:Dynamic) -> {
+        die(tailEnd);
+      }
     }
   }
 

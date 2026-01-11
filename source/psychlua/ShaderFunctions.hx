@@ -254,7 +254,7 @@ class ShaderFunctions
 			if(value != null && value.bitmap != null)
 			{
 				// trace('Found bitmapdata. Width: ${value.bitmap.width} Height: ${value.bitmap.height}');
-				shader.setSampler2D(prop, value.bitmap);
+				shader.setBitmapData(prop, new FlxSprite().loadGraphic(value).pixels);
 				return true;
 			}
 			return false;

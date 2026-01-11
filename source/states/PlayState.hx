@@ -181,6 +181,8 @@ class PlayState extends MusicBeatState
 	var cameraHudZoomTween:FlxTween;
 	var cameraNotesZoomTween:FlxTween;
 
+	public var requiredZoom:Float = FlxCamera.defaultZoom;
+
 	public var currentCameraZoom:Float = 1.0;
 	var cameraBopMultiplier:Float = 1.0;
 
@@ -2930,6 +2932,12 @@ class PlayState extends MusicBeatState
 			cameraBopMultiplier = FlxMath.lerp(1.0, cameraBopMultiplier, Math.pow(decayRate * camZoomingDecay, dt));
 			var zoomPlusBop:Float = currentCameraZoom * cameraBopMultiplier; // Apply camera bop multiplier.
 			FlxG.camera.zoom = zoomPlusBop; // Actually apply the zoom to the camera.
+
+			if (requiredZoom != currentCameraZoom
+				&& (cameraZoomTween == null || !cameraZoomTween.active)) currentCameraZoom = FlxMath.lerp(requiredZoom, currentCameraZoom,
+				  Math.pow(decayRate * camZoomingDecay, dt));
+			  else
+				requiredZoom = currentCameraZoom;
 		
 			camHudBopMult = FlxMath.lerp(1.0, camHudBopMult, Math.pow(decayRate * camZoomingDecayHud, dt));
 			var zoomHudPlusBop:Float = defaultHUDCameraZoom * camHudBopMult; // Apply camera bop multiplier.
@@ -3802,6 +3810,10 @@ class PlayState extends MusicBeatState
 		
 				switch(value1)
 				{
+					case 'CLASSIC':
+						var targetZoom = zoom * (isDirectMode ? FlxCamera.defaultZoom : stageZoom);
+						PlayState.instance.cancelCameraZoomTween();
+						requiredZoom = targetZoom;
 					case "INSTANT":
 						tweenCameraZoom(zoom, 0, isDirectMode);
 					default:
@@ -5422,8 +5434,12 @@ class PlayState extends MusicBeatState
 							if (!n.released && n.active)
 							{
 								noteMiss(n);
-								n.active = false;
+								n.missed = true;
 								n.released = true;
+								n.active = false;
+								n.canBeHit = false;
+								n.ignoreNote = true;
+								n.tooLate = true;
 								n.alpha = 0;
 								n.multAlpha = 0;
 							}
@@ -6501,7 +6517,7 @@ class PlayState extends MusicBeatState
 	function resetCameraZoom():Void
 	{
 		// Apply camera zoom level from stage data.
-		currentCameraZoom = stageZoom;
+		requiredZoom = currentCameraZoom = stageZoom;
 		FlxG.camera.zoom = currentCameraZoom;
 		
 		// Reset bop multiplier.
@@ -6852,6 +6868,8 @@ class PlayState extends MusicBeatState
 
 		ghost.velocity.x = 0;
 		ghost.velocity.y = 0;
+
+		if(ghost.isAnimateAtlas) ghost.useRenderTexture = true;
 
 		switch (mode)
 		{

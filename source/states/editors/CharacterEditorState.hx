@@ -275,6 +275,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 		ghost.visible = false;
 		ghost.alpha = ghostAlpha;
+		if(ghost.isAnimateAtlas) ghost.useRenderTexture = true;
 		add(ghost);
 
 		character.zIndex = 200;
