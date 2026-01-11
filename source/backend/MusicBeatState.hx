@@ -3,7 +3,7 @@ package backend;
 import openfl.display.BitmapData;
 import flixel.util.FlxSort;
 import flixel.FlxState;
-import backend.PsychCamera;
+import backend.GoldCamera;
 import backend.CoolUtil;
 
 @:bitmap("assets/embed/images/ui/cursor.png")
@@ -58,9 +58,9 @@ class MusicBeatState extends FlxState
 		timePassedOnState = 0;
 	}
 
-	public function initPsychCamera():PsychCamera
+	public function initPsychCamera(string:String = 'default'):GoldCamera
 	{
-		var camera = new PsychCamera();
+		var camera = new GoldCamera(string);
 		FlxG.cameras.reset(camera);
 		FlxG.cameras.setDefaultDrawTarget(camera, true);
 		_psychCameraInitialized = true;

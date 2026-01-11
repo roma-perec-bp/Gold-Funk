@@ -412,7 +412,7 @@ class PlayState extends MusicBeatState
 		cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 
 		// var gameCam:FlxCamera = FlxG.camera;
-		camGame = initPsychCamera();
+		camGame = initPsychCamera('PlayStateCamera');
 		camHUD = new FlxCamera();
 		camNotes = new FlxCamera();
 		camOverlayHUD = new FlxCamera();

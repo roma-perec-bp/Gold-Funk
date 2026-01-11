@@ -9,6 +9,7 @@ import flixel.util.FlxVerticalAlign;
 import flixel.FlxG;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
+import objects.funkin.FunkinCamera;
 
 class FullScreenScaleMode extends flixel.system.scaleModes.BaseScaleMode
 {
@@ -176,7 +177,7 @@ class FullScreenScaleMode extends flixel.system.scaleModes.BaseScaleMode
     horizontalAlign = enabled ? LEFT : CENTER;
     verticalAlign = enabled ? TOP : CENTER;
     onMeasureInstant(Math.ceil(awaitedSize.x), Math.ceil(awaitedSize.y));
-    FlxG.cameras.reset(new PsychCamera());
+    FlxG.cameras.reset(new FunkinCamera('default'));
 
     awaitedSize.set(0, 0);
     #end

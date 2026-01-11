@@ -3,10 +3,13 @@ package backend;
 import openfl.filters.BitmapFilter;
 import openfl.filters.ShaderFilter;
 
-// PsychCamera handles followLerp based on elapsed
-// and stops camera from snapping at higher framerates
+import objects.funkin.FunkinCamera;
 
-class PsychCamera extends FlxCamera
+// GoldCamera handles followLerp based on elapsed
+// and stops camera from snapping at higher framerates
+// and bettter blends
+
+class GoldCamera extends FunkinCamera
 {
 	override public function update(elapsed:Float):Void
 	{

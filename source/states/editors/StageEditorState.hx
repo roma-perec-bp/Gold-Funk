@@ -1,7 +1,7 @@
 package states.editors;
 
 import backend.StageData;
-import backend.PsychCamera;
+import backend.GoldCamera;
 import objects.Character;
 import psychlua.LuaUtils;
 
@@ -72,7 +72,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
-		camGame = initPsychCamera();
+		camGame = initPsychCamera('StageEditor');
 		camHUD = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD, false);
@@ -1017,8 +1017,9 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		tab_group.add(angleStepper);
 		
 		final blendList:Array<String> = [
-			'normal', 'add', 'alpha', 'darken', 'difference', 'erase', 'hardlight', 'invert',
-			'layer', 'lighten', 'multiply', 'overlay', 'screen', 'shader', 'subtract'
+			'normal', 'add', 'darken', 'difference', 'hardlight', 'invert',
+			'lighten', 'multiply', 'overlay', 'screen', 'shader', 'subtract',
+			'colordodge', 'colorburn', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'
 		];
 		tab_group.add(new FlxText(objX + 90, objY - 18, 80, 'Blend Mode:'));
 		blendDropDown = new PsychUIDropDownMenu(objX + 90, objY, blendList, function(sel:Int, value:String) {

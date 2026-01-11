@@ -491,19 +491,22 @@ class LuaUtils
 	public static function blendModeFromString(blend:String):BlendMode {
 		switch(blend.toLowerCase().trim()) {
 			case 'add': return ADD;
-			case 'alpha': return ALPHA;
 			case 'darken': return DARKEN;
 			case 'difference': return DIFFERENCE;
-			case 'erase': return ERASE;
 			case 'hardlight': return HARDLIGHT;
 			case 'invert': return INVERT;
-			case 'layer': return LAYER;
 			case 'lighten': return LIGHTEN;
 			case 'multiply': return MULTIPLY;
 			case 'overlay': return OVERLAY;
 			case 'screen': return SCREEN;
-			case 'shader': return SHADER;
 			case 'subtract': return SUBTRACT;
+			case 'colordodge': return COLORDODGE;
+			case 'colorburn': return COLORBURN;
+			case 'exclusion': return EXCLUSION;
+			case 'hue': return HUE;
+			case 'saturation': return SATURATION;
+			case 'color': return COLOR;
+			case 'luminosity': return LUMINOSITY;
 		}
 		return NORMAL;
 	}
