@@ -4,8 +4,8 @@ cd ..
 @echo on
 echo Installing dependencies...
 echo This might take a few moments depending on your internet speed.
-haxelib git lime https://github.com/FunkinCrew/lime 318253ea3a28a3299a167748912c40444f403777 --skip-dependencies
-haxelib git openfl  https://github.com/FunkinCrew/openfl 0d5ddb8f6bdaa953f3b910ab5013e04ed3de7df9 --skip-dependencies
+haxelib git lime https://github.com/FunkinCrew/lime 9d70910a748f9189cc0220276b9d88e341c043bb --skip-dependencies
+haxelib git openfl  https://github.com/FunkinCrew/openfl 0475d292861de25960abcbf5d2090f9a4bbab650 --skip-dependencies
 haxelib git flixel https://github.com/Psych-Slice/p-slice-1.0-flixel.git 9b1192a23fcfb456123efa14c63c8506ded20e5e --quiet --skip-dependencies
 haxelib git flixel-addons https://github.com/FunkinCrew/flixel-addons 6fa30b3f5209146c852c25f3d1003e08898083e2 --skip-dependencies
 haxelib install flixel-tools 1.5.1

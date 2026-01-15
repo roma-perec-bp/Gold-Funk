@@ -9,12 +9,13 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxMatrix;
 import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxShader;
-import objects.funkin.framebuffer.FixedBitmapData;
-import shaders.RuntimeCustomBlendShader;
+import funkin.graphics.framebuffer.FixedBitmapData;
+import funkin.graphics.shaders.RuntimeCustomBlendShader;
+import openfl.display.OpenGLRenderer;
 import openfl.Lib;
+import openfl.geom.Matrix;
 import openfl.display.BitmapData;
 import openfl.display.BlendMode;
-import openfl.display.OpenGLRenderer;
 import openfl.display3D.textures.TextureBase;
 
 /**
@@ -27,6 +28,14 @@ import openfl.display3D.textures.TextureBase;
  *   - OVERLAY
  *   - DIFFERENCE
  *   - INVERT
+ *   - COLORDODGE
+ *   - COLORBURN
+ *   - SOFTLIGHT
+ *   - EXCLUSION
+ *   - HUE
+ *   - SATURATION
+ *   - COLOR
+ *   - LUMINOSITY
  */
 @:nullSafety
 @:access(openfl.display.DisplayObject)
@@ -35,8 +44,22 @@ import openfl.display3D.textures.TextureBase;
 @:access(openfl.display3D.textures.TextureBase)
 @:access(flixel.graphics.FlxGraphic)
 @:access(flixel.graphics.frames.FlxFrame)
+@:access(openfl.display.OpenGLRenderer)
+@:access(openfl.geom.ColorTransform)
 class FunkinCamera extends FlxCamera
 {
+  /**
+   * Whether or not the device supports the OpenGL extension `KHR_blend_equation_advanced`.
+   * If `false`, a shader implementation will be used to render certain blend modes.
+   */
+  public static var hasKhronosExtension(get, never):Bool;
+
+  static inline function get_hasKhronosExtension():Bool
+  {
+    @:privateAccess
+    return OpenGLRenderer.__complexBlendsSupported ?? false;
+  }
+
   /**
    * A list of blend modes that require the OpenGL extension `KHR_blend_equation_advanced`.
    *
@@ -71,25 +94,14 @@ class FunkinCamera extends FlxCamera
    */
   public var id:String;
 
-  /**
-   * Whether or not the device supports the OpenGL extension `KHR_blend_equation_advanced`.
-   * If `false`, a shader implementation will be used to render certain blend modes.
-   */
-  public var hasKhronosExtension(get, never):Bool;
-
-  inline function get_hasKhronosExtension():Bool
-  {
-    @:privateAccess
-    return _renderer._complexBlendsSupported;
-  }
-
   var _blendShader:RuntimeCustomBlendShader;
   var _backgroundFrame:FlxFrame;
 
   var _blendRenderTexture:RenderTexture;
   var _backgroundRenderTexture:RenderTexture;
 
-  var _backgroundBitmap:Null<BitmapData>;
+  var _cameraTexture:Null<BitmapData>;
+  var _cameraMatrix:FlxMatrix;
 
   var _renderer:OpenGLRenderer;
 
@@ -105,11 +117,14 @@ class FunkinCamera extends FlxCamera
 
     _blendShader = new RuntimeCustomBlendShader();
 
-    @:privateAccess
-    _renderer = new OpenGLRenderer(Lib.current.stage.context3D);
-
     _backgroundRenderTexture = new RenderTexture(width, height);
     _blendRenderTexture = new RenderTexture(width, height);
+
+    _cameraMatrix = new FlxMatrix();
+
+    _renderer = new OpenGLRenderer(FlxG.stage.context3D);
+    _renderer.__worldTransform = new Matrix();
+    _renderer.__worldColorTransform = new ColorTransform();
   }
 
   /**
@@ -123,34 +138,56 @@ class FunkinCamera extends FlxCamera
    */
   public function grabScreen(clearScreen:Bool = false):Null<BitmapData>
   {
-    if (_backgroundBitmap == null)
+    if (_cameraTexture == null)
     {
       var texture:Null<TextureBase> = _createTexture(width, height);
       if (texture == null) return null;
 
-      _backgroundBitmap = FixedBitmapData.fromTexture(texture);
+      _cameraTexture = FixedBitmapData.fromTexture(texture);
     }
 
-    if (_backgroundBitmap != null)
+    if (_cameraTexture != null)
     {
       var matrix:FlxMatrix = new FlxMatrix();
-      matrix.setTo(1, 0, 0, 1, flashSprite.x, flashSprite.y);
+      var pivotX:Float = FlxG.scaleMode.scale.x;
+      var pivotY:Float = FlxG.scaleMode.scale.y;
+
+      matrix.setTo(1 / pivotX, 0, 0, 1 / pivotY, flashSprite.x / pivotX, flashSprite.y / pivotY);
+
+      // Mostly copied from flixel-animate's `RenderTexture`
+      // Shoutouts to ACrazyTown and Maru this is some crazy work...
+      // https://github.com/MaybeMaru/flixel-animate/blob/main/src/animate/internal/RenderTexture.hx
+      _cameraTexture.__fillRect(_cameraTexture.rect, 0, true);
 
       this.render();
+      this.flashSprite.__update(false, true);
 
-      _backgroundBitmap.draw(flashSprite, matrix, true);
+      _renderer.__cleanup();
+
+      _renderer.setShader(_renderer.__defaultShader);
+      _renderer.__allowSmoothing = false;
+      _renderer.__pixelRatio = Lib.current.stage.window.scale;
+      _renderer.__worldAlpha = 1 / this.flashSprite.__worldAlpha;
+      _renderer.__worldTransform.copyFrom(this.flashSprite.__renderTransform);
+      _renderer.__worldTransform.invert();
+      _renderer.__worldTransform.concat(matrix);
+      _renderer.__worldColorTransform.__copyFrom(this.flashSprite.__worldColorTransform);
+      _renderer.__worldColorTransform.__invert();
+      _renderer.__setRenderTarget(_cameraTexture);
+
+      _cameraTexture.__drawGL(this.canvas, _renderer);
 
       if (clearScreen)
       {
-        // clear graphics data
-        super.clearDrawStack();
-        canvas.graphics.clear();
+        // Clear the camera's graphics
+        this.clearDrawStack();
+        this.canvas.graphics.clear();
       }
 
       _backgroundFrame.frame.set(0, 0, width, height);
     }
 
-    return _backgroundBitmap;
+    return _cameraTexture;
   }
 
   override function drawPixels(?frame:FlxFrame, ?pixels:BitmapData, matrix:FlxMatrix, ?transform:ColorTransform, ?blend:BlendMode, ?smoothing:Bool = false,
@@ -163,18 +200,16 @@ class FunkinCamera extends FlxCamera
     if (shouldUseShader)
     {
       var background:Null<BitmapData> = grabScreen(true);
-      var frameMatrix:FlxMatrix = new FlxMatrix();
-      frameMatrix.copyFrom(matrix);
 
       _blendRenderTexture.init(this.width, this.height);
-      _blendRenderTexture.drawToCamera((camera, matrix) -> {
+      _blendRenderTexture.drawToCamera((camera, frameMatrix) -> {
         var pivotX:Float = width / 2;
         var pivotY:Float = height / 2;
 
+        frameMatrix.copyFrom(matrix);
         frameMatrix.translate(-pivotX, -pivotY);
         frameMatrix.scale(this.scaleX, this.scaleY);
         frameMatrix.translate(pivotX, pivotY);
-
         camera.drawPixels(frame, pixels, frameMatrix, transform, null, smoothing, shader);
       });
       _blendRenderTexture.render();
@@ -203,12 +238,11 @@ class FunkinCamera extends FlxCamera
       _backgroundRenderTexture.render();
 
       // Resize the frame so it always fills the screen
-      var cameraMatrix:FlxMatrix = new FlxMatrix();
-      cameraMatrix.identity();
-      cameraMatrix.scale(1 / this.scaleX, 1 / this.scaleY);
-      cameraMatrix.translate((width - width / this.scaleX) * 0.5, (height - height / this.scaleY) * 0.5);
+      _cameraMatrix.identity();
+      _cameraMatrix.scale(1 / this.scaleX, 1 / this.scaleY);
+      _cameraMatrix.translate(((width - width / this.scaleX) * 0.5), ((height - height / this.scaleY) * 0.5));
 
-      super.drawPixels(_backgroundRenderTexture.graphic.imageFrame.frame, null, cameraMatrix, null, null, false, null);
+      super.drawPixels(_backgroundRenderTexture.graphic.imageFrame.frame, null, _cameraMatrix, null, null, smoothing, null);
     }
     else
     {
@@ -223,10 +257,10 @@ class FunkinCamera extends FlxCamera
     _blendRenderTexture.destroy();
     _backgroundRenderTexture.destroy();
 
-    if (_backgroundBitmap != null)
+    if (_cameraTexture != null)
     {
-      _backgroundBitmap.dispose();
-      _backgroundBitmap = null;
+      _cameraTexture.dispose();
+      _cameraTexture = null;
     }
   }
 
