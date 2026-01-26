@@ -718,6 +718,7 @@ class PlayState extends MusicBeatState
 		skipText.screenCenter(X);
 		skipText.cameras = [camOther];
 		skipText.alpha = 0;
+		if(!ClientPrefs.data.hideHud) add(skipText);
 
 		watermark = new FlxText(0, 690, FlxG.width, "FNF GoldFunk' Engine v" +  MainMenuState.goldFunkVersion + " | Alpha version ", 16);
 		watermark.scrollFactor.set();
