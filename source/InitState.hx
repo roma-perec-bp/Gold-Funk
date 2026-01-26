@@ -89,6 +89,10 @@ class InitState extends FlxState
         setupFlixelDebug();
         #end
 
+        // Force a `FunkinCamera` to be the default camera.
+        // This allows the blend mode shader to work everywhere.
+        untyped FlxG.cameras = new objects.funkin.FunkinCameraFrontEnd();
+
         FlxG.scaleMode = new FullScreenScaleMode();
 
 		FlxG.switchState(new states.TitleState());

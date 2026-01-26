@@ -30,6 +30,8 @@ import openfl.utils.Assets as OpenFlAssets;
 import openfl.events.KeyboardEvent;
 import haxe.Json;
 
+import objects.funkin.FunkinCamera;
+
 import cutscenes.DialogueBoxPsych;
 
 import states.StoryMenuState;
@@ -276,11 +278,11 @@ class PlayState extends MusicBeatState
 
 	public var iconP1:HealthIcon;
 	public var iconP2:HealthIcon;
-	public var camHUD:FlxCamera;
-	public var camOverlayHUD:FlxCamera; //does same as camHUD but above notes ye
-	public var camGame:FlxCamera;
-	public var camNotes:FlxCamera;
-	public var camOther:FlxCamera;
+	public var camHUD:FunkinCamera;
+	public var camOverlayHUD:FunkinCamera; //does same as camHUD but above notes ye
+	public var camGame:FunkinCamera;
+	public var camNotes:FunkinCamera;
+	public var camOther:FunkinCamera;
 	public var cameraSpeed:Float = 1;
 
 	public var songScore:Int = 0;
@@ -413,10 +415,10 @@ class PlayState extends MusicBeatState
 
 		// var gameCam:FlxCamera = FlxG.camera;
 		camGame = initPsychCamera('PlayStateCamera');
-		camHUD = new FlxCamera();
-		camNotes = new FlxCamera();
-		camOverlayHUD = new FlxCamera();
-		camOther = new FlxCamera();
+		camHUD = new FunkinCamera('PlayStateCameraHud');
+		camNotes = new FunkinCamera('PlayStateCameraNotes');
+		camOverlayHUD = new FunkinCamera('PlayStateCameraHudOverlay');
+		camOther = new FunkinCamera('PlayStateCameraOther');
 		camHUD.bgColor.alpha = 0;
 		camOverlayHUD.bgColor.alpha = 0;
 		camNotes.bgColor.alpha = 0;

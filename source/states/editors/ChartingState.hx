@@ -4046,7 +4046,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		objY += 50;
 
-		tweenDropZoom = new PsychUIDropDownMenu(objX, objY, ['INSTANT', 'linear', 'backIn', 'backInOut', 'backOut', 'bounceIn', 'bounceInOut', 'bounceOut',
+		tweenDropZoom = new PsychUIDropDownMenu(objX, objY, ['CLASSIC', 'INSTANT', 'linear', 'backIn', 'backInOut', 'backOut', 'bounceIn', 'bounceInOut', 'bounceOut',
 		'circIn', 'circInOut', 'circOut', 'cubeIn', 'cubeInOut', 'cubeOut', 'elasticIn', 'elasticInOut', 'elasticOut', 'expoIn', 'expoInOut', 'expoOut', 'quadIn', 'quadInOut', 'quadOut',
 		'quartIn', 'quartInOut', 'quartOut', 'sineIn', 'sineInOut', 'sineOut', 'smoothStepIn', 'smoothStepInOut', 'smoothStepOut', 'smootherStepIn', 'smootherStepInOut', 'smootherStepOut'],
 		function(id:Int, character:String)

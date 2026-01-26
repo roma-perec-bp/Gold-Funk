@@ -3,20 +3,21 @@ package objects.funkin;
 import animate.internal.RenderTexture;
 import flash.geom.ColorTransform;
 import flixel.FlxCamera;
-import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxMatrix;
 import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxShader;
-import funkin.graphics.framebuffer.FixedBitmapData;
-import funkin.graphics.shaders.RuntimeCustomBlendShader;
+import objects.funkin.framebuffer.FixedBitmapData;
+import shaders.RuntimeCustomBlendShader;
 import openfl.display.OpenGLRenderer;
 import openfl.Lib;
-import openfl.geom.Matrix;
 import openfl.display.BitmapData;
 import openfl.display.BlendMode;
-import openfl.display3D.textures.TextureBase;
+import flixel.graphics.tile.FlxDrawQuadsItem;
+import flixel.graphics.tile.FlxDrawTrianglesItem;
+
+using objects.funkin.framebuffer.BitmapDataUtil;
 
 /**
  * A FlxCamera with additional powerful features:
@@ -56,8 +57,12 @@ class FunkinCamera extends FlxCamera
 
   static inline function get_hasKhronosExtension():Bool
   {
+    #if FORCE_BLEND_SHADER
+    return false;
+    #else
     @:privateAccess
     return OpenGLRenderer.__complexBlendsSupported ?? false;
+    #end
   }
 
   /**
@@ -100,10 +105,8 @@ class FunkinCamera extends FlxCamera
   var _blendRenderTexture:RenderTexture;
   var _backgroundRenderTexture:RenderTexture;
 
-  var _cameraTexture:Null<BitmapData>;
+  var _cameraTexture:FixedBitmapData;
   var _cameraMatrix:FlxMatrix;
-
-  var _renderer:OpenGLRenderer;
 
   @:nullSafety(Off)
   public function new(id:String = 'unknown', x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0, zoom:Float = 0)
@@ -117,77 +120,11 @@ class FunkinCamera extends FlxCamera
 
     _blendShader = new RuntimeCustomBlendShader();
 
-    _backgroundRenderTexture = new RenderTexture(width, height);
-    _blendRenderTexture = new RenderTexture(width, height);
+    _backgroundRenderTexture = new RenderTexture(this.width, this.height);
+    _blendRenderTexture = new RenderTexture(this.width, this.height);
 
     _cameraMatrix = new FlxMatrix();
-
-    _renderer = new OpenGLRenderer(FlxG.stage.context3D);
-    _renderer.__worldTransform = new Matrix();
-    _renderer.__worldColorTransform = new ColorTransform();
-  }
-
-  /**
-   * Grabs the camera screen and returns it as a `BitmapData`. The returned bitmap
-   * will not be referred by the camera so, changing it will not affect the scene.
-   * The returned bitmap **will be reused in the next frame**, so the content is available
-   * only in the current frame.
-   *
-   * @param clearScreen if this is `true`, the screen will be cleared before rendering
-   * @return the grabbed bitmap data
-   */
-  public function grabScreen(clearScreen:Bool = false):Null<BitmapData>
-  {
-    if (_cameraTexture == null)
-    {
-      var texture:Null<TextureBase> = _createTexture(width, height);
-      if (texture == null) return null;
-
-      _cameraTexture = FixedBitmapData.fromTexture(texture);
-    }
-
-    if (_cameraTexture != null)
-    {
-      var matrix:FlxMatrix = new FlxMatrix();
-      var pivotX:Float = FlxG.scaleMode.scale.x;
-      var pivotY:Float = FlxG.scaleMode.scale.y;
-
-      matrix.setTo(1 / pivotX, 0, 0, 1 / pivotY, flashSprite.x / pivotX, flashSprite.y / pivotY);
-
-      // Mostly copied from flixel-animate's `RenderTexture`
-      // Shoutouts to ACrazyTown and Maru this is some crazy work...
-      // https://github.com/MaybeMaru/flixel-animate/blob/main/src/animate/internal/RenderTexture.hx
-      _cameraTexture.__fillRect(_cameraTexture.rect, 0, true);
-
-      this.render();
-      this.flashSprite.__update(false, true);
-
-      _renderer.__cleanup();
-
-      _renderer.setShader(_renderer.__defaultShader);
-      _renderer.__allowSmoothing = false;
-      _renderer.__pixelRatio = Lib.current.stage.window.scale;
-      _renderer.__worldAlpha = 1 / this.flashSprite.__worldAlpha;
-      _renderer.__worldTransform.copyFrom(this.flashSprite.__renderTransform);
-      _renderer.__worldTransform.invert();
-      _renderer.__worldTransform.concat(matrix);
-      _renderer.__worldColorTransform.__copyFrom(this.flashSprite.__worldColorTransform);
-      _renderer.__worldColorTransform.__invert();
-      _renderer.__setRenderTarget(_cameraTexture);
-
-      _cameraTexture.__drawGL(this.canvas, _renderer);
-
-      if (clearScreen)
-      {
-        // Clear the camera's graphics
-        this.clearDrawStack();
-        this.canvas.graphics.clear();
-      }
-
-      _backgroundFrame.frame.set(0, 0, width, height);
-    }
-
-    return _cameraTexture;
+    _cameraTexture = FixedBitmapData.create(this.width, this.height);
   }
 
   override function drawPixels(?frame:FlxFrame, ?pixels:BitmapData, matrix:FlxMatrix, ?transform:ColorTransform, ?blend:BlendMode, ?smoothing:Bool = false,
@@ -199,7 +136,13 @@ class FunkinCamera extends FlxCamera
     // the specified blend mode requires the shader.
     if (shouldUseShader)
     {
-      var background:Null<BitmapData> = grabScreen(true);
+      _cameraTexture.drawCameraScreen(this);
+      _backgroundFrame.frame.set(0, 0, this.width, this.height);
+
+      // Clear the camera's graphics
+      // It'll get redrawn anyway
+      this.clearDrawStack();
+      this.canvas.graphics.clear();
 
       _blendRenderTexture.init(this.width, this.height);
       _blendRenderTexture.drawToCamera((camera, frameMatrix) -> {
@@ -214,24 +157,18 @@ class FunkinCamera extends FlxCamera
       });
       _blendRenderTexture.render();
 
-      if (background == null || _blendRenderTexture.graphic.bitmap == null)
-      {
-        FlxG.log.error('Failed to get bitmap for blending!');
-        super.drawPixels(frame, pixels, matrix, transform, blend, smoothing, shader);
-        return;
-      }
-
       _blendShader.sourceSwag = _blendRenderTexture.graphic.bitmap;
-      _blendShader.backgroundSwag = background;
+      _blendShader.backgroundSwag = _cameraTexture;
 
       _blendShader.blendSwag = blend;
       _blendShader.updateViewInfo(width, height, this);
 
       _backgroundFrame.parent.bitmap = _blendRenderTexture.graphic.bitmap;
 
-      _backgroundRenderTexture.init(this.width, this.height);
+      _backgroundRenderTexture.init(Std.int(this.width * Lib.current.stage.window.scale), Std.int(this.height * Lib.current.stage.window.scale));
       _backgroundRenderTexture.drawToCamera((camera, matrix) -> {
         camera.zoom = this.zoom;
+        matrix.scale(Lib.current.stage.window.scale, Lib.current.stage.window.scale);
         camera.drawPixels(_backgroundFrame, null, matrix, canvas.transform.colorTransform, null, false, _blendShader);
       });
 
@@ -239,7 +176,7 @@ class FunkinCamera extends FlxCamera
 
       // Resize the frame so it always fills the screen
       _cameraMatrix.identity();
-      _cameraMatrix.scale(1 / this.scaleX, 1 / this.scaleY);
+      _cameraMatrix.scale(1 / (this.scaleX * Lib.current.stage.window.scale), 1 / (this.scaleY * Lib.current.stage.window.scale));
       _cameraMatrix.translate(((width - width / this.scaleX) * 0.5), ((height - height / this.scaleY) * 0.5));
 
       super.drawPixels(_backgroundRenderTexture.graphic.imageFrame.frame, null, _cameraMatrix, null, null, smoothing, null);
@@ -250,6 +187,69 @@ class FunkinCamera extends FlxCamera
     }
   }
 
+  override function startQuadBatch(graphic:FlxGraphic, colored:Bool, hasColorOffsets:Bool = false, ?blend:BlendMode, smooth:Bool = false,
+      ?shader:FlxShader):FlxDrawQuadsItem
+  {
+    // Can't batch complex non-coherent blends, so always force a new batch
+    if (hasKhronosExtension && !(OpenGLRenderer.__coherentBlendsSupported ?? false) && KHR_BLEND_MODES.contains(blend))
+    {
+      var itemToReturn = null;
+
+      if (FlxCamera._storageTilesHead != null)
+      {
+        itemToReturn = FlxCamera._storageTilesHead;
+        var newHead = FlxCamera._storageTilesHead.nextTyped;
+        itemToReturn.reset();
+        FlxCamera._storageTilesHead = newHead;
+      }
+      else
+      {
+        itemToReturn = new FlxDrawQuadsItem();
+      }
+
+      // TODO: catch this error when the dev actually messes up, not in the draw phase
+      if (graphic.isDestroyed) throw 'Cannot queue ${graphic.key}. This sprite was destroyed.';
+
+      itemToReturn.graphics = graphic;
+      itemToReturn.antialiasing = smooth;
+      itemToReturn.colored = colored;
+      itemToReturn.hasColorOffsets = hasColorOffsets;
+      itemToReturn.blend = blend;
+      @:nullSafety(Off)
+      itemToReturn.shader = shader;
+
+      itemToReturn.nextTyped = _headTiles;
+      _headTiles = itemToReturn;
+
+      if (_headOfDrawStack == null)
+      {
+        _headOfDrawStack = itemToReturn;
+      }
+
+      if (_currentDrawItem != null)
+      {
+        _currentDrawItem.next = itemToReturn;
+      }
+
+      _currentDrawItem = itemToReturn;
+
+      return itemToReturn;
+    }
+
+    return super.startQuadBatch(graphic, colored, hasColorOffsets, blend, smooth, shader);
+  }
+
+  override function startTrianglesBatch(graphic:FlxGraphic, smoothing:Bool = false, isColored:Bool = false, ?blend:BlendMode, ?hasColorOffsets:Bool,
+      ?shader:FlxShader):FlxDrawTrianglesItem
+  {
+    // Can't batch complex non-coherent blends, so always force a new batch
+    if (hasKhronosExtension
+      && !(OpenGLRenderer.__coherentBlendsSupported ?? false)
+      && KHR_BLEND_MODES.contains(blend)) return getNewDrawTrianglesItem(graphic, smoothing, isColored, blend, hasColorOffsets, shader);
+
+    return super.startTrianglesBatch(graphic, smoothing, isColored, blend, hasColorOffsets, shader);
+  }
+
   override function destroy():Void
   {
     super.destroy();
@@ -257,19 +257,6 @@ class FunkinCamera extends FlxCamera
     _blendRenderTexture.destroy();
     _backgroundRenderTexture.destroy();
 
-    if (_cameraTexture != null)
-    {
-      _cameraTexture.dispose();
-      _cameraTexture = null;
-    }
-  }
-
-  function _createTexture(width:Int, height:Int):Null<TextureBase>
-  {
-    // zero-sized textures will be problematic
-    width = width < 1 ? 1 : width;
-    height = height < 1 ? 1 : height;
-
-    return Lib.current.stage.context3D.createTexture(width, height, BGRA, true);
+    _cameraTexture.dispose();
   }
 }
