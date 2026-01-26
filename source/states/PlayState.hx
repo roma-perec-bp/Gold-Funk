@@ -716,7 +716,7 @@ class PlayState extends MusicBeatState
 		
 		skipText.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 2, 1);
 		skipText.screenCenter(X);
-		uiGroup.add(skipText);
+		skipText.cameras = [camOther];
 		skipText.alpha = 0;
 
 		watermark = new FlxText(0, 690, FlxG.width, "FNF GoldFunk' Engine v" +  MainMenuState.goldFunkVersion + " | Alpha version ", 16);
@@ -1737,11 +1737,121 @@ class PlayState extends MusicBeatState
 			if (startOnTime > 0) {
 				clearNotesBefore(startOnTime);
 				setSongTime(startOnTime - 350);
+
+				moveCameraSection();
+				reloading = false;
+
+				if(needsToReset)
+				{
+					//FlxG.sound.music.play();
+					@:privateAccess
+					FlxG.sound.playMusic(inst._sound, 1, false);
+					#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
+					FlxG.sound.music.onComplete = finishSong.bind();
+
+					vocals.play();
+					opponentVocals.play();
+
+					needsToReset = false;
+				}
+
+				new FlxTimer().start(0.001, function(tmr:FlxTimer) //so it can be disabled be optioned
+				{
+					if (FlxG.camera.zoom < 1.7 && cameraZoomRate > 0 && ClientPrefs.data.camZooms)
+					{
+						// Set zoom multiplier for camera bop.
+						cameraBopMultiplier = cameraBopIntensity;
+						// HUD camera zoom still uses old system. To change. (+3%)
+						camHudBopMult += hudCameraZoomIntensity;
+						camNotesBopMult += hudCameraZoomIntensity;
+						
+						if(shakeBeat)
+						{
+							camGame.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+							camHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+							camOverlayHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+							camNotes.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+						}
+					}
+				});
+
+				if (PlayState.SONG.showYOUtext)
+					textYOUappear();
+
+				if (PlayState.SONG.fadeOutStart)
+				{
+					if(PlayState.SONG.fadeCount)
+					{
+						if (!PlayState.SONG.inFrontFade)
+							FlxG.camera.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+						else
+							camHUD.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+					}
+				}
+
+				moveCameraSection();
+				reloading = false;
+
 				return true;
 			}
 			else if (skipCountdown)
 			{
 				setSongTime(0);
+
+				moveCameraSection();
+				reloading = false;
+
+				if(needsToReset)
+				{
+					//FlxG.sound.music.play();
+					@:privateAccess
+					FlxG.sound.playMusic(inst._sound, 1, false);
+					#if FLX_PITCH FlxG.sound.music.pitch = playbackRate; #end
+					FlxG.sound.music.onComplete = finishSong.bind();
+
+					vocals.play();
+					opponentVocals.play();
+
+					needsToReset = false;
+				}
+
+				new FlxTimer().start(0.001, function(tmr:FlxTimer) //so it can be disabled be optioned
+				{
+					if (FlxG.camera.zoom < 1.7 && cameraZoomRate > 0 && ClientPrefs.data.camZooms)
+					{
+						// Set zoom multiplier for camera bop.
+						cameraBopMultiplier = cameraBopIntensity;
+						// HUD camera zoom still uses old system. To change. (+3%)
+						camHudBopMult += hudCameraZoomIntensity;
+						camNotesBopMult += hudCameraZoomIntensity;
+						
+						if(shakeBeat)
+						{
+							camGame.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+							camHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+							camOverlayHUD.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+							camNotes.shake(0.003 * shakeDec, 1 / (Conductor.bpm / 60));
+						}
+					}
+				});
+
+				if (PlayState.SONG.showYOUtext)
+					textYOUappear();
+
+				if (PlayState.SONG.fadeOutStart)
+				{
+					if(PlayState.SONG.fadeCount)
+					{
+						if (!PlayState.SONG.inFrontFade)
+							FlxG.camera.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+						else
+							camHUD.fade(FlxColor.BLACK, PlayState.SONG.fadeDuration, true, null, true);
+					}
+				}
+
+				moveCameraSection();
+				reloading = false;
+
 				return true;
 			}
 			moveCameraSection();
