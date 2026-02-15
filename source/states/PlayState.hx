@@ -2710,6 +2710,8 @@ class PlayState extends MusicBeatState
 			case 'Play Sound':
 				Paths.sound(event.value1); //Precache sound
 
+				
+			#if VIDEOS_ALLOWED
 			case 'Play Video':
 				/**
 				 * We have to do this to avoid issues with lag or the video being misplaced.
@@ -2718,18 +2720,12 @@ class PlayState extends MusicBeatState
 				if(!preloadedVideoAtLeastOnce)
 				{
 					preloadedVideoAtLeastOnce = true;
-					videoCutscene = new VideoSprite(Paths.video('lol'), false, false, false);
+					startVideo('lol', true, false);	
    			 		videoCutscene.alpha = 0.001;
-    				add(videoCutscene);
 				}
 
-				#if hxvlc
-				videoCutscene.play();
-				startVideo(event.value1, true, false, false, false);
-				trace('pre-loaded ' +  event.value1);
-				#end
-
 				//startVideo(event.value1, true, true, false, false); //Precache video
+			#end
 		}
 		stagesFunc(function(stage:BaseStage) stage.eventPushedUnique(event));
 	}

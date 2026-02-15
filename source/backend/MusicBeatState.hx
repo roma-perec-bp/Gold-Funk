@@ -23,8 +23,6 @@ class MusicBeatState extends FlxState
 
 	public function new()
 	{
-		//if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
-
 		super();
 	}
 
@@ -163,7 +161,11 @@ class MusicBeatState extends FlxState
 	}
 
 	public static function resetState() {
-		if(FlxTransitionableState.skipNextTransIn) FlxG.resetState();
+		if(FlxTransitionableState.skipNextTransIn) 
+		{
+			FlxG.resetState();
+			if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
+		}
 		else startTransition();
 		FlxTransitionableState.skipNextTransIn = false;
 	}
@@ -176,7 +178,13 @@ class MusicBeatState extends FlxState
 
 		FlxG.state.openSubState(new CustomFadeTransition(0.5, false));
 		if(nextState == FlxG.state)
-			CustomFadeTransition.finishCallback = function() FlxG.resetState();
+		{
+			CustomFadeTransition.finishCallback = function()
+			{
+				FlxG.resetState();
+				if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
+			}
+		}
 		else
 			CustomFadeTransition.finishCallback = function() FlxG.switchState(nextState);
 	}
