@@ -3924,7 +3924,9 @@ class PlayState extends MusicBeatState
 						PlayState.instance.cancelCameraZoomTween();
 						requiredZoom = targetZoom;
 					case "INSTANT":
+						var targetZoom = zoom * (isDirectMode ? FlxCamera.defaultZoom : stageZoom);
 						tweenCameraZoom(zoom, 0, isDirectMode);
+						requiredZoom = targetZoom;
 					default:
 						var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
 						tweenCameraZoom(zoom, durSeconds, isDirectMode, LuaUtils.getTweenEaseByString(value1));
@@ -4929,8 +4931,14 @@ class PlayState extends MusicBeatState
 
 			switch(ease)
 			{
+				case "CLASSIC":
+					var targetZoom = SONG.notes[curSection].zoom * (SONG.notes[curSection].stgZoom ? FlxCamera.defaultZoom : stageZoom);
+					PlayState.instance.cancelCameraZoomTween();
+					requiredZoom = targetZoom;
 				case "INSTANT":
+					var targetZoom = SONG.notes[curSection].zoom * (SONG.notes[curSection].stgZoom ? FlxCamera.defaultZoom : stageZoom);
 					tweenCameraZoom(SONG.notes[curSection].zoom, 0, SONG.notes[curSection].stgZoom);
+					requiredZoom = targetZoom;
 				default:
 					var durSeconds:Float = Conductor.stepCrochet * SONG.notes[curSection].zoomTime / 1000;
 					tweenCameraZoom(SONG.notes[curSection].zoom, durSeconds, SONG.notes[curSection].stgZoom, LuaUtils.getTweenEaseByString(ease));
