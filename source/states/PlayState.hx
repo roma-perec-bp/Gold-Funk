@@ -3426,6 +3426,7 @@ class PlayState extends MusicBeatState
 		FlxG.sound.play(Paths.sound('confirmMenu'));
 		camOther.flash(0x55FFFFFF, Conductor.crochet * 0.001, null, true);
 		setSongTime(skipTime);
+		FlxTween.cancelTweensOf(skipTime);
 		skipText.alpha = 0;
 		canSkip = false;
 		stagesFunc(function(stage:BaseStage) stage.skipIntroFunc());
