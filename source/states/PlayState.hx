@@ -1430,10 +1430,10 @@ class PlayState extends MusicBeatState
 		setupCameraToSong();
 		resetCamera();
 
-		refresh();
-
 		stagesFunc(function(stage:BaseStage) stage.songRestartPost());
 		callOnScripts('onSongRestartPost');
+
+		refresh();
 		
 		// so the song doesn't start too early :D
 		var vwooshDelay:Float = 0.5;
@@ -1620,10 +1620,10 @@ class PlayState extends MusicBeatState
 		setupCameraToSong();
 		resetCamera();
 
-		refresh();
-
 		stagesFunc(function(stage:BaseStage) stage.songRestartPost());
 		callOnScripts('onSongRestartPost');
+
+		refresh();
 
 		// so the song doesn't start too early :D
 		var vwooshDelay:Float = 0.5;
