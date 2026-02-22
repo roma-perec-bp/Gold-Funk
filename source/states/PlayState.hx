@@ -1312,6 +1312,10 @@ class PlayState extends MusicBeatState
 		stagesFunc(function(stage:BaseStage) stage.songRestart());
 		callOnScripts('onSongRestart');
 
+		skipTime = 0;
+		canSkip = false;
+		skipText.alpha = 0;
+
 		boyfriend.playInitAnimation();
 		dad.playInitAnimation();
 		if(gf != null) gf.playInitAnimation();
@@ -1489,6 +1493,10 @@ class PlayState extends MusicBeatState
 			videoCutscene = null;
 		}
 		#end
+
+		skipTime = 0;
+		canSkip = false;
+		skipText.alpha = 0;
 
 		boyfriend.playInitAnimation();
 		dad.playInitAnimation();
@@ -2982,7 +2990,7 @@ class PlayState extends MusicBeatState
 		}
 
 		if(FlxG.keys.justPressed.SPACE)
-			if (Conductor.songPosition < skipTime && canSkip)
+			if (Conductor.songPosition < skipTime && canSkip && skipText.alpha == 1)
 				skipIntroFunc(); //for BaseStage.hx
 
 		if(Conductor.songPosition >= skipTime && canSkip)
@@ -3517,6 +3525,10 @@ class PlayState extends MusicBeatState
 				if (startTimer != null) startTimer.cancel();
 				if (goTimer != null) goTimer.cancel();
 
+				skipTime = 0;
+				canSkip = false;
+				skipText.alpha = 0;
+
 				//FlxTimer.globalManager.forEach(function(tmr:FlxTimer) tmr.cancel());
 				//FlxTween.globalManager.forEach(function(twn:FlxTween) twn.cancel());
 
@@ -3525,6 +3537,8 @@ class PlayState extends MusicBeatState
 				camOverlayHUD.stopFX();
 				camNotes.stopFX();
 				camOther.stopFX();
+
+				cancelAllCameraTweens();
 
 				canResync = false;
 				canPause = false;
