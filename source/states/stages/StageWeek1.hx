@@ -43,16 +43,19 @@ class StageWeek1 extends BaseStage
 				dadbattleBlack.makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
 				dadbattleBlack.alpha = 0.25;
 				dadbattleBlack.visible = false;
+				dadbattleBlack.zIndex = 500;
 				add(dadbattleBlack);
 
 				dadbattleLight = new BGSprite('spotlight', 400, -400);
 				dadbattleLight.alpha = 0.375;
 				dadbattleLight.blend = ADD;
 				dadbattleLight.visible = false;
+				dadbattleLight.zIndex = 600;
 				add(dadbattleLight);
 
 				dadbattleFog = new DadBattleFog();
 				dadbattleFog.visible = false;
+				dadbattleFog.zIndex = 700;
 				add(dadbattleFog);
 		}
 	}
