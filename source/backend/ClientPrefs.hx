@@ -113,7 +113,9 @@ class ClientPrefs {
 		
 		'debug_1'		=> [SEVEN],
 		'debug_2'		=> [EIGHT],
-		'debug_3'		=> [SIX]
+		'debug_3'		=> [SIX],
+
+		'full_screen'		=> [F11]
 	];
 	public static var gamepadBinds:Map<String, Array<FlxGamepadInputID>> = [
 		'note_up'		=> [DPAD_UP, Y],

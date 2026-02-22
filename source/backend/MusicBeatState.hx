@@ -76,6 +76,13 @@ class MusicBeatState extends FlxState
 		updateCurStep();
 		updateBeat();
 
+		#if (desktop || html5)
+		if (controls.justPressed('full_screen'))
+    	{
+     		openfl.Lib.application.window.fullscreen = !openfl.Lib.application.window.fullscreen;
+    	}
+    	#end
+		
 		if (oldStep != curStep)
 		{
 			if(curStep > 0)

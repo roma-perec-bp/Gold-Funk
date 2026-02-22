@@ -1248,7 +1248,7 @@ class PlayState extends MusicBeatState
 		Paths.sound('introGo' + introSoundsSuffix);
 	}
 
-		public function reloadChars()
+	public function reloadChars()
 	{
 		if(boyfriend.curCharacter != SONG.player1) {
 			if(!boyfriendMap.exists(SONG.player1)) {
@@ -1430,6 +1430,8 @@ class PlayState extends MusicBeatState
 		setupCameraToSong();
 		resetCamera();
 
+		refresh();
+
 		stagesFunc(function(stage:BaseStage) stage.songRestartPost());
 		callOnScripts('onSongRestartPost');
 		
@@ -1449,6 +1451,8 @@ class PlayState extends MusicBeatState
 			}
 
 			if(eventNotes.length < 1) checkEventNote();
+
+			refresh();
 			
 			startCountdown();
 		});
@@ -1616,6 +1620,8 @@ class PlayState extends MusicBeatState
 		setupCameraToSong();
 		resetCamera();
 
+		refresh();
+
 		stagesFunc(function(stage:BaseStage) stage.songRestartPost());
 		callOnScripts('onSongRestartPost');
 
@@ -1635,6 +1641,8 @@ class PlayState extends MusicBeatState
 			}
 
 			if(eventNotes.length < 1) checkEventNote();
+
+			refresh();
 
 			startCountdown();
 		});
@@ -3042,6 +3050,7 @@ class PlayState extends MusicBeatState
 			var zoomPlusBop:Float = currentCameraZoom * cameraBopMultiplier; // Apply camera bop multiplier.
 			FlxG.camera.zoom = zoomPlusBop; // Actually apply the zoom to the camera.
 
+			//LERP classic camera zoom by Purshake
 			if (requiredZoom != currentCameraZoom
 				&& (cameraZoomTween == null || !cameraZoomTween.active)) currentCameraZoom = FlxMath.lerp(requiredZoom, currentCameraZoom,
 				  Math.pow(decayRate * camZoomingDecay, dt));
@@ -3672,16 +3681,25 @@ class PlayState extends MusicBeatState
 
 			case 'Hey!':
 				var value:Int = 2;
+				var char:Character = boyfriend;
 				switch(value1.toLowerCase().trim()) {
 					case 'bf' | 'boyfriend' | '0':
 						value = 0;
+						char = boyfriend;
 					case 'gf' | 'girlfriend' | '1':
 						value = 1;
+						char = gf;
+					case 'dad' | 'opponent' | '2':
+						value = 2;
+						char = dad;
+					default:
+						value = 3;
 				}
 
 				if(flValue2 == null || flValue2 <= 0) flValue2 = 0.6;
 
-				if(value != 0) {
+				if(value == 3)
+				{
 					if(dad.curCharacter.startsWith('gf')) { //Tutorial GF is actually Dad! The GF is an imposter!! ding ding ding ding ding ding ding, dindinding, end my suffering
 						dad.playAnim('cheer', true);
 						dad.specialAnim = true;
@@ -3691,42 +3709,50 @@ class PlayState extends MusicBeatState
 						gf.specialAnim = true;
 						gf.heyTimer = flValue2;
 					}
-				}
-				if(value != 1) {
+
 					boyfriend.playAnim('hey', true);
 					boyfriend.specialAnim = true;
 					boyfriend.heyTimer = flValue2;
 				}
-
-			case 'Set GF Speed':
-				if(flValue1 == null || flValue1 < 1) flValue1 = 1;
-				gfSpeed = Math.round(flValue1);
-
-				var forceLol:Bool;
-				if(value2 == 'true')
-					gf.idleForce = true;
 				else
-					gf.idleForce = false;
+				{
+					var animToPlay:String = value3;
 
-			case 'Set DAD Speed':
-				if(flValue1 == null || flValue1 < 1) flValue1 = 2;
-				dad.danceEveryNumBeats = Math.round(flValue1);
+					if (animToPlay == null || value3 == '') animToPlay = char != gf ? 'hey' : 'cheer';
 
-				var forceLol:Bool;
-				if(value2 == 'true')
-					dad.idleForce = true;
+					if(dad.curCharacter.startsWith('gf') && value == 2) 
+					{
+						dad.playAnim('hey', true);
+						dad.specialAnim = true;
+						dad.heyTimer = flValue2;
+					}
+					else
+					{
+						char.playAnim('hey', true);
+						char.specialAnim = true;
+						char.heyTimer = flValue2;
+					}
+				}
+
+			case 'Set Character Speed':
+				var char:Character = boyfriend;
+				switch(value1.toLowerCase().trim()) {
+					case 'gf' | 'girlfriend' | '1':
+						char = gf;
+					case 'dad' | 'opponent' | '2':
+						char = dad;
+					default:
+						char = boyfriend;
+				}
+
+				if(flValue2 == null || flValue2 < 1) flValue2 = 1;
+
+				if(char == gf)
+					gfSpeed = Math.round(flValue2);
 				else
-					dad.idleForce = false;
+					char.danceEveryNumBeats = Math.round(flValue2);
 
-			case 'Set BF Speed':
-				if(flValue1 == null || flValue1 < 1) flValue1 = 2;
-				boyfriend.danceEveryNumBeats = Math.round(flValue1);
-
-				var forceLol:Bool;
-				if(value2 == 'true')
-					boyfriend.idleForce = true;
-				else
-					boyfriend.idleForce = false;
+				char.idleForce = value2 == 'true' ? true : false;
 
 			case 'Add Camera Zoom':
 				if(ClientPrefs.data.camZooms && FlxG.camera.zoom < 1.7) {
@@ -3739,24 +3765,19 @@ class PlayState extends MusicBeatState
 				}
 
 			case 'Play Animation':
-				//trace('Anim to play: ' + value1);
 				var char:Character = dad;
-				switch(value2.toLowerCase().trim()) {
-					case 'bf' | 'boyfriend':
-						char = boyfriend;
-					case 'gf' | 'girlfriend':
+				switch(value1.toLowerCase().trim()) {
+					case 'gf' | 'girlfriend' | '1':
 						char = gf;
+					case 'dad' | 'opponent' | '2':
+						char = dad;
 					default:
-						if(flValue2 == null) flValue2 = 0;
-						switch(Math.round(flValue2)) {
-							case 1: char = boyfriend;
-							case 2: char = gf;
-						}
+						char = boyfriend;
 				}
 
 				if (char != null)
 				{
-					if(value3 == 'true') char.uninterruptableAnim = true;
+					char.uninterruptableAnim = value3 == 'true' ? true : false;
 					char.playAnim(value1, true);
 					char.specialAnim = true;
 				}
@@ -3780,7 +3801,7 @@ class PlayState extends MusicBeatState
 						boyfriend;
 				}
 
-				var playerShit:Bool = 
+				var playerFlip:Bool = 
 				switch(value1.toLowerCase().trim())
 				{
 					case 'dad' | 'opponent' | 'p2':
@@ -3789,7 +3810,53 @@ class PlayState extends MusicBeatState
 						true;
 				}
 
-				iconToSwitch.changeIcon(value2, true, charSwitching.iconOffsets, charSwitching.iconScale, charSwitching.iconFlipX, charSwitching.iconBlend, charSwitching.iconFps24);
+				var split:Array<String> = value3.split(',');
+				var iconFlipX:String = '';
+				var scaleIcon:Float = 1;
+				var iconOffsetX:Float = 0;
+				var iconOffsetY:Float = 0;
+				var iconBlend:String = '';
+				var fpsIcon:Int = 24;
+
+				var iconFlipBool:Bool = false;
+
+				if(split[0] != null) iconFlipX = split[0].trim();
+				if(split[1] != null) scaleIcon = Std.parseFloat(split[1].trim());
+				if(split[2] != null) iconOffsetX = Std.parseFloat(split[2].trim());
+				if(split[3] != null) iconOffsetY = Std.parseFloat(split[3].trim());
+				if(split[4] != null) iconBlend = split[4].trim();
+				if(split[5] != null) fpsIcon = Std.parseInt(split[5].trim());
+
+				if(iconFlipX == null || iconFlipX == '')
+					iconFlipBool = charSwitching.iconFlipX;
+				else
+					iconFlipBool = iconFlipX == 'true' ? true : false;
+
+				if(Math.isNaN(scaleIcon)) scaleIcon = charSwitching.iconScale;
+				if(Math.isNaN(iconOffsetX)) iconOffsetX = charSwitching.iconOffsets[0];
+				if(Math.isNaN(iconOffsetY)) iconOffsetY = charSwitching.iconOffsets[1];
+				if(iconBlend == null || iconBlend == '') iconBlend = charSwitching.iconBlend;
+				if(Math.isNaN(fpsIcon)) fpsIcon = charSwitching.iconFps24;
+
+				var splitRGB:Array<String> = value4.split(',');
+				var iconR:Int = 0;
+				var iconG:Int = 0;
+				var iconB:Int = 0;
+
+				if(split[0] != null) iconR = Std.parseInt(split[0].trim());
+				if(split[1] != null) iconG = Std.parseInt(split[1].trim());
+				if(split[2] != null) iconB = Std.parseInt(split[2].trim());
+
+				if(Math.isNaN(iconR)) iconR = charSwitching.healthColorArray[0];
+				if(Math.isNaN(iconG)) iconG = charSwitching.healthColorArray[1];
+				if(Math.isNaN(iconB)) iconB = charSwitching.healthColorArray[2];
+				
+				charSwitching.healthColorArray[0] = iconR;
+				charSwitching.healthColorArray[1] = iconG;
+				charSwitching.healthColorArray[2] = iconB;
+
+				iconToSwitch.changeIcon(value2, playerFlip, [iconOffsetX, iconOffsetY], scaleIcon, iconFlipBool, iconBlend, fpsIcon);
+				reloadHealthBarColors();
 
 			case 'Change Combo Camera':
 				var args:Array<String> = value2.split(",");
@@ -3847,7 +3914,6 @@ class PlayState extends MusicBeatState
 						targetX += dad.getMidpoint().x + dad.cameraPosition[0] + opponentCameraOffset[0] + 150;
 						targetY += dad.getMidpoint().y + dad.cameraPosition[1] + opponentCameraOffset[1] - 100;
 						curFocusedChar = 'dad';
-						
 				}
 		
 				switch (ease)
@@ -3863,15 +3929,14 @@ class PlayState extends MusicBeatState
 						tweenCameraToPosition(targetX, targetY, durSeconds, LuaUtils.getTweenEaseByString(ease));
 				}
 
-			case 'Change Object Layer':
+			case 'Change Object zIndex layer':
 				var leObj:FlxBasic = LuaUtils.getObjectDirectly(value1);
 				if(leObj != null)
 				{
 					var layer:Int = Std.parseInt(value2);
-
 					if(Math.isNaN(layer)) layer = 0;
-
 					leObj.zIndex = layer;
+
 					refresh();
 
 					return;
@@ -3916,7 +3981,7 @@ class PlayState extends MusicBeatState
 				var isDirectMode:Bool = mode == "direct";
 		
 				if (value1 == "")
-					value1 = "linear";
+					value1 = "CLASSIC";
 		
 				switch(value1)
 				{
@@ -3980,43 +4045,37 @@ class PlayState extends MusicBeatState
 
 				var durSeconds:Float = Conductor.stepCrochet * duration / 1000;
 
+				var cameraChange:FunkinCamera;
+
 				switch(value4)
 				{
-					case 'camgame' | 'camGame':
-						FlxTween.cancelTweensOf(camGame.angle);
-						FlxTween.tween(camGame, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
 					case 'camhud' | 'camHUD' | 'hud':
-						FlxTween.cancelTweensOf(camHUD.angle);
-						FlxTween.tween(camHUD, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
+						cameraChange = camHUD;
 					case 'camnotes' | 'camNotes' | 'notes':
-						FlxTween.cancelTweensOf(camNotes.angle);
-						FlxTween.tween(camNotes, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
+						cameraChange = camNotes;
 					case 'camoverlayhud' | 'camOverlayHUD' | 'overlay':
-						FlxTween.cancelTweensOf(camOverlayHUD.angle);
-						FlxTween.tween(camOverlayHUD, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
+						cameraChange = camOverlayHUD;
 					case 'camOther' | 'camother' | 'other':
-						FlxTween.cancelTweensOf(camOther.angle);
-						FlxTween.tween(camOther, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
+						cameraChange = camOther;
+					default:
+						cameraChange = camGame;
 				}
 
+				FlxTween.cancelTweensOf(cameraChange.angle);
+				FlxTween.tween(cameraChange, {angle: angleChange}, durSeconds / playbackRate, {ease: LuaUtils.getTweenEaseByString(value1)});
+
 			case 'Change Note Camera Move Offset':
-				noteCamOffset = flValue1;
+				noteCamOffset = flValue1 ?? 0;
 
 			case 'Alt Idle Animation':
-				var char:Character = dad;
+				var char:Character = boyfriend;
 				switch(value1.toLowerCase().trim()) {
-					case 'gf' | 'girlfriend':
+					case 'gf' | 'girlfriend' | '1':
 						char = gf;
-					case 'boyfriend' | 'bf':
-						char = boyfriend;
+					case 'dad' | 'opponent' | '2':
+						char = dad;
 					default:
-						var val:Int = Std.parseInt(value1);
-						if(Math.isNaN(val)) val = 0;
-
-						switch(val) {
-							case 1: char = boyfriend;
-							case 2: char = gf;
-						}
+						char = boyfriend;
 				}
 
 				if (char != null)
@@ -4316,19 +4375,24 @@ class PlayState extends MusicBeatState
 				if (flValue2 == null) flValue2 = 4;
 
 				if(!ClientPrefs.data.flashing && value1 != '0xFF000000') return;
+
+				var cameraChange:FunkinCamera;
 	
-				switch(value3.toLowerCase().trim()) {
-					case 'camhud' | 'HUD' | 'hud':
-						camHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
-					case 'camnotes' | 'NOTES' | 'notes':
-						camHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
-					case 'camoverlayhud' | 'OVERLAY' | 'overlay':
-						camOverlayHUD.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
-					case 'camother' | 'camOther' | 'other':
-						camOther.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
+				switch(value3.toLowerCase().trim()) 
+				{
+					case 'camhud' | 'camHUD' | 'hud':
+						cameraChange = camHUD;
+					case 'camnotes' | 'camNotes' | 'notes':
+						cameraChange = camNotes;
+					case 'camoverlayhud' | 'camOverlayHUD' | 'overlay':
+						cameraChange = camOverlayHUD;
+					case 'camOther' | 'camother' | 'other':
+						cameraChange = camOther;
 					default:
-						FlxG.camera.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
+						cameraChange = camGame;
 				}
+
+				cameraChange.flash(color, Conductor.stepCrochet * flValue2 / 1000, null, true);
 
 			case 'Fade Camera':
 				if(!ClientPrefs.data.flashing) return;
@@ -4342,24 +4406,23 @@ class PlayState extends MusicBeatState
 
 				if (flValue2 == null) flValue2 = 4;
 
-				var fade:Bool;
-				if(value4 == 'true')
-					fade = true;
-				else
-					fade = false;
-	
-				switch(value3.toLowerCase().trim()) {
-					case 'camhud' | 'hud':
-						camHUD.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
-					case 'camnotes' | 'notes':
-						camNotes.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
-					case 'camoverlayhud' | 'OVERLAY' | 'overlay':
-						camOverlayHUD.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
-					case 'camother' | 'other':
-						camOther.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
+				var cameraChange:FunkinCamera;
+
+				switch(value3.toLowerCase().trim()) 
+				{
+					case 'camhud' | 'camHUD' | 'hud':
+						cameraChange = camHUD;
+					case 'camnotes' | 'camNotes' | 'notes':
+						cameraChange = camNotes;
+					case 'camoverlayhud' | 'camOverlayHUD' | 'overlay':
+						cameraChange = camOverlayHUD;
+					case 'camOther' | 'camother' | 'other':
+						cameraChange = camOther;
 					default:
-						FlxG.camera.fade(color, Conductor.stepCrochet * flValue2 / 1000, fade, null, true);
+						cameraChange = camGame;
 				}
+
+				cameraChange.fade(color, Conductor.stepCrochet * flValue2 / 1000, value4 == 'true' ? true : false, null, true);
 
 			case "Solid Graphic Behind Characters": //BLAMMED LI-
 				var color:FlxColor = 0xFF000000;
@@ -4372,31 +4435,36 @@ class PlayState extends MusicBeatState
 				if (flValue1 == null)
 					flValue1 = 0;
 
-				if (flValue2 == null)
-					flValue2 = 4;
+				if(flValue2 == 0 || flValue2 == null)
+					solidColBeh.alpha = flValue1
+				else
+					FlxTween.tween(solidColBeh, {alpha: flValue1}, Conductor.stepCrochet * flValue2 / 1000);
 
-				FlxTween.tween(solidColBeh, {alpha: flValue1}, Conductor.stepCrochet * flValue2 / 1000);
 				solidColBeh.color = color;
 
 			case 'Set Health':
-				if(value2 != null)
+				if(flValue3 == 0 || flValue3 != null)
+				{
+					health = flValue1;
+				}
+				else
 				{
 					var ease = LuaUtils.getTweenEaseByString(value2);
 					FlxTween.tween(this, {health: flValue1}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
-				else
-					health = flValue1;
 
 			case 'Add Health':
 				var newhealth:Float = (health + flValue1);
 
-				if(value2 != null)
+				if(flValue3 == 0 || flValue3 != null)
+				{
+					health += newhealth;
+				}
+				else
 				{
 					var ease = LuaUtils.getTweenEaseByString(value2);
 					FlxTween.tween(this, {health: newhealth}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
-				else
-					health += newhealth;
 
 			case 'Singing Shakes':
 				if (!ClientPrefs.data.flashing) return;
@@ -4430,7 +4498,7 @@ class PlayState extends MusicBeatState
 
 				var drain:Float = flValue2;
 				if (Math.isNaN(drain) || value2 == null)
-					drain = 0.023; //в ивенте написано 0.023 и значить вот эту поставлю
+					drain = 0.023;
 				
 				opponentHealthDrainAmount = drain;
 
@@ -4452,97 +4520,54 @@ class PlayState extends MusicBeatState
 				
 				beatHealthDrain = drain;
 
-			case 'Set Char Position':
-				var charType:Int = 0;
-
+			case 'Set Character Position':
 				var split:Array<String> = value2.split(',');
 				var xMove:Float = Std.parseFloat(split[0]);
 				var yMove:Float = Std.parseFloat(split[1]);
+
+				var char:FlxSpriteGroup = boyfriendGroup;
+				var defaultX:Float = BF_X;
+				var defaultY:Float = BF_Y;
 
 				switch (value1)
 				{
 					case 'dad' | 'Dad' | 'DAD':
-						charType = 1;
+						char = dadGroup;
+						defaultX = DAD_X;
+						defaultY = DAD_Y;
 					case 'gf' | 'GF' | 'girlfriend' | 'Girlfriend':
-						charType = 2;
+						char = gfGroup;
+						defaultX = GF_X;
+						defaultY = GF_Y;
 					default:
-						charType = 0;
+						char = boyfriendGroup;
+						defaultX = BF_X;
+						defaultY = BF_Y;
 				}
-
-				switch (charType)
-				{
-					case 1:
-						if(Math.isNaN(xMove)) dadGroup.x = DAD_X;
-						else dadGroup.x = xMove;
-
-						if(Math.isNaN(yMove)) dadGroup.y = DAD_Y;
-						else dadGroup.y = yMove;
-
-					case 2:
-						if(Math.isNaN(xMove)) gfGroup.x = GF_X;
-						else gfGroup.x = xMove;
-	
-						if(Math.isNaN(yMove)) gfGroup.y = GF_Y;
-						else gfGroup.y = yMove;
-
-					default:
-						if(Math.isNaN(xMove)) boyfriendGroup.x = BF_X;
-						else boyfriendGroup.x = xMove;
-
-						if(Math.isNaN(yMove)) boyfriendGroup.y = BF_Y;
-						else boyfriendGroup.y = yMove;
-				}
-
-			case 'Set Char Position Tween':
-				var charType:Int = 0;
-
-				var split:Array<String> = value2.split(',');
-				var xMove:Float = Std.parseFloat(split[0]);
-				var yMove:Float = Std.parseFloat(split[1]);
 
 				var ease = LuaUtils.getTweenEaseByString(value4);
 
-				if (flValue3 == null)
-					flValue3 = 4;
-
-				switch (value1)
+				if (flValue3 == 0 || flValue3 == null)
 				{
-					case 'dad' | 'Dad' | 'DAD':
-						charType = 1;
-					case 'gf' | 'GF' | 'girlfriend' | 'Girlfriend':
-						charType = 2;
-					default:
-						charType = 0;
+					if(Math.isNaN(xMove)) char.x = defaultX;
+					else char.x = xMove;
+
+					if(Math.isNaN(yMove)) char.y = defaultY;
+					else char.y = yMove;
+				}
+				else
+				{
+					if(Math.isNaN(xMove)) xMove = defaultX;
+					if(Math.isNaN(yMove)) yMove = defaultY;
+
+					FlxTween.cancelTweensOf(char);
+					FlxTween.tween(char, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 
-				switch (charType)
-				{
-					case 1:
-						if(Math.isNaN(xMove)) xMove = DAD_X;
-						if(Math.isNaN(yMove)) yMove = DAD_Y;
-
-						FlxTween.cancelTweensOf(dadGroup);
-						FlxTween.tween(dadGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
-
-					case 2:
-						if(Math.isNaN(xMove)) xMove = GF_X;
-						if(Math.isNaN(yMove)) yMove = GF_Y;
-
-						FlxTween.cancelTweensOf(gfGroup);
-						FlxTween.tween(gfGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
-
-					default:
-						if(Math.isNaN(xMove)) xMove = BF_X;
-						if(Math.isNaN(yMove)) yMove = BF_Y;
-
-						FlxTween.cancelTweensOf(boyfriendGroup);
-						FlxTween.tween(boyfriendGroup, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
-				}
-
-			case 'Set Char Color':
+			case 'Set Character Color':
 				var char:Character = boyfriend;
-				var val2:Int = Std.parseInt(value2);
-
+				var ease = LuaUtils.getTweenEaseByString(value4);
+				var colorTo:FlxColor;
 				switch (value1.toLowerCase().trim())
 				{
 					case 'gf' | 'girlfriend':
@@ -4553,34 +4578,25 @@ class PlayState extends MusicBeatState
 						char = boyfriend;
 				}
 
-				if (Math.isNaN(val2))
-					val2 = 0xFFFFFFFF;
-				
-				char.color = val2;
+				if (value2 == null)
+					value2 = '0xFFFFFFFF';
 
-			case 'Set Char Color Tween':
-				var char:Character = boyfriend;
+				colorTo = CoolUtil.colorFromString(value2);
 
-				if (flValue3 == null)
-					flValue3 = 4;
-
-				var ease = LuaUtils.getTweenEaseByString(value4);
-				switch (value1.toLowerCase().trim())
+				if(flValue3 == 0 || flValue3 == null)
 				{
-					case 'gf' | 'girlfriend':
-						char = gf;
-					case 'dad':
-						char = dad;
-					default:
-						char = boyfriend;
+					char.color = colorTo;
+				}
+				else
+				{
+					var curColor:FlxColor = char.color;
+					curColor.alphaFloat = char.alpha;
+
+					FlxTween.cancelTweensOf(char.color);
+					FlxTween.color(char, Conductor.stepCrochet * flValue3 / 1000, curColor, colorTo, {ease: ease});
 				}
 
-				var curColor:FlxColor = char.color;
-				curColor.alphaFloat = char.alpha;
-				
-				FlxTween.color(char, Conductor.stepCrochet * flValue3 / 1000, curColor, CoolUtil.colorFromString(value2), {ease: ease});
-
-			case 'Set Char Color Transform':
+			case 'Set Character Color Transform':
 				var char:Character = boyfriend;
 
 				var split:Array<String> = value2.split(',');
@@ -4611,54 +4627,30 @@ class PlayState extends MusicBeatState
 					default:
 						char = boyfriend;
 				}
-				char.colorTransform.redOffset = redOff;
-				char.colorTransform.greenOffset = greenOff;
-				char.colorTransform.blueOffset = blueOff;
-				char.colorTransform.alphaOffset = alphaOff;
-
-				char.colorTransform.redMultiplier = redMult;
-				char.colorTransform.greenMultiplier = greenMult;
-				char.colorTransform.blueMultiplier = blueMult;
-				char.colorTransform.alphaMultiplier = alphaMult;
-
-			case 'Set Char Color Transform Tween':
-				var char:Character = boyfriend;
-
-				var split:Array<String> = value2.split(',');
-				var splitAlpha:Array<String> = value3.split(',');
-				var redOff:Int = 0;
-				var greenOff:Int = 0;
-				var blueOff:Int = 0;
-				var alphaOff:Int = 0;
-				var redMult:Int = 0;
-				var greenMult:Int = 0;
-				var blueMult:Int = 0;
-				var alphaMult:Int = 0;
-				if(split[0] != null) redOff = Std.parseInt(split[0].trim());
-				if(split[1] != null) greenOff = Std.parseInt(split[1].trim());
-				if(split[2] != null) blueOff = Std.parseInt(split[2].trim());
-				if(split[3] != null) alphaOff = Std.parseInt(split[3].trim());
-				if(splitAlpha[0] != null) redMult = Std.parseInt(splitAlpha[0].trim());
-				if(splitAlpha[1] != null) greenMult = Std.parseInt(splitAlpha[1].trim());
-				if(splitAlpha[2] != null) blueMult = Std.parseInt(splitAlpha[2].trim());
-				if(splitAlpha[3] != null) alphaMult = Std.parseInt(splitAlpha[3].trim());
-
-				if (flValue4 == null || flValue4 == 0)
-					flValue4 = 4;
 
 				var ease = LuaUtils.getTweenEaseByString(value5);
 
-				switch (value1.toLowerCase().trim())
+				if(flValue4 == 0 || flValue4 == null)
 				{
-					case 'gf' | 'girlfriend':
-						char = gf;
-					case 'dad':
-						char = dad;
-					default:
-						char = boyfriend;
+					char.colorTransform.redOffset = redOff;
+					char.colorTransform.greenOffset = greenOff;
+					char.colorTransform.blueOffset = blueOff;
+					char.colorTransform.alphaOffset = alphaOff;
+	
+					char.colorTransform.redMultiplier = redMult;
+					char.colorTransform.greenMultiplier = greenMult;
+					char.colorTransform.blueMultiplier = blueMult;
+					char.colorTransform.alphaMultiplier = alphaMult;
 				}
-				
-				FlxTween.tween(char.colorTransform, {redOffset: redOff, greenOffset: greenOff, blueOffset: blueOff, alphaOffset: alphaOff, redMultiplier: redMult, greenMultiplier: greenMult, blueMultiplier: blueMult, alphaMultiplier: alphaMult}, Conductor.stepCrochet * flValue4 / 1000, {ease: ease});
+				else
+				{
+					FlxTween.cancelTweensOf(char.colorTransform);
+					FlxTween.tween(char.colorTransform, 
+						{
+							redOffset: redOff, greenOffset: greenOff, blueOffset: blueOff, alphaOffset: alphaOff, 
+							redMultiplier: redMult, greenMultiplier: greenMult, blueMultiplier: blueMult, alphaMultiplier: alphaMult
+						}, Conductor.stepCrochet * flValue4 / 1000, {ease: ease});
+				}
 
 			case 'Add trail':
 				var charType:Int = 0;
@@ -4694,16 +4686,22 @@ class PlayState extends MusicBeatState
 				switch (charType)
 				{
 					case 1:
+						if(trailDad != null) return;
+
 						trailDad = new FlxTrail(dad, null, length, delay, alpha, diff);
 						trailDad.blend = blendValue;
 						if (!Math.isNaN(val3)) trailDad.color = val3;
 						addBehindDad(trailDad);
 					case 2:
+						if(trailGf != null) return;
+
 						trailGf = new FlxTrail(gf, null, length, delay, alpha, diff);
 						trailGf.blend = blendValue;
 						if (!Math.isNaN(val3)) trailGf.color = val3;
 						addBehindGF(trailGf);
 					default:
+						if(trailBf != null) return;
+
 						trailBf = new FlxTrail(boyfriend, null, length, delay, alpha, diff);
 						trailBf.blend = blendValue;
 						if (!Math.isNaN(val3)) trailBf.color = val3;
@@ -4713,16 +4711,22 @@ class PlayState extends MusicBeatState
 			case 'Remove trail':
 				switch(value1.toLowerCase().trim()) {
 					case 'gf' | 'girlfriend':
+						if(trailGf == null) return;
+
 						remove(trailGf);
 						trailGf.destroy();
 					case 'dad' | 'opponent':
+						if(trailDad == null) return;
+
 						remove(trailDad);
 						trailDad.destroy();
 					default:
+						if(trailBf == null) return;
+
 						remove(trailBf);
 						trailBf.destroy();
 				}
-			case 'Update Vocals':
+			case 'Update Vocals Volume':
 				vocals.volume = flValue1;
 				opponentVocals.volume = flValue2;
 
@@ -4731,10 +4735,6 @@ class PlayState extends MusicBeatState
 
 			case 'Character Visibility':
 				var char:Character = boyfriend;
-				var val2:Int = Std.parseInt(value2);
-
-				if (flValue3 == null)
-					flValue3 = 4;
 
 				var ease = LuaUtils.getTweenEaseByString(value4);
 				switch (value1.toLowerCase().trim())
@@ -4747,24 +4747,20 @@ class PlayState extends MusicBeatState
 						char = boyfriend;
 				}
 
-				if (Math.isNaN(val2))
-					val2 = 0xFFFFFFFF;
-
-				FlxTween.cancelTweensOf(char);
-				FlxTween.tween(char, {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
+				if (flValue3 == 0 || flValue3 == null)
+				{
+					char.alpha = flValue2;
+				}
+				else
+				{
+					FlxTween.cancelTweensOf(char);
+					FlxTween.tween(char, {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
+				}
 
 			case 'Strumline Visibility':
 				var strum:FlxTypedGroup<StrumNote>;
 
 				var ease = LuaUtils.getTweenEaseByString(value4);
-						
-				if (Math.isNaN(flValue2))
-					flValue2 = 1;
-				else if (flValue2 == 0)
-					flValue2 = 0.0001;
-						
-				if (Math.isNaN(flValue3) || flValue3 <= 0)
-					flValue3 = 4;
 						
 				switch (value1)
 					{
@@ -4779,23 +4775,54 @@ class PlayState extends MusicBeatState
 							strum = playerStrums;
 					}
 
-				for (i in 0...strum.members.length)
+				if (flValue3 == 0 || flValue3 == null)
 				{
-					FlxTween.cancelTweensOf(strum.members[i]);
-					FlxTween.tween(strum.members[i], {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
+					for (i in 0...strum.members.length)
+					{
+						strum.members[i].alpha = flValue2;
+					}
+				}
+				else
+				{
+					for (i in 0...strum.members.length)
+					{
+						FlxTween.cancelTweensOf(strum.members[i]);
+						FlxTween.tween(strum.members[i], {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
+					}
 				}
 
 			case 'UI visibilty':
-				var ease = LuaUtils.getTweenEaseByString(value3);
-				FlxTween.tween(camHUD, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
+				if (flValue2 == 0 || flValue2 == null)
+				{
+					camHUD.alpha = flValue1;
+				}
+				else
+				{
+					var ease = LuaUtils.getTweenEaseByString(value3);
+					FlxTween.tween(camHUD, {alpha: flValue1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
+				}
 
 			case 'Notes visibilty':
-				var ease = LuaUtils.getTweenEaseByString(value3);
-				FlxTween.tween(camNotes, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
+				if (flValue2 == 0 || flValue2 == null)
+				{
+					camNotes.alpha = flValue1;
+				}
+				else
+				{
+					var ease = LuaUtils.getTweenEaseByString(value3);
+					FlxTween.tween(camNotes, {alpha: flValue1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
+				}
 
 			case 'Overlay visibilty':
-				var ease = LuaUtils.getTweenEaseByString(value3);
-				FlxTween.tween(camOverlayHUD, {alpha: value1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
+				if (flValue2 == 0 || flValue2 == null)
+				{
+					camOverlayHUD.alpha = flValue1;
+				}
+				else
+				{
+					var ease = LuaUtils.getTweenEaseByString(value3);
+					FlxTween.tween(camOverlayHUD, {alpha: flValue1}, Conductor.stepCrochet * flValue2 / 1000, {ease: ease, onComplete: function(twn:FlxTween){}});
+				}
 
 			case 'Force Dance':
 				var char:Character = dad;

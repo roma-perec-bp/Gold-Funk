@@ -61,7 +61,7 @@ class InitState extends FlxState
         #end
         Mods.loadTopMod();
 
-        if(FlxG.save.data != null && FlxG.save.data.fullscreen) FlxG.fullscreen = FlxG.save.data.fullscreen;
+        //if(FlxG.save.data != null && FlxG.save.data.fullscreen) FlxG.fullscreen = FlxG.save.data.fullscreen;
         if (FlxG.save.data.weekCompleted != null) StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
 
         if (FlxG.save.data.playedSongs == null) FlxG.save.data.playedSongs = [];
@@ -85,18 +85,14 @@ class InitState extends FlxState
 		WindowColorMode.redrawWindowHeader();
 		#end
 
-        #if debug
-        setupFlixelDebug();
-        #end
+    #if debug
+    setupFlixelDebug();
+    #end
 
-        // Force a `FunkinCamera` to be the default camera.
-        // This allows the blend mode shader to work everywhere.
-        untyped FlxG.cameras = new objects.funkin.FunkinCameraFrontEnd();
-
-        FlxG.scaleMode = new FullScreenScaleMode();
+    FlxG.scaleMode = new FullScreenScaleMode();
 
 		FlxG.switchState(new states.TitleState());
-    }
+  }
 
     @:noCompletion var _lastFocusVolume:Null<Float>;
 

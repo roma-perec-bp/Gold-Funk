@@ -139,8 +139,12 @@ class Main extends Sprite
 		}
 		#end
 
+		// Force a `FunkinCamera` to be the default camera.
+        // This allows the blend mode shader to work everywhere.
+        untyped FlxG.cameras = new objects.funkin.FunkinCameraFrontEnd();
+
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
-		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
+		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, FlxG.stage.window.fullscreen));
 
 		#if !mobile
 		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);
