@@ -2386,7 +2386,7 @@ class PlayState extends MusicBeatState
 			KillNotes();
 
 			noteTypes = [];
-			eventsPushed = [];
+			eventsPushed = []; //TO-DO: make this not getting reset and not do FlxTimer crash
 
 			totalNotes = 0;
 
@@ -4547,6 +4547,9 @@ class PlayState extends MusicBeatState
 
 				var ease = LuaUtils.getTweenEaseByString(value4);
 
+				FlxTween.cancelTweensOf(char.x);
+				FlxTween.cancelTweensOf(char.y);
+
 				if (flValue3 == 0 || flValue3 == null)
 				{
 					if(Math.isNaN(xMove)) char.x = defaultX;
@@ -4560,7 +4563,6 @@ class PlayState extends MusicBeatState
 					if(Math.isNaN(xMove)) xMove = defaultX;
 					if(Math.isNaN(yMove)) yMove = defaultY;
 
-					FlxTween.cancelTweensOf(char);
 					FlxTween.tween(char, {x: xMove, y: yMove}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
 				}
 
@@ -4583,6 +4585,8 @@ class PlayState extends MusicBeatState
 
 				colorTo = CoolUtil.colorFromString(value2);
 
+				FlxTween.cancelTweensOf(char.color);
+
 				if(flValue3 == 0 || flValue3 == null)
 				{
 					char.color = colorTo;
@@ -4592,7 +4596,6 @@ class PlayState extends MusicBeatState
 					var curColor:FlxColor = char.color;
 					curColor.alphaFloat = char.alpha;
 
-					FlxTween.cancelTweensOf(char.color);
 					FlxTween.color(char, Conductor.stepCrochet * flValue3 / 1000, curColor, colorTo, {ease: ease});
 				}
 
@@ -4630,6 +4633,8 @@ class PlayState extends MusicBeatState
 
 				var ease = LuaUtils.getTweenEaseByString(value5);
 
+				FlxTween.cancelTweensOf(char.colorTransform);
+
 				if(flValue4 == 0 || flValue4 == null)
 				{
 					char.colorTransform.redOffset = redOff;
@@ -4644,7 +4649,6 @@ class PlayState extends MusicBeatState
 				}
 				else
 				{
-					FlxTween.cancelTweensOf(char.colorTransform);
 					FlxTween.tween(char.colorTransform, 
 						{
 							redOffset: redOff, greenOffset: greenOff, blueOffset: blueOff, alphaOffset: alphaOff, 
@@ -4747,15 +4751,12 @@ class PlayState extends MusicBeatState
 						char = boyfriend;
 				}
 
+				FlxTween.cancelTweensOf(char.alpha);
+
 				if (flValue3 == 0 || flValue3 == null)
-				{
 					char.alpha = flValue2;
-				}
 				else
-				{
-					FlxTween.cancelTweensOf(char);
 					FlxTween.tween(char, {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
-				}
 
 			case 'Strumline Visibility':
 				var strum:FlxTypedGroup<StrumNote>;
@@ -4775,20 +4776,18 @@ class PlayState extends MusicBeatState
 							strum = playerStrums;
 					}
 
+				for (i in 0...strum.members.length)
+					FlxTween.cancelTweensOf(strum.members[i].alpha);
+
 				if (flValue3 == 0 || flValue3 == null)
 				{
 					for (i in 0...strum.members.length)
-					{
 						strum.members[i].alpha = flValue2;
-					}
 				}
 				else
 				{
 					for (i in 0...strum.members.length)
-					{
-						FlxTween.cancelTweensOf(strum.members[i]);
 						FlxTween.tween(strum.members[i], {alpha: flValue2}, Conductor.stepCrochet * flValue3 / 1000, {ease: ease});
-					}
 				}
 
 			case 'UI visibilty':
