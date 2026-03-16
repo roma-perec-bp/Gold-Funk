@@ -73,3 +73,7 @@ Wip shit about whaa custom state whatever soon
 ### Weekend 1:
   * Returns the unused newspaper prop
   * Blazin on hard is extended (it uses OST Version)
+
+
+# Usage info
+you can use assets for the Russian language from this engine for your mod. We don't forbid it. but please mark the author of the artist.
