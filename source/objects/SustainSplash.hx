@@ -1,8 +1,8 @@
 package objects;
 
 //CODE BY PUMPSUKI!!!
-class SustainSplash extends FlxSprite {
-
+class SustainSplash extends FlxSprite
+{
   public static var startCrochet:Float;
   public var destroyTimer:FlxTimer;
   public var playedEnd:Bool = false;
@@ -17,14 +17,14 @@ class SustainSplash extends FlxSprite {
 
     var splash:String = '';
     if (PlayState.SONG != null && PlayState.SONG.holdSkin != null && PlayState.SONG.holdSkin.length > 0) 
-      splash = PlayState.SONG.holdSkin;
+		splash = PlayState.SONG.holdSkin;
     else
-      splash = defaultNoteSplash;
+      	splash = defaultNoteSplash;
 
     frames = Paths.getSparrowAtlas(splash);
     animation.addByPrefix('start', 'holdCoverStart0', 24, false);
     animation.addByPrefix('hold', 'holdCover0', 24, true);
-		animation.addByPrefix('end', 'holdCoverEnd0', 24, false);
+	animation.addByPrefix('end', 'holdCoverEnd0', 24, false);
     animation.play('start', true, false, 0);
 
     antialiasing = ClientPrefs.data.antialiasing;
@@ -47,7 +47,8 @@ class SustainSplash extends FlxSprite {
     if (animation.curAnim.name == 'start' && animation.curAnim.finished) animation.play('hold');
   }
 
-  public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void {
+	public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void
+	{
 
     final lengthToGet:Int = !daNote.isSustainNote ? daNote.tail.length : daNote.parent.tail.length;
     final timeToGet:Float = !daNote.isSustainNote ? daNote.strumTime : daNote.parent.strumTime;
@@ -102,7 +103,6 @@ class SustainSplash extends FlxSprite {
         die(tailEnd);
       }
     }
-  }
-
+}
   public function onAnimationFinished(animationName:String):Void { if (animationName.startsWith('start'))animation.play('hold', true, false, 0);}
 }
