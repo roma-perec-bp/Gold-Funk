@@ -1,7 +1,8 @@
-package backend;
+package funkin.backend;
 
-import backend.Song;
-import objects.Note;
+import funkin.data.Song;
+import funkin.game.notes.Note;
+import funkin.game.objects.Rating;
 
 typedef BPMChangeEvent =
 {
@@ -19,6 +20,11 @@ class Conductor
 	public static var songPosition:Float = 0;
 	public static var offset:Float = 0;
 
+	public static var ROWS_PER_BEAT = 48; // from Stepmania
+	public static var BEATS_PER_MEASURE = 4; // TODO: time sigs
+	public static var ROWS_PER_MEASURE = ROWS_PER_BEAT * BEATS_PER_MEASURE; // from Stepmania
+	public static var MAX_NOTE_ROW = 1 << 30; // from Stepmania
+
 	//public static var safeFrames:Int = 10;
 	public static var safeZoneOffset:Float = 0; // is calculated in create(), is safeFrames in milliseconds
 
@@ -26,12 +32,15 @@ class Conductor
 
 	public static function judgeNote(arr:Array<Rating>, diff:Float=0):Rating // die
 	{
-		var data:Array<Rating> = arr;
-		for(i in 0...data.length-1) //skips last window (Shit)
-			if (diff <= data[i].hitWindow)
-				return data[i];
+		if (arr == null || arr.length == 0) return null;
+		final last:Int = arr.length - 1;
+		for (i in 0...last) { // skips last window (Shit)
+			final hw:Null<Float> = arr[i].hitWindow;
+			if (hw != null && diff <= hw)
+				return arr[i];
+		}
 
-		return data[data.length - 1];
+		return arr[last];
 	}
 
 	public static function getCrotchetAtTime(time:Float){
@@ -46,10 +55,14 @@ class Conductor
 			bpm: bpm,
 			stepCrochet: stepCrochet
 		}
-		for (i in 0...Conductor.bpmChangeMap.length)
-		{
-			if (time >= Conductor.bpmChangeMap[i].songTime)
-				lastChange = Conductor.bpmChangeMap[i];
+		final map = Conductor.bpmChangeMap;
+		final len = map.length;
+		for (i in 0...len) {
+			final evt = map[i];
+			if (time >= evt.songTime)
+				lastChange = evt;
+			else
+				break; // map is monotonically ascending in songTime
 		}
 
 		return lastChange;
@@ -62,10 +75,14 @@ class Conductor
 			bpm: bpm,
 			stepCrochet: stepCrochet
 		}
-		for (i in 0...Conductor.bpmChangeMap.length)
-		{
-			if (Conductor.bpmChangeMap[i].stepTime<=step)
-				lastChange = Conductor.bpmChangeMap[i];
+		final map = Conductor.bpmChangeMap;
+		final len = map.length;
+		for (i in 0...len) {
+			final evt = map[i];
+			if (evt.stepTime <= step)
+				lastChange = evt;
+			else
+				break; // map is monotonically ascending in stepTime
 		}
 
 		return lastChange;
@@ -77,6 +94,16 @@ class Conductor
 		return lastChange.songTime + ((step - lastChange.stepTime) / (lastChange.bpm / 60)/4) * 1000; // TODO: make less shit and take BPM into account PROPERLY
 	}
 
+	public inline static function beatToNoteRow(beat:Float):Int
+	{
+		return Math.round(beat * Conductor.ROWS_PER_BEAT);
+	}
+	
+	public inline static function noteRowToBeat(row:Float):Float
+	{
+		return row / Conductor.ROWS_PER_BEAT;
+	}
+
 	public static function getStep(time:Float){
 		var lastChange = getBPMFromSeconds(time);
 		return lastChange.stepTime + (time - lastChange.songTime) / lastChange.stepCrochet;
@@ -84,7 +111,7 @@ class Conductor
 
 	public static function getStepRounded(time:Float){
 		var lastChange = getBPMFromSeconds(time);
-		return lastChange.stepTime + Math.floor(time - lastChange.songTime) / lastChange.stepCrochet;
+		return lastChange.stepTime + Math.floor((time - lastChange.songTime) / lastChange.stepCrochet);
 	}
 
 	public static function getBeat(time:Float){
@@ -120,7 +147,6 @@ class Conductor
 			totalSteps += deltaSteps;
 			totalPos += ((60 / curBPM) * 1000 / 4) * deltaSteps;
 		}
-		trace("new BPM map BUDDY " + bpmChangeMap);
 	}
 
 	static function getSectionBeats(song:SwagSong, section:Int)
@@ -139,6 +165,6 @@ class Conductor
 		crochet = calculateCrochet(bpm);
 		stepCrochet = crochet / 4;
 
-		return bpm = newBPM;
+		return bpm;
 	}
 }

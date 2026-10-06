@@ -1,4 +1,4 @@
-package backend;
+package funkin.backend;
 
 import lime.app.Application;
 import lime.system.Display;
@@ -94,8 +94,8 @@ class Native
 		if (display != null)
 		{
 			final dpiScale:Float = display.dpi / 96;
-			@:privateAccess Application.current.window.width = Std.int(Main.game.width * dpiScale);
-			@:privateAccess Application.current.window.height = Std.int(Main.game.height * dpiScale);
+			@:privateAccess Application.current.window.width = Std.int(1280 * dpiScale);
+			@:privateAccess Application.current.window.height = Std.int(720 * dpiScale);
 
 			Application.current.window.x = Std.int((Application.current.window.display.bounds.width - Application.current.window.width) / 2);
 			Application.current.window.y = Std.int((Application.current.window.display.bounds.height - Application.current.window.height) / 2);
