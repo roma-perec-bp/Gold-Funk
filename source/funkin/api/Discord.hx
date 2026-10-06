@@ -1,4 +1,4 @@
-package backend;
+package funkin.api;
 
 #if DISCORD_ALLOWED
 import Sys.sleep;
@@ -19,6 +19,12 @@ class DiscordClient
 	private static var presence:DiscordPresence = new DiscordPresence();
 	// hides this field from scripts and reflection in general
 	@:unreflective private static var __thread:Thread;
+
+	/**
+	 * The string value of the currently connected discord user.
+	 * Only used for gags in individual mods, it serves no real purpose.
+	 */
+	 public static var username:String = 'Unknown';
 
 	public static function check()
 	{
@@ -52,6 +58,8 @@ class DiscordClient
 			message += '($user#$discriminator)';
 		else //New Discord IDs/Discriminator system
 			message += '($user)';
+
+		username = discriminator != '0' ? '$user#$discriminator' : '$user';
 		
 		trace(message);
 
@@ -110,19 +118,19 @@ class DiscordClient
 		presence.details = details;
 		presence.smallImageKey = smallImageKey;
 		presence.largeImageKey = largeImageKey;
-		presence.largeImageText = "Engine Version: " + states.MainMenuState.goldFunkVersion;
+		presence.largeImageText = "Version: " + funkin.menus.mainmenu.MainMenuState.goldFunkVersion;
 		// Obtained times are in milliseconds so they are divided so Discord can use it
 		presence.startTimestamp = Std.int(startTimestamp / 1000);
 		presence.endTimestamp = Std.int(endTimestamp / 1000);
 
 		final button:DiscordButton = DiscordButton.create();
         button.label = "Download";
-        button.url = "https://github.com/ShadowMario/FNF-PsychEngine/blob/main/source/backend/Discord.hx";
+		button.url = "https://github.com/ShadowMario/FNF-PsychEngine/blob/main/source/backend/Discord.hx";
 		presence.__presence.buttons[0] = button;
 
 		final button2:DiscordButton = DiscordButton.create();
         button2.label = "GitHub link";
-        button2.url = "https://github.com/Rom4chek/Gold-Funk";
+		button2.url = "https://github.com/Rom4chek/Gold-Funk";
         presence.__presence.buttons[1] = button2;
 
 		updatePresence();
@@ -178,7 +186,7 @@ class DiscordClient
 	#end
 }
 
-@:allow(backend.DiscordClient)
+@:allow(funkin.api.DiscordClient)
 private final class DiscordPresence
 {
 	public var state(get, set):String;
