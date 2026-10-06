@@ -1,4 +1,4 @@
-package states.editors.content;
+package funkin.debug.editors.content;
 
 import openfl.net.FileReference;
 import openfl.events.Event;
@@ -9,13 +9,14 @@ import haxe.Exception;
 import sys.io.File;
 import lime.ui.*;
 
+import openfl.Lib;
+
 import flixel.FlxBasic;
 
 //Currently only supports OPEN and SAVE, might change that in the future, who knows
 class FileDialogHandler extends FlxBasic
 {
 	var _fileRef:FileReferenceCustom;
-	var _dialogMode:FileDialogType = OPEN;
 	public function new()
 	{
 		_fileRef = new FileReferenceCustom();
@@ -39,7 +40,6 @@ class FileDialogHandler extends FlxBasic
 			throw new Exception('You must finish previous operation before starting a new one.');
 		}
 
-		this._dialogMode = SAVE;
 		_startUp(onComplete, onCancel, onError);
 
 		removeEvents();
@@ -55,7 +55,6 @@ class FileDialogHandler extends FlxBasic
 			throw new Exception('You must finish previous operation before starting a new one.');
 		}
 
-		this._dialogMode = OPEN;
 		_startUp(onComplete, onCancel, onError);
 		if(filter == null) filter = [new FileFilter('JSON', 'json')];
 		#if mac
@@ -65,7 +64,49 @@ class FileDialogHandler extends FlxBasic
 		removeEvents();
 		_currentEvent = onLoadComplete;
 		_fileRef.addEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, _currentEvent);
-		_fileRef.browseEx(OPEN, defaultName, title, filter);
+
+		//_fileRef.browseEx(true, defaultName, title, filter);
+
+		_fileRef.nullSet();
+
+		var filterLol = null;
+
+		if (filter != null)
+		{
+			var filters = [];
+
+			for (type in filter)
+			{
+				filters.push(StringTools.replace(StringTools.replace(type.extension, "*.", ""), ";", ","));
+			}
+
+			filterLol = filters.join(";");
+		}
+
+		FileDialog.openFile(Lib.current.stage.window, function(filepaths:Array<String>, filterLol):Void
+		{
+			if (filepaths.length > 0)
+			{
+				@:privateAccess
+				this.path = filepaths[0];
+				this.data = File.getContent(this.path);
+				this.completed = true;
+				//trace('Loaded file from: $path');
+
+				removeEvents();
+				this.completed = true;
+				if(onComplete != null) onComplete();
+			}
+			else
+			{
+				removeEvents();
+				this.completed = true;
+				if(onCancel != null) onError();
+			}
+		}, @:privateAccess openfl.filesystem.File.__getFilterTypes(filter ?? []),
+		defaultName, true);
+		
+		return true;
 	}
 
 	public function openDirectory(?title:String = null, ?onComplete:Void->Void, ?onCancel:Void->Void, ?onError:Void->Void)
@@ -75,13 +116,12 @@ class FileDialogHandler extends FlxBasic
 			throw new Exception('You must finish previous operation before starting a new one.');
 		}
 
-		this._dialogMode = OPEN_DIRECTORY;
 		_startUp(onComplete, onCancel, onError);
 
 		removeEvents();
 		_currentEvent = onLoadDirectoryComplete;
 		_fileRef.addEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, _currentEvent);
-		_fileRef.browseEx(OPEN_DIRECTORY, null, title);
+		_fileRef.browseEx(false, null, title);
 	}
 
 	public var data:String;
@@ -99,7 +139,7 @@ class FileDialogHandler extends FlxBasic
 		if(onComplete != null) onComplete();
 	}
 
-	function onLoadComplete(_)
+	public function onLoadComplete(_)
 	{
 		@:privateAccess
 		this.path = _fileRef.__path;
@@ -126,7 +166,7 @@ class FileDialogHandler extends FlxBasic
 			onComplete();
 	}
 
-	function onCancelFn(_)
+	public function onCancelFn(_)
 	{
 		removeEvents();
 		this.completed = true;
@@ -184,62 +224,31 @@ class FileReferenceCustom extends FileReference
 		_trackSavedPath = path;
 		super.saveFileDialog_onSelect(path);
 	}
+
+	public function nullSet()
+	{
+		__data = null;
+		__path = null;
+	}
 	
-	public function browseEx(browseType:FileDialogType = OPEN, ?defaultName:String, ?title:String = null, ?typeFilter:Array<FileFilter> = null):Bool
+	public function browseEx(browseType:Bool = true, ?defaultName:String, ?title:String = null, ?typeFilter:Array<FileFilter> = null):Bool
 	{
 		__data = null;
 		__path = null;
 
-		#if desktop
-		var filter = null;
-
-		if (typeFilter != null)
+		/*FileDialog.openFile(Lib.current.stage.window, function(filepaths:Array<String>, filter):Void
 		{
-			var filters = [];
-
-			for (type in typeFilter)
+			if (filepaths.length > 0)
 			{
-				filters.push(StringTools.replace(StringTools.replace(type.extension, "*.", ""), ";", ","));
+				FileDialogHandler.onLoadComplete();
 			}
-
-			filter = filters.join(";");
-		}
-
-		var openFileDialog = new FileDialog();
-		openFileDialog.onCancel.add(openFileDialog_onCancel);
-		openFileDialog.onSelect.add(openFileDialog_onSelect);
-		openFileDialog.browse(browseType, filter, defaultName, title);
-		return true;
-		#elseif (js && html5)
-		var filter = null;
-		if (typeFilter != null)
-		{
-			var filters = [];
-			for (type in typeFilter)
+			else
 			{
-				filters.push(StringTools.replace(StringTools.replace(type.extension, "*.", "."), ";", ","));
+				FileDialogHandler.onCancelFn();
 			}
-			filter = filters.join(",");
-		}
-		if (filter != null)
-		{
-			__inputControl.setAttribute("accept", filter);
-		}
-		__inputControl.onchange = function()
-		{
-			var file = __inputControl.files[0];
-			modificationDate = Date.fromTime(file.lastModified);
-			creationDate = modificationDate;
-			size = file.size;
-			type = "." + Path.extension(file.name);
-			name = Path.withoutDirectory(file.name);
-			__path = file.name;
-			dispatchEvent(new Event(Event.SELECT));
-		}
-		__inputControl.click();
+		}, @:privateAccess openfl.filesystem.File.__getFilterTypes(typeFilter ?? []),
+		defaultName, true);*/
+		
 		return true;
-		#end
-
-		return false;
 	}
 }

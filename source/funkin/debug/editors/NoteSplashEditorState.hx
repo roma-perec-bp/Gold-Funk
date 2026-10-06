@@ -1,8 +1,6 @@
-package states.editors;
+package funkin.debug.editors;
 
-import objects.Note;
-import objects.NoteSplash;
-import objects.StrumNote;
+import funkin.game.notes.*;
 
 import openfl.net.FileFilter;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
@@ -862,7 +860,7 @@ class NoteSplashEditorState extends MusicBeatState
         FlxG.sound.volumeUpKeys = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
     }
 
-    public static function parseTxt(content:String):NoteSplashConfig
+    public static function parseTxt(content:String):funkin.game.notes.NoteSplash.NoteSplashConfig
     {
         var config = NoteSplash.createConfig();
         if (content == null)

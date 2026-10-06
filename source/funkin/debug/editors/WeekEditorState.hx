@@ -1,6 +1,6 @@
-package states.editors;
+package funkin.debug.editors;
 
-import backend.WeekData;
+import funkin.data.WeekData;
 
 import openfl.utils.Assets;
 import openfl.net.FileReference;
@@ -10,12 +10,12 @@ import flash.net.FileFilter;
 import lime.system.Clipboard;
 import haxe.Json;
 
-import objects.HealthIcon;
-import objects.MenuCharacter;
-import objects.MenuItem;
+import funkin.game.objects.HealthIcon;
+import funkin.menus.storymenu.MenuCharacter;
+import funkin.objects.MenuItem;
 
-import states.editors.MasterEditorMenu;
-import states.editors.content.Prompt;
+import funkin.debug.editors.MasterEditorMenu;
+import funkin.debug.editors.content.Prompt;
 
 class WeekEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
@@ -677,9 +677,8 @@ class WeekEditorFreeplayState extends MusicBeatState implements PsychUIEventHand
 				var splitted:Array<String> = Clipboard.text.trim().split(',');
 				for (i in 0...splitted.length)
 				{
-					var toPush:Int = Std.parseInt(splitted[i]);
-					if(!Math.isNaN(toPush))
-					{
+					var toPush:Null<Int> = Std.parseInt(splitted[i]);
+					if (toPush != null) {
 						if(toPush > 255) toPush = 255;
 						else if(toPush < 0) toPush *= -1;
 						leColor.push(toPush);

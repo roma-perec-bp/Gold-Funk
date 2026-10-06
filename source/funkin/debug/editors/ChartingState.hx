@@ -1,4 +1,4 @@
-package states.editors;
+package funkin.debug.editors;
 
 import flixel.FlxSubState;
 import flixel.util.FlxSave;
@@ -7,6 +7,8 @@ import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxStringUtil;
 import flixel.util.FlxDestroyUtil;
 import flixel.input.keyboard.FlxKey;
+
+import funkin.audio.FunkinSound;
 
 import openfl.events.KeyboardEvent;
 
@@ -20,20 +22,17 @@ import haxe.Json;
 import haxe.Exception;
 import haxe.io.Bytes;
 
-import states.editors.content.MetaNote;
-import states.editors.content.VSlice;
-import states.editors.content.Prompt;
-import states.editors.content.*;
+import funkin.debug.editors.content.MetaNote;
+import funkin.debug.editors.content.VSlice;
+import funkin.debug.editors.content.Prompt;
+import funkin.debug.editors.content.*;
 
-import backend.Song;
-import backend.StageData;
-import backend.Highscore;
-import backend.Difficulty;
+import funkin.data.*;
 
-import objects.Character;
-import objects.HealthIcon;
-import objects.Note;
-import objects.StrumNote;
+import funkin.game.objects.Character;
+import funkin.game.objects.HealthIcon;
+import funkin.game.notes.Note;
+import funkin.game.notes.StrumNote;
 
 using DateTools;
 
@@ -91,6 +90,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Zoom Notes Camera', 'Value 1: \nZoom (default 1.0)\nValue 2: Duration in steps (default 4.0)\nValue 3:\nZoom Ease (it can be a FlxEase, or "INSTANT")'],
 		['Camera Angle', 'Value 1:\nZoom Ease (it can be a FlxEase)\nValue 2: \nAngle (default 0)\nValue 3: Duration in steps (default 4.0)\nValue4: Which Camera Angle set (camGame, camHUD, camNotes, camOverlayHUD or camOther)'],
 		['Play Animation', "Plays an animation on a Character,\nonce the animation is completed,\nthe animation changes to Idle (If Animation is not looped)\n\nValue 1: Animation to play.\nValue 2: Character (Dad, BF, GF)\nValue 3: TRUE if you want this animation be uninterruptable"],
+		['Change Suffix Anim', 'Play all animations with different suffix at the end of each anim name\n\nValue 1: Char\nValue 2: Suffix'],
 		['Alt Idle Animation', "Sets a specified postfix after the idle animation name.\nYou can use this to trigger 'idle-alt' if you set\nValue 2 to -alt\n\nValue 1: Character to set (Dad, BF or GF)\nValue 2: New postfix (Leave it blank to disable)"],
 		['Screen Shake', "Value 1: Camera shake\nValue 2: HUD shake\nValue 3: Notes shake\n\nEvery value works as the following example: \"1, 0.05\".\nThe first number (1) is the Duration in steps.\nThe second number (0.05) is the intensity."],
 		['Flash Camera', "Value 1: Color\nValue 2: Duration in steps\nValue 3: Camera (camGame, camHUD, camNotes, camOverlayHUD or camOther)"],
@@ -127,6 +127,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Set Property', "Value 1: Variable name\nValue 2: New value"],
 		#if VIDEOS_ALLOWED
 		['Play Video', 'Value 1: Video Name'],
+		['Hide Video', 'Hides video from game\nUsed in case if video will delay due to lag!'],
 		#end
 		['Play Sound', "Value 1: Sound file name\nValue 2: Volume (Default: 1), ranges from 0 to 1"],
 		//ORIGINAL WEEKS EVENTS
@@ -236,8 +237,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var movingNotesLastData:Int = 0;
 	var movingNotesLastY:Float = 0;
 	
-	var vocals:FlxSound = new FlxSound();
-	var opponentVocals:FlxSound = new FlxSound();
+	var vocals:FunkinSound = new FunkinSound();
+	var opponentVocals:FunkinSound = new FunkinSound();
 
 	var chartTheme:FlxSound;
 
@@ -287,17 +288,6 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		FlxG.sound.list.add(vocals);
 		FlxG.sound.list.add(opponentVocals);
 
-		chartTheme = new FlxSound();
-		chartTheme.loadEmbedded(Paths.music('chartEditorLoop'), true, true);
-		if(chartLoopEnabled)
-		{
-			chartTheme.volume = 0;
-			chartTheme.play(false);
-			chartTheme.fadeIn(4, 0, 1);
-		}
-		
-		FlxG.sound.list.add(chartTheme);
-
 		vocals.autoDestroy = false;
 		vocals.looped = true;
 		opponentVocals.autoDestroy = false;
@@ -330,6 +320,17 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		changeTheme(chartEditorSave.data.theme != null ? chartEditorSave.data.theme : DEFAULT, false);
 
 		createGrids();
+
+		chartTheme = new FlxSound();
+		chartTheme.loadEmbedded(Paths.music('chartEditorLoop'), true, true);
+		if(chartLoopEnabled)
+		{
+			chartTheme.volume = 0;
+			chartTheme.play(false);
+			chartTheme.fadeIn(4, 0, 1);
+		}
+		
+		FlxG.sound.list.add(chartTheme);
 
 		waveformSprite = new FlxSprite(gridBg.x + (SHOW_EVENT_COLUMN ? GRID_SIZE : 0), 0).makeGraphic(1, 1, 0x00FFFFFF);
 		waveformSprite.scrollFactor.x = 0;
@@ -1279,16 +1280,17 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			}
 			else if(FlxG.mouse.justMoved)
 				updateSelectionBox();
-		}
-		else if(FlxG.mouse.pressedRight && (FlxG.mouse.deltaScreenX != 0 || FlxG.mouse.deltaScreenY != 0))
-		{
-			selectionBox.setPosition(FlxG.mouse.screenX, FlxG.mouse.screenY);
-			selectionStart.set(FlxG.mouse.screenX, FlxG.mouse.screenY);
+		} else if (FlxG.mouse.pressedRight && (FlxG.mouse.deltaViewX != 0 || FlxG.mouse.deltaViewY != 0)) {
+			selectionBox.setPosition(FlxG.mouse.viewX, FlxG.mouse.viewY);
+			selectionStart.set(FlxG.mouse.viewX, FlxG.mouse.viewY);
 			selectionBox.visible = true;
 			updateSelectionBox();
 		}
 		
-		if(FlxG.mouse.justPressed && (FlxG.mouse.overlaps(mainBox,camUI)))
+		if (FlxG.mouse.justPressed
+			&& (PsychUIInputText.focusOn != null
+				|| FlxG.mouse.overlaps(mainBox.bg, camUI)
+				|| FlxG.mouse.overlaps(infoBox.bg, camUI)))
 			ignoreClickForThisFrame = true;
 
 		var minX:Float = gridBg.x;
@@ -1546,7 +1548,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			
 			// moved from beatHit()
 			if(metronomeStepper.value > 0 && lastBeatHit != curBeat)
-				FlxG.sound.play(Paths.sound('Metronome_Tick'), metronomeStepper.value);
+				FunkinSound.playOnce(Paths.sound('Metronome_Tick'), metronomeStepper.value);
 
 			lastBeatHit = curBeat;
 		}
@@ -1602,10 +1604,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		if (canPlayHitSound) {
 			if(hitSoundPlayer && note.mustPress) {
-				FlxG.sound.play(Paths.sound('hitsound'), hitsoundPlayerStepper.value);
+				FunkinSound.playOnce(Paths.sound('hitsound'), hitsoundPlayerStepper.value);
 				hitSoundPlayer = false;
 			} else if(hitSoundOpp && !note.mustPress) {
-				FlxG.sound.play(Paths.sound('hitsound'), hitsoundOpponentStepper.value);
+				FunkinSound.playOnce(Paths.sound('hitsound'), hitsoundOpponentStepper.value);
 				hitSoundOpp = false;
 			}
 		}
@@ -1711,8 +1713,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 	function updateSelectionBox()
 	{
-		var diffX:Float = FlxG.mouse.screenX - selectionStart.x;
-		var diffY:Float = FlxG.mouse.screenY - selectionStart.y;
+		var diffX:Float = FlxG.mouse.viewX - selectionStart.x;
+		var diffY:Float = FlxG.mouse.viewY - selectionStart.y;
 		selectionBox.setPosition(selectionStart.x, selectionStart.y);
 
 		if(diffX < 0) //Fixes negative X scale
@@ -1737,12 +1739,12 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		outputAlpha = 4;
 		if(isError)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'), 0.6);
+			FunkinSound.playOnce(Paths.sound('cancelMenu'), 0.6);
 			outputTxt.color = FlxColor.RED;
 		}
 		else
 		{
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.6);
 			outputTxt.color = FlxColor.WHITE;
 		}
 	}
@@ -2092,9 +2094,20 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				if(note != null)
 					notes.push(createNote(note, secNum));
 
+		var skippedEvents:Int = 0;
 		for (eventNum => event in PlayState.SONG.events)
 			if(event != null && (cachedSectionTimes.length < 1 || event[0] < cachedSectionTimes[cachedSectionTimes.length-1])) //dont spawn events over the time limit
+			{
+				// Skip corrupt events whose sub-event slot isn't an array (e.g. an older osu!
+				// convert that wrote `[time, 0]`); they carry no recoverable data.
+				if (!Std.isOfType(event[1], Array)) {
+					skippedEvents++;
+					continue;
+				}
 				events.push(createEvent(event));
+			}
+			if (skippedEvents > 0)
+				showOutput('Skipped $skippedEvents corrupt event(s) with no sub-event data (saving will remove them).', true);
 
 		notes.sort(PlayState.sortByTime);
 		events.sort(PlayState.sortByTime);
@@ -5130,7 +5143,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		var btn:PsychUIButton = new PsychUIButton(btnX, btnY, '  Exit', function()
 		{
 			PlayState.chartingMode = false;
-			MusicBeatState.switchState(new states.editors.MasterEditorMenu());
+			MusicBeatState.switchState(new funkin.debug.editors.MasterEditorMenu());
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			FlxG.mouse.visible = false;
 		}, btnWid);
@@ -5737,7 +5750,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		else
 		{
 			var chartName:String = Paths.formatToSongPath(PlayState.SONG.song) + '.json';
-			if(Song.chartPath != null) chartName = Song.chartPath.substr(Song.chartPath.lastIndexOf('/')).trim();
+			//if(Song.chartPath != null) chartName = Song.chartPath.substr(Song.chartPath.lastIndexOf('/')).trim();
 			fileDialog.save(chartName, chartData,
 				function()
 				{
@@ -5766,7 +5779,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			note.rgbShader.enabled = !noRGBCheckBox.checked;
 			if(note.rgbShader.enabled)
 			{
-				var data = backend.NoteTypesConfig.loadNoteTypeData(note.noteType);
+				var data = funkin.game.notes.NoteTypesConfig.loadNoteTypeData(note.noteType);
 				if(data == null || data.length < 1) continue;
 
 				for (line in data)
@@ -5987,7 +6000,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	override function destroy()
 	{
 		Note.globalRgbShaders = [];
-		backend.NoteTypesConfig.clearNoteTypesData();
+		funkin.game.notes.NoteTypesConfig.clearNoteTypesData();
 
 		for (num => text in MetaNote.noteTypeTexts)
 			text.destroy();
@@ -6115,7 +6128,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	{
 		if(isMovingNotes || currentUndo >= undoActions.length)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'), 0.4);
+			FunkinSound.playOnce(Paths.sound('cancelMenu'), 0.4);
 			return;
 		}
 
@@ -6140,14 +6153,14 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				onSelectNote();
 		}
 		showOutput('Undo #${currentUndo+1}: ${action.action}');
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.4);
 		currentUndo++;
 	}
 	function redo()
 	{
 		if(isMovingNotes || currentUndo < 1)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'), 0.4);
+			FunkinSound.playOnce(Paths.sound('cancelMenu'), 0.4);
 			return;
 		}
 
@@ -6173,7 +6186,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 				onSelectNote();
 		}
 		showOutput('Redo #${currentUndo+1}: ${action.action}');
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.4);
 	}
 
 	function actionPushNotes(dataNotes:Array<MetaNote>, dataEvents:Array<EventMetaNote>)

@@ -1,4 +1,4 @@
-package states.editors.content;
+package funkin.debug.editors.content;
 
 import haxe.format.JsonPrinter;
 

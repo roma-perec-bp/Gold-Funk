@@ -1,4 +1,4 @@
-package states.editors.content;
+package funkin.debug.editors.content;
 
 import flixel.addons.display.FlxGridOverlay;
 
@@ -22,6 +22,8 @@ class ChartingGridSprite extends FlxSprite
 		scrollFactor.x = 0;
 		active = false;
 
+		antialiasing = false;
+
 		scale.set(ChartingState.GRID_SIZE, ChartingState.GRID_SIZE);
 		loadGrid(color1, color2);
 		updateHitbox();
@@ -31,11 +33,13 @@ class ChartingGridSprite extends FlxSprite
 		vortexLine.scale.x = this.width;
 		vortexLine.scrollFactor.x = 0;
 		vortexLine.color = 0xFF660000;
+		vortexLine.antialiasing = false;
 		vortexLine.updateHitbox();
 
 		stripe = new FlxSprite().makeGraphic(1, 1, FlxColor.WHITE);
 		stripe.scrollFactor.x = 0;
 		stripe.color = FlxColor.BLACK;
+		stripe.antialiasing = false;
 		updateStripes();
 	}
 

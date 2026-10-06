@@ -1,11 +1,9 @@
-package states.editors.content;
+package funkin.debug.editors.content;
 
-import backend.Song;
-import backend.Rating;
+import funkin.data.Song;
+import funkin.game.objects.Rating;
 
-import objects.Note;
-import objects.NoteSplash;
-import objects.StrumNote;
+import funkin.game.notes.*;
 
 import flixel.util.FlxSort;
 import flixel.util.FlxStringUtil;

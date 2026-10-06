@@ -1,7 +1,7 @@
-package states.editors.content;
+package funkin.debug.editors.content;
 
-import backend.Song;
-import backend.Difficulty;
+import funkin.data.Song;
+import funkin.data.Difficulty;
 
 import flixel.math.FlxMath;
 import flixel.util.FlxSort;
@@ -268,7 +268,7 @@ class VSlice
 
 			Reflect.setField(swagSong, 'artist', metadata.artist);
 			Reflect.setField(swagSong, 'charter', metadata.charter);
-			Reflect.setField(swagSong, 'generatedBy', 'Gold Funk v${MainMenuState.goldFunkVersion} - Chart Editor V-Slice Importer');
+			Reflect.setField(swagSong, 'generatedBy', 'Gold Funk v${funkin.menus.mainmenu.MainMenuState.goldFunkVersion} - Chart Editor V-Slice Importer');
 			songDifficulties.set(diff, swagSong);
 		}
 		var pack:PsychPackage = {difficulties: songDifficulties, events: null};
@@ -333,7 +333,7 @@ class VSlice
 		}
 
 		var notes:Array<VSliceNote> = [];
-		var generatedBy:String = 'Gold Funk v${MainMenuState.goldFunkVersion} - Chart Editor V-Slice Exporter';
+		var generatedBy:String = 'Gold Funk v${funkin.menus.mainmenu.MainMenuState.goldFunkVersion} - Chart Editor V-Slice Exporter';
 		var timeChanges:Array<VSliceTimeChange> = [];
 		
 		var time:Float = 0;

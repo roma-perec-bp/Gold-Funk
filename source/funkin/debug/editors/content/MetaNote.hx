@@ -1,7 +1,7 @@
-package states.editors.content;
+package funkin.debug.editors.content;
 
-import objects.Note;
-import shaders.RGBPalette;
+import funkin.game.notes.Note;
+import funkin.graphics.shaders.RGBPalette;
 import flixel.util.FlxDestroyUtil;
 
 class MetaNote extends Note
@@ -293,7 +293,10 @@ class EventMetaNote extends MetaNote
 	{
 		super(time, -1, eventData);
 		this.isEvent = true;
-		events = eventData[1];
+		// Defend against corrupt charts where the sub-event slot isn't an array (e.g. an
+		// older osu! convert that wrote `[time, 0]`), which would null-ref updateEventText.
+		var sub:Dynamic = eventData[1];
+		events = (sub != null && Std.isOfType(sub, Array)) ? cast sub : [['', '', '']];
 		//trace('events: $events');
 		
 		loadGraphic(Paths.image('editors/eventIcon'));

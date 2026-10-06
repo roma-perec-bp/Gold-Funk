@@ -1,9 +1,9 @@
-package states.editors;
+package funkin.debug.editors;
 
-import backend.StageData;
-import backend.GoldCamera;
-import objects.Character;
-import psychlua.LuaUtils;
+import funkin.data.StageData;
+import funkin.graphics.GoldCamera;
+import funkin.game.objects.Character;
+import funkin.psychlua.LuaUtils;
 
 import flixel.FlxObject;
 import flixel.addons.display.FlxBackdrop;
@@ -20,11 +20,11 @@ import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 
-import psychlua.ModchartSprite;
+import funkin.psychlua.ModchartSprite;
 import flash.net.FileFilter;
 
-import states.editors.content.Prompt;
-import states.editors.content.PreloadListSubState;
+import funkin.debug.editors.content.Prompt;
+import funkin.debug.editors.content.PreloadListSubState;
 
 class StageEditorState extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
@@ -1470,7 +1470,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			{
 				if(!_goToPlayState)
 				{
-					MusicBeatState.switchState(new states.editors.MasterEditorMenu());
+					MusicBeatState.switchState(new funkin.debug.editors.MasterEditorMenu());
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				}
 				else
@@ -2235,8 +2235,8 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 			var indicesStr:Array<String> = animationIndicesInputText.text.trim().split(',');
 			if(indicesStr.length > 1) {
 				for (i in 0...indicesStr.length) {
-					var index:Int = Std.parseInt(indicesStr[i]);
-					if(indicesStr[i] != null && indicesStr[i] != '' && !Math.isNaN(index) && index > -1) {
+					var index:Null<Int> = Std.parseInt(indicesStr[i]);
+					if (index != null && index > -1) {
 						indices.push(index);
 					}
 				}
