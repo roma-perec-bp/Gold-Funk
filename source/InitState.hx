@@ -7,14 +7,10 @@ import flixel.input.keyboard.FlxKey;
 import flixel.system.debug.log.LogStyle;
 import openfl.display.BitmapData;
 
-import backend.FullScreenScaleMode;
+import funkin.menus.FullScreenScaleMode;
 
-import backend.WeekData;
-import backend.Highscore;
-import backend.Progression;
-
-import states.StoryMenuState;
-import states.FlashingState;
+import funkin.menus.storymenu.StoryMenuState;
+import funkin.menus.FlashingState;
 
 #if (cpp && windows)
 import hxwindowmode.WindowColorMode;
@@ -28,14 +24,14 @@ class InitState extends FlxState
 
     override public function create():Void
     {
-        super.create();
-        
-        Paths.clearStoredMemory();
-        Paths.clearUnusedMemory();
+        //Paths.clearStoredMemory();
+        //Paths.clearUnusedMemory();
 
         FlxG.save.bind('funkin', CoolUtil.getSavePath());
 
         Language.reloadPhrases();
+
+        //FlxSprite.defaultAntialiasing = ClientPrefs.data.antialiasing;
 
         Controls.instance = new Controls();
         ClientPrefs.loadDefaultKeys();
@@ -51,8 +47,11 @@ class InitState extends FlxState
         #end
 
         FlxG.fixedTimestep = false;
+        FlxG.signals.postGameReset.add(() -> FlxG.fixedTimestep = false);
         FlxG.game.focusLostFramerate = 30;
         FlxG.keys.preventDefaultKeys = [TAB];
+
+        FlxG.plugins.drawOnTop = true;
 
         //FlxG.inputs.resetOnStateSwitch = false;
 
@@ -76,96 +75,121 @@ class InitState extends FlxState
         DiscordClient.prepare();
         #end
 
+        //untyped FlxG.sound.music = new funkin.audio.FlxSoundEx();
+        //FlxG.sound.music.persist = true;
+
         FlxG.signals.focusLost.add(onLostFocus);
         FlxG.signals.focusGained.add(onGainFocus);
 
         // Sets the window to dark mode or white, depends.
         #if (cpp && windows)
-		WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
-		WindowColorMode.redrawWindowHeader();
-		#end
+		    WindowColorMode.setWindowColorMode(ClientPrefs.data.windowDarkMode);
+		    WindowColorMode.redrawWindowHeader();
+        cpp.Windows.setDpiAware();
+		    #end
 
-    #if debug
-    setupFlixelDebug();
-    #end
+        #if FEATURE_DEBUG_TRACY
+		    funkin.utils.WindowUtil.initTracy();
+		    #end
 
-    FlxG.scaleMode = new FullScreenScaleMode();
-
-		FlxG.switchState(new states.TitleState());
-  }
-
-    @:noCompletion var _lastFocusVolume:Null<Float>;
-
-    function onLostFocus()
-    {
-      if (FlxG.sound.muted || FlxG.sound.volume == 0 || FlxG.autoPause) return;
-      _lastFocusVolume = FlxG.sound.volume;
-      FlxG.sound.volume *= 0.5;
-    }
-  
-    function onGainFocus()
-    {
-      if (FlxG.sound.muted || FlxG.autoPause) return;
-      if (_lastFocusVolume != null) FlxG.sound.volume = _lastFocusVolume;
-    }
-
-    #if debug
-    function setupFlixelDebug():Void
-    {
-        #if !debug
-        // Make errors less annoying on release builds.
-        LogStyle.ERROR.openConsole = false;
-        LogStyle.ERROR.errorSound = null;
+        #if debug
+        setupFlixelDebug();
         #end
 
-        // Make errors and warnings less annoying.
-        LogStyle.WARNING.openConsole = false;
-        LogStyle.WARNING.errorSound = null;
+        FlxG.scaleMode = new FullScreenScaleMode();
 
+        FlxG.signals.preStateSwitch.add(FullScreenScaleMode.instance.onMeasurePostAwait);
 
-        FlxG.debugger.toggleKeys = [F2];
+        super.create();
 
-        // Adds a red button to the debugger.
-        // This pauses the game AND the music! This ensures the Conductor stops.
-        FlxG.debugger.addButton(CENTER, new BitmapData(20, 20, true, 0xFFCC2233), function() {
-        if (FlxG.vcr.paused)
-        {
-            FlxG.vcr.resume();
-      
-            for (snd in FlxG.sound.list)
-            {
-                snd.resume();
-            }
-      
-            FlxG.sound.music.resume();
-        }
-        else
-        {
-            FlxG.vcr.pause();
-      
-            for (snd in FlxG.sound.list)
-            {
-                snd.pause();
-            }
-      
-            FlxG.sound.music.pause();
-        }
-        });
+        FlxG.switchState(new funkin.menus.title.TitleState());
+  }
+
+  @:noCompletion var _lastFocusVolume:Null<Float>;
+
+  function onLostFocus():Void
+  {
+    if (FlxG.sound.muted || FlxG.sound.volume == 0 || FlxG.autoPause) return;
+    _lastFocusVolume = FlxG.sound.volume;
+    FlxG.sound.volume *= 0.5;
+  }
   
-        // Adds a blue button to the debugger.
-        // This skips forward in the song.
-        FlxG.debugger.addButton(CENTER, new BitmapData(20, 20, true, 0xFF2222CC), function() {
-        FlxG.game.debugger.vcr.onStep();
-  
-        for (snd in FlxG.sound.list)
-        {
-          snd.pause();
-          snd.time += FlxG.elapsed * 1000;
-        }
-  
-        FlxG.sound.music.pause();
-        FlxG.sound.music.time += FlxG.elapsed * 1000;
-        });
+  function onGainFocus():Void
+  {
+    #if !mobile
+    if (ClientPrefs.data.unlockedFramerate)
+    {
+      FlxG.updateFramerate = 0;
+      FlxG.drawFramerate = 0;
+    }
+    else
+    {
+      FlxG.updateFramerate = ClientPrefs.data.framerate;
+      FlxG.drawFramerate = ClientPrefs.data.framerate;
     }
     #end
+
+    if (FlxG.sound.muted || FlxG.sound.volume == 0 || FlxG.autoPause) return;
+    if (_lastFocusVolume != null) FlxG.sound.volume = _lastFocusVolume;
+  }
+
+  #if debug
+  function setupFlixelDebug():Void
+  {
+      #if !debug
+      // Make errors less annoying on release builds.
+      LogStyle.ERROR.openConsole = false;
+      LogStyle.ERROR.errorSound = null;
+      #end
+
+      // Make errors and warnings less annoying.
+      LogStyle.WARNING.openConsole = false;
+      LogStyle.WARNING.errorSound = null;
+
+
+      FlxG.debugger.toggleKeys = [F2];
+
+      // Adds a red button to the debugger.
+      // This pauses the game AND the music! This ensures the Conductor stops.
+      FlxG.debugger.addButton(CENTER, new BitmapData(20, 20, true, 0xFFCC2233), function() {
+      if (FlxG.vcr.paused)
+      {
+          FlxG.vcr.resume();
+    
+          for (snd in FlxG.sound.list)
+          {
+              snd.resume();
+          }
+    
+          FlxG.sound.music.resume();
+      }
+      else
+      {
+          FlxG.vcr.pause();
+    
+          for (snd in FlxG.sound.list)
+          {
+              snd.pause();
+          }
+    
+          FlxG.sound.music.pause();
+      }
+      });
+
+      // Adds a blue button to the debugger.
+      // This skips forward in the song.
+      FlxG.debugger.addButton(CENTER, new BitmapData(20, 20, true, 0xFF2222CC), function() {
+      FlxG.game.debugger.vcr.onStep();
+
+      for (snd in FlxG.sound.list)
+      {
+        snd.pause();
+        snd.time += FlxG.elapsed * 1000;
+      }
+
+      FlxG.sound.music.pause();
+      FlxG.sound.music.time += FlxG.elapsed * 1000;
+      });
+  }
+  #end
 }

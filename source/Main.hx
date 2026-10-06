@@ -3,9 +3,11 @@ package;
 #if android
 import android.content.Context;
 #end
-
-import debug.FPSCounter;
-
+import openfl.events.Event;
+import funkin.debug.FPSCounter;
+import lime.system.System;
+import flixel.input.keyboard.FlxKey;
+import hxvlc.util.Handle;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -19,7 +21,7 @@ import lime.app.Application;
 
 #if HSCRIPT_ALLOWED
 import crowplexus.iris.Iris;
-import psychlua.HScript.HScriptInfos;
+import funkin.psychlua.HScript.HScriptInfos;
 #end
 
 #if (linux || mac)
@@ -27,7 +29,7 @@ import lime.graphics.Image;
 #end
 
 #if desktop
-import backend.ALSoftConfig; // Just to make sure DCE doesn't remove this, since it's not directly referenced anywhere else.
+import funkin.audio.ALSoftConfig; // Just to make sure DCE doesn't remove this, since it's not directly referenced anywhere else.
 #end
 
 //crash handler stuff
@@ -37,8 +39,8 @@ import haxe.CallStack;
 import haxe.io.Path;
 #end
 
-import backend.Highscore;
-import debug.FPSCounter.DebugDisplayMode;
+import funkin.data.Highscore;
+import funkin.debug.FPSCounter.DebugDisplayMode;
 
 // NATIVE API STUFF, YOU CAN IGNORE THIS AND SCROLL //
 #if (linux && !debug)
@@ -49,18 +51,21 @@ import debug.FPSCounter.DebugDisplayMode;
 // // // // // // // // //
 class Main extends Sprite
 {
-	public static final game = {
-		width: 1280, // WINDOW width
-		height: 720, // WINDOW height
-		initialState: InitState, // initial game state
-		framerate: 60, // default framerate
-		skipSplash: true, // if the default flixel splash screen should be skipped
-		startFullscreen: false // if the game should start at fullscreen mode
-	};
+	public static final PSYCH_VERSION:String = '1.0.4';
+	public static final GOLD_VERSION:String = '0.0.1';
+	public static final FUNKIN_VERSION:String = '0.2.8';
 
 	public static var fpsVar:FPSCounter;
 
+	public static var darnellMode:Bool = false;
+	public static var raldman:Bool = false;
+
 	// You can pretty much ignore everything from here on - your code should go in your states.
+
+	static function __init__()
+	{
+		funkin.utils.MacroUtil.haxeVersionEnforcement();
+	}
 
 	public static function main():Void
 	{
@@ -72,9 +77,50 @@ class Main extends Sprite
 		super();
 
 		#if (cpp && windows)
-		backend.Native.fixScaling();
+		funkin.backend.Native.fixScaling();
 		#end
 
+		if (stage != null)
+		{
+			init();
+		}
+		else
+		{
+			addEventListener(Event.ADDED_TO_STAGE, init);
+		}
+	}
+
+	@:access(flixel.FlxCamera)
+	static function onResize(w:Int, h:Int)
+	{
+		final scale:Float = Math.max(1, Math.min(w / FlxG.width, h / FlxG.height));
+		
+		if (FlxG.cameras != null)
+		{
+			for (i in FlxG.cameras.list)
+			{
+				if (i != null && i.filters != null) resetSpriteCache(i.flashSprite);
+			}
+		}
+		
+		if (FlxG.game != null)
+		{
+			resetSpriteCache(FlxG.game);
+		}
+	}
+
+	function init(?event:Event):Void
+	{
+		if (hasEventListener(Event.ADDED_TO_STAGE))
+		{
+			removeEventListener(Event.ADDED_TO_STAGE, init);
+		}
+
+		setupGame();
+	}
+
+	function setupGame():Void
+	{
 		// Credits to MAJigsaw77 (he's the og author for this code)
 		#if android
 		Sys.setCwd(Path.addTrailingSlash(Context.getExternalFilesDir()));
@@ -141,20 +187,34 @@ class Main extends Sprite
 
 		// Force a `FunkinCamera` to be the default camera.
         // This allows the blend mode shader to work everywhere.
-        untyped FlxG.cameras = new objects.funkin.FunkinCameraFrontEnd();
+        untyped FlxG.cameras = new funkin.graphics.FunkinCameraFrontEnd();
 
-		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
-		addChild(new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, FlxG.stage.window.fullscreen));
+		// addChild gets called by the user settings code.
+		fpsVar = new FPSCounter(10, 10, 0xFFFFFF);
+
+		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(funkin.psychlua.CallbackHandler.call)); #end
+
+		// Use the existent instance of the game,
+   		// if it doesnt exist just create it as before,
+		// should NEVER be the case to create it again though.
+		final game:FlxGame = FlxG.game != null ? FlxG.game : funkin.backend.FunkinGame.init();
+
+		#if desktop
+		@:privateAccess
+		game._startFullscreen = FlxG.stage.window.fullscreen;
+		#end
+
+		@:privateAccess
+
+		game._customSoundTray = funkin.backend.FunkinSoundTray;
+
+		addChild(game);
+
+		funkin.utils.ColorblindFilter.attach();
 
 		#if !mobile
-		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);
-		addChild(fpsVar);
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
-		if(fpsVar != null) {
-			fpsVar.visible = ClientPrefs.data.showFPS;
-			DebugDisplayMode.SIMPLE;
-		}
 		#end
 
 		#if (linux || mac) // fix the app icon not showing up on the Linux Panel / Mac Dock
@@ -166,23 +226,25 @@ class Main extends Sprite
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#end
 
-		// shader coords fix
-		FlxG.signals.gameResized.add(function (w, h) {
-		     if (FlxG.cameras != null) {
-			   for (cam in FlxG.cameras.list) {
-				if (cam != null && cam.filters != null)
-					resetSpriteCache(cam.flashSprite);
-			   }
-			}
+		// prevent accept button when alt+enter is pressed
+		FlxG.stage.addEventListener(openfl.events.KeyboardEvent.KEY_DOWN, (e) -> {
+			if (e.keyCode == FlxKey.ENTER && e.altKey) e.stopImmediatePropagation();
+		}, false, 100);
 
-			if (FlxG.game != null)
-			resetSpriteCache(FlxG.game);
-		});
+		#if DISABLE_TRACES
+		haxe.Log.trace = (v:Dynamic, ?infos:haxe.PosInfos) -> {}
+		#end
+
+		FlxG.signals.gameResized.add(onResize);
 	}
 
-	static function resetSpriteCache(sprite:Sprite):Void {
-		@:privateAccess {
-		        sprite.__cacheBitmap = null;
+	@:nullSafety(Off)
+	public static function resetSpriteCache(sprite:Sprite):Void
+	{
+		if (sprite == null) return;
+		@:privateAccess
+		{
+			sprite.__cacheBitmap = null;
 			sprite.__cacheBitmapData = null;
 		}
 	}

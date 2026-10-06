@@ -1,7 +1,9 @@
+package;
+
 #if !macro
 //Discord API
 #if DISCORD_ALLOWED
-import backend.Discord;
+import funkin.api.Discord;
 #end
 
 //Psych
@@ -11,7 +13,7 @@ import llua.Lua;
 #end
 
 #if ACHIEVEMENTS_ALLOWED
-import backend.Achievements;
+import funkin.menus.achievements.Achievements;
 #end
 
 #if sys
@@ -21,26 +23,26 @@ import sys.io.*;
 import js.html.*;
 #end
 
-import backend.Paths;
-import backend.Controls;
-import backend.CoolUtil;
-import backend.MusicBeatState;
-import backend.MusicBeatSubstate;
-import backend.CustomFadeTransition;
-import backend.ClientPrefs;
-import backend.Conductor;
-import backend.BaseStage;
-import backend.Difficulty;
-import backend.Mods;
-import backend.Language;
+import funkin.Paths;
+import funkin.data.Song;
+import funkin.data.*;
+import funkin.utils.*;
+import funkin.menus.MusicBeatState;
+import funkin.menus.MusicBeatSubstate;
+import funkin.menus.transitions.CustomFadeTransition;
 
-import backend.ui.*; //Psych-UI
+import funkin.backend.Conductor;
+import funkin.game.stages.BaseStage;
+import funkin.backend.Mods;
+import funkin.backend.Language;
 
-import objects.Alphabet;
-import objects.BGSprite;
+import funkin.backend.ui.*; //Psych-UI
 
-import states.PlayState;
-import states.LoadingState;
+import funkin.objects.Alphabet;
+import funkin.game.objects.BGSprite;
+
+import funkin.game.PlayState;
+import funkin.menus.LoadingState;
 
 import animate.FlxAnimate;
 import animate.FlxAnimateFrames;
