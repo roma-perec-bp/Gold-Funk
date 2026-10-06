@@ -1,14 +1,11 @@
-package objects;
+package funkin.game.notes;
 
-import backend.animation.PsychAnimationController;
-import backend.NoteTypesConfig;
+import funkin.backend.animation.PsychAnimationController;
 
-import shaders.RGBPalette;
-import shaders.RGBPalette.RGBShaderReference;
+import funkin.graphics.shaders.RGBPalette;
+import funkin.graphics.shaders.RGBPalette.RGBShaderReference;
 
-import shaders.ColorSwap;
-
-import objects.StrumNote;
+import funkin.graphics.shaders.ColorSwap;
 
 import flixel.math.FlxRect;
 
@@ -50,7 +47,8 @@ class Note extends FlxSprite
 		'Hey!',
 		'Hurt Note',
 		'GF Sing',
-		'GF Sing (Colored)'
+		'GF Sing (Colored)',
+		'Autoplay Note'
 	];
 
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -62,6 +60,8 @@ class Note extends FlxSprite
 	public var dadNote:Bool = false; //i had to make this because opponent skins did not worked properly, there is might be easier way but for now...
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
+
+	public var canChangeRGB:Bool = true;
 
 	public var wasGoodHit:Bool = false;
 	public var missed:Bool = false;
@@ -89,6 +89,7 @@ class Note extends FlxSprite
 	public var ghostType:String = '';
 	public var heyAnim:String = '';
 	public var invisibleNote:Bool = false;
+	public var autoplay:Bool = false;
 
 	public var isInvisible:Bool = false; //used for skip time feature
 
@@ -101,7 +102,25 @@ class Note extends FlxSprite
 
 	public var rgbShader:RGBShaderReference;
 	public static var globalRgbShaders:Array<RGBPalette> = [];
-	var colorSwap:ColorSwap;
+
+	var _colorSwap:Null<ColorSwap> = null;
+ 	var colorSwap(get, never):ColorSwap;
+
+	function get_colorSwap():ColorSwap
+	{
+		if (_colorSwap == null) _colorSwap = new ColorSwap();
+	
+		return _colorSwap;
+	}
+
+	// Per-song dedupe set for hitsound precaching. set_noteType used to
+	// call Paths.sound(hitsound) for every note that referenced a custom
+	// hitsound -- with hundreds of notes per chart that's hundreds of
+	// string formats + Map.exists checks + localTrackedAssets pushes
+	// for the same handful of unique sounds. PlayState resets this on
+	// create() so memory doesn't accumulate across songs.
+	public static var precachedHitsounds:Map<String, Bool> = new Map();
+
 	public var inEditor:Bool = false;
 	public var inTestEditor:Bool = false;
 
@@ -111,6 +130,20 @@ class Note extends FlxSprite
 	public var earlyHitMult:Float = 1;
 	public var lateHitMult:Float = 1;
 	public var lowPriority:Bool = false;
+
+	public static var quantStepManiaColors:Array<Array<FlxColor>> = [
+		[0xFFE51919, 0xFFFFFF, 0xFF5B0A30], // 4th
+		[0xFF193BE5, 0xFFFFFF, 0xFF0A3B5B], // 8th
+		[0xFFA119E5, 0xFFFFFF, 0xFF1D0A5B], // 12th
+		[0xFF26D93E, 0xFFFFFF, 0xFF24560F], // 16th
+		[0xFF0000B2, 0xFFFFFF, 0xFF002247], // 20th
+		[0xFFA119E5, 0xFFFFFF, 0xFF1D0A5B], // 24th
+		[0xFFE5C319, 0xFFFFFF, 0xFF5B2A0A], // 32nd
+		[0xFFA119E5, 0xFFFFFF, 0xFF1D0A5B], // 48th
+		[0xFF13ECA4, 0xFFFFFF, 0xFF085D18], // 64th
+		[0xFF3A3A6C, 0xFFFFFF, 0xFF17202B], // 96th
+		[0xFF3A3A6C, 0xFFFFFF, 0xFF17202B] // 192nd
+	];
 
 	public static var SUSTAIN_SIZE:Int = 44;
 	public static var swagWidth:Float = 160 * 0.7;
@@ -164,12 +197,21 @@ class Note extends FlxSprite
 	**/
 	public var hitsoundForce:Bool = false;
 	public var hitsoundVolume(get, default):Float = 1.0;
+
+	// quant stuff
+	public static final quants:Array<Int> = [
+		4, // quarter note
+		8, // eight
+		12, // etc
+		16, 20, 24, 32, 48, 64, 96, 192];
+
 	function get_hitsoundVolume():Float {
 		if(ClientPrefs.data.hitsoundVolume > 0)
 			return ClientPrefs.data.hitsoundVolume;
-		return hitsoundForce ? hitsoundVolume : 0.0;
+		// @:bypassAccessor avoids re-entering this getter recursively
+		return hitsoundForce ? @:bypassAccessor this.hitsoundVolume : 0.0;
 	}
-	public var hitsound:String = 'hitsound';
+	public var hitsound:String = "hitsounds/"+ClientPrefs.data.hitsoundType;
 
 	private function set_multSpeed(value:Float):Float {
 		resizeByRatio(value / multSpeed);
@@ -193,6 +235,20 @@ class Note extends FlxSprite
 		texture = value;
 		return value;
 	}
+	
+
+	public static function getQuant(beat:Float)
+	{
+		var row = Conductor.beatToNoteRow(beat);
+		for (data in quants)
+		{
+			if (row % (Conductor.ROWS_PER_MEASURE / data) == 0)
+			{
+				return data;
+			}
+		}
+		return quants[quants.length - 1]; // invalid
+	}
 
 	public function defaultRGB()
 	{
@@ -201,7 +257,11 @@ class Note extends FlxSprite
 			var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
 			if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
 		
-			if (arr != null && noteData > -1 && noteData <= arr.length)
+			// `arr` is the per-direction RGB triple ([r,g,b], length 3); guarding
+			// `noteData < arr.length` rejected noteData == 3 (right arrow) and
+			// caused the right arrow to render with the fallback palette. Bound
+			// against the outer arrowRGB length and require the triple to be full.
+			if (arr != null && noteData > -1 && arr.length >= 3)
 			{
 				rgbShader.r = arr[0];
 				rgbShader.g = arr[1];
@@ -216,12 +276,12 @@ class Note extends FlxSprite
 		}
 		else
 		{
-			if(mustPress)
+			if(mustPress || PlayState.instance.opponentMode)
 			{
 				var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
 				if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
 			
-				if (arr != null && noteData > -1 && noteData <= arr.length)
+				if (arr != null && noteData > -1 && arr.length >= 3)
 				{
 					rgbShader.r = arr[0];
 					rgbShader.g = arr[1];
@@ -232,6 +292,67 @@ class Note extends FlxSprite
 					rgbShader.r = 0xFFFF0000;
 					rgbShader.g = 0xFF00FF00;
 					rgbShader.b = 0xFF0000FF;
+				}
+
+				if(ClientPrefs.data.quants != 'Off')
+				{
+					var beatRow:Int = 0;
+					beatRow = getQuant(Conductor.getBeat(strumTime));
+					// STOLEN ETTERNA CODE (IN 2002)
+
+					var colorQuant:Int = 0;
+
+					if(!isSustainNote) //TO DO MAKE COLOR OPTION FOR IT
+					{
+						if(ClientPrefs.data.quants != 'StepMania Mode')
+						{
+							//help me
+							if (beatRow == 4)
+								colorQuant = 0;
+							else if (beatRow == 8)
+								colorQuant = 1;
+							else if (beatRow == 12)
+								colorQuant = 2;
+							else if (beatRow == 16)
+								colorQuant = 3;
+							else if (beatRow == 20)
+								colorQuant = 2;
+							else if (beatRow == 24)
+								colorQuant = 1;
+							else if (beatRow == 32)
+								colorQuant = 0;
+							else if (beatRow == 48)
+								colorQuant = 1;
+							else if (beatRow == 64)
+								colorQuant = 2;
+							else if (beatRow == 96)
+								colorQuant = 3;
+							else if (beatRow == 192)
+								colorQuant = 2;
+						}
+						else
+						{
+							colorQuant = quants.indexOf(beatRow);
+						}
+
+						var arrQuant:Array<FlxColor> = ClientPrefs.data.arrowRGB[colorQuant];
+						if(PlayState.isPixelStage) arrQuant = ClientPrefs.data.arrowRGBPixel[colorQuant];
+
+						if(ClientPrefs.data.quants == 'StepMania Mode') arrQuant  = quantStepManiaColors[colorQuant];
+
+						rgbShader.r = arrQuant[0];
+						rgbShader.g = arrQuant[1];
+						rgbShader.b = arrQuant[2];
+
+						noteSplashData.r = arrQuant[0];
+						noteSplashData.g = arrQuant[1];
+					}
+					else
+					{
+						rgbShader.r = prevNote.rgbShader.r;
+						rgbShader.g = prevNote.rgbShader.g;
+						rgbShader.b = prevNote.rgbShader.b;
+					}
 				}
 
 				//TO DO: FIX IT SO BF COULD HAVE COLORED GF NOTES TOO
@@ -259,18 +380,25 @@ class Note extends FlxSprite
 				var arrOpp:Array<String>;
 					
 				arrOpp = PlayState.instance.dad.opponentNoteColor[noteData];
+				var extra_arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
 
 				if (arrOpp != null && noteData > -1 && noteData <= arrOpp.length)
 				{
 					rgbShader.r = CoolUtil.colorFromString(arrOpp[0]);
 					rgbShader.g = CoolUtil.colorFromString(arrOpp[1]);
 					rgbShader.b = CoolUtil.colorFromString(arrOpp[2]);
+
+					noteSplashData.r = CoolUtil.colorFromString(arrOpp[0]);
+					noteSplashData.g =  CoolUtil.colorFromString(arrOpp[1]);
 				}
 				else
 				{
 					rgbShader.r = 0xFFFF0000;
 					rgbShader.g = 0xFF00FF00;
 					rgbShader.b = 0xFF0000FF;
+
+					noteSplashData.r = 0xFFFF0000;
+					noteSplashData.g =  0xFF00FF00;
 				}
 
 				if(colored && gfNote)
@@ -283,12 +411,18 @@ class Note extends FlxSprite
 						rgbShader.r = CoolUtil.colorFromString(arrGf[0]);
 						rgbShader.g = CoolUtil.colorFromString(arrGf[1]);
 						rgbShader.b = CoolUtil.colorFromString(arrGf[2]);
+
+						noteSplashData.r = CoolUtil.colorFromString(arrOpp[0]);
+						noteSplashData.g =  CoolUtil.colorFromString(arrOpp[1]);
 					}
 					else
 					{
 						rgbShader.r = 0xFFFF0000;
 						rgbShader.g = 0xFF00FF00;
 						rgbShader.b = 0xFF0000FF;
+
+						noteSplashData.r = 0xFFFF0000;
+						noteSplashData.g =  0xFF00FF00;
 					}
 				}
 			}
@@ -307,10 +441,12 @@ class Note extends FlxSprite
 					//this used to change the note texture to HURTNOTE_assets.png,
 					//but i've changed it to something more optimized with the implementation of RGBPalette:
 
+					canChangeRGB = false;
+
 					// note colors
-					rgbShader.r = 0xFF101010;
+					rgbShader.r = 0xFF000000;
 					rgbShader.g = 0xFFFF0000;
-					rgbShader.b = 0xFF990022;
+					rgbShader.b = 0xFF000000;
 
 					// splash data and colors
 					noteSplashData.r = 0xFFFF0000;
@@ -328,15 +464,20 @@ class Note extends FlxSprite
 				case 'GF Sing (Colored)':
 					gfNote = true;
 					colored = true;
+				case 'Autoplay Note':
+					autoplay = true;
 			}
 			if (value != null && value.length > 1) NoteTypesConfig.applyNoteTypeData(this, value);
-			if (hitsound != 'hitsound' && hitsoundVolume > 0) Paths.sound(hitsound); //precache new sound for being idiot-proof
+			if (hitsound != "hitsounds/"+ClientPrefs.data.hitsoundType && hitsoundVolume > 0 && !precachedHitsounds.exists(hitsound)) {
+				precachedHitsounds.set(hitsound, true);
+				Paths.sound(hitsound); //precache new sound for being idiot-proof
+			}
 			noteType = value;
 		}
 		return value;
 	}
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null, ?dadNote:Bool = false)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null, ?dadNote:Bool = true)
 	{
 		super();
 
@@ -368,8 +509,8 @@ class Note extends FlxSprite
 			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB)
 			{
 				rgbShader.enabled = false;
-				colorSwap = new ColorSwap();
-				shader = colorSwap.shader;
+
+				if (_colorSwap != null) shader = _colorSwap.shader;
 			}
 			texture = '';
 
@@ -393,12 +534,15 @@ class Note extends FlxSprite
 			hitsoundDisabled = true;
 			if(ClientPrefs.data.downScroll) flipY = true;
 
+			scale.y = 0.62;
+
 			offsetX += width / 2;
 			copyAngle = false;
 
 			animation.play(colArray[noteData % colArray.length] + 'holdend');
 
 			updateHitbox();
+			centerOffsets();
 
 			offsetX -= width / 2;
 
@@ -409,7 +553,8 @@ class Note extends FlxSprite
 			{
 				prevNote.animation.play(colArray[prevNote.noteData % colArray.length] + 'hold');
 
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
+				prevNote.scale.y = Conductor.stepCrochet / 100 * 1.058;
+
 				if(createdFrom != null &&  createdFrom.songSpeedOpponent != null) 
 					if (!prevNote.mustPress)
 						prevNote.scale.y *= createdFrom.songSpeedOpponent;
@@ -419,8 +564,8 @@ class Note extends FlxSprite
 						prevNote.scale.y *= createdFrom.songSpeed;
 
 				if(PlayState.isPixelStage) {
-					prevNote.scale.y *= 1.19;
-					prevNote.scale.y *= (6 / height); //Auto adjust note size
+					prevNote.scale.y *= 4.58;
+					prevNote.scale.y *= (6 / height); // Auto adjust note size
 				}
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
@@ -446,8 +591,8 @@ class Note extends FlxSprite
 		if(PlayState.SONG != null && PlayState.SONG.disableDadRGB && !mustPress)
 		{
 			rgbShader.enabled = false;
-			colorSwap = new ColorSwap();
-			shader = colorSwap.shader;
+
+			if (_colorSwap != null) shader = _colorSwap.shader;
 		}
 	}
 
@@ -458,7 +603,7 @@ class Note extends FlxSprite
 			var newRGB:RGBPalette = new RGBPalette();
 			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
 			
-			if (arr != null && noteData > -1 && noteData <= arr.length)
+			if (arr != null && arr.length >= 3)
 			{
 				newRGB.r = arr[0];
 				newRGB.g = arr[1];
@@ -491,7 +636,7 @@ class Note extends FlxSprite
 			{
 				skin = PlayState.SONG.arrowSkin;
 
-				if (!dadNote && PlayState.SONG.opponentArrowSkin != null && PlayState.SONG.opponentArrowSkin.length > 1) 
+				if (!dadNote && PlayState.SONG.opponentArrowSkin != null && PlayState.SONG.opponentArrowSkin.length > 1 && !PlayState.instance.opponentMode) 
 					skin = PlayState.SONG.opponentArrowSkin;
 			}
 			else 
@@ -522,10 +667,18 @@ class Note extends FlxSprite
 		if(PlayState.isPixelStage) {
 			if(isSustainNote) {
 				var graphic = Paths.image('pixelUI/' + skinPixel + 'ENDS' + skinPostfix);
+				if (graphic == null) {
+					FlxG.log.error('Note: missing pixel sustain skin "images/pixelUI/${skinPixel}ENDS${skinPostfix}.png"');
+					return;
+				}
 				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 2));
 				originalHeight = graphic.height / 2;
 			} else {
 				var graphic = Paths.image('pixelUI/' + skinPixel + skinPostfix);
+				if (graphic == null) {
+					FlxG.log.error('Note: missing pixel skin "images/pixelUI/${skinPixel}${skinPostfix}.png"');
+					return;
+				}
 				loadGraphic(graphic, true, Math.floor(graphic.width / 4), Math.floor(graphic.height / 5));
 			}
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
@@ -603,9 +756,12 @@ class Note extends FlxSprite
 
 	public function desaturate():Void
 	{
-		colorSwap.hue = 0;
-		colorSwap.brightness = 0;
-		colorSwap.saturation = -1;
+		if(_colorSwap != null)
+		{
+			_colorSwap.hue = 0;
+			_colorSwap.brightness = 0;
+			_colorSwap.saturation = -1;
+		}
 	}
 
 	override function update(elapsed:Float)
@@ -718,9 +874,12 @@ class Note extends FlxSprite
 	@:noCompletion
 	override function set_clipRect(rect:FlxRect):FlxRect
 	{
-		clipRect = rect;
+		// @:bypassAccessor avoids recursing into this setter through the
+		// (default, set) property declared on FlxSprite. Without it, hxcpp
+		// re-enters set_clipRect for every assignment to clipRect.
+		@:bypassAccessor clipRect = rect;
 
-		if (frames != null)
+		if (frames != null && animation.frameIndex >= 0 && animation.frameIndex < frames.frames.length)
 			frame = frames.frames[animation.frameIndex];
 
 		return rect;

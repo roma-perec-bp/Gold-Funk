@@ -1,9 +1,10 @@
-package objects;
+package funkin.game.notes;
 
-import backend.animation.PsychAnimationController;
+import funkin.backend.animation.PsychAnimationController;
 
-import shaders.RGBPalette;
-import shaders.RGBPalette.RGBShaderReference;
+import funkin.graphics.shaders.RGBPalette;
+import funkin.menus.FullScreenScaleMode;
+import funkin.graphics.shaders.RGBPalette.RGBShaderReference;
 
 class StrumNote extends FlxSprite
 {
@@ -38,7 +39,7 @@ class StrumNote extends FlxSprite
 	}
 
 	public var useRGBShader:Bool = true;
-	public function new(x:Float, y:Float, leData:Int, player:Int) {
+	public function new(x:Float, y:Float, leData:Int, player:Int, debug:Bool = false) {
 		direction = 90;
 		
 		animation = new PsychAnimationController(this);
@@ -47,6 +48,8 @@ class StrumNote extends FlxSprite
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
 		
+		if(PlayState.SONG != null && PlayState.SONG.disableDadRGB && player == 0) useRGBShader = false;
+
 		/*var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[leData];
 		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[leData];
 		
@@ -67,9 +70,10 @@ class StrumNote extends FlxSprite
 		super(x, y);
 
 		var skin:String = null;
+		var oppoCheck:Bool = ClientPrefs.getGameplaySetting('opponentplay');
 		if(PlayState.SONG != null && PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) 
 			skin = PlayState.SONG.arrowSkin;
-		else if(player == 0 && PlayState.SONG != null && PlayState.SONG.opponentArrowSkin != null && PlayState.SONG.opponentArrowSkin.length > 1) 
+		else if(player == 0 && PlayState.SONG != null && PlayState.SONG.opponentArrowSkin != null && PlayState.SONG.opponentArrowSkin.length > 1 && oppoCheck == false && !debug) 
 			skin = PlayState.SONG.opponentArrowSkin;
 		else 
 			skin = Note.defaultNoteSkin;
@@ -90,10 +94,18 @@ class StrumNote extends FlxSprite
 
 		if(PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.image('pixelUI/' + texture));
+			// Cache the pixel atlas reference -- the previous code called
+			// Paths.image() twice for the exact same texture key, which
+			// triggers a redundant cache lookup and graphic decode.
+			final pixelGraphic = Paths.image('pixelUI/' + texture);
+			if (pixelGraphic == null) {
+				FlxG.log.error('StrumNote: pixel skin missing -- could not load "images/pixelUI/$texture.png"');
+				return;
+			}
+			loadGraphic(pixelGraphic);
 			width = width / 4;
 			height = height / 5;
-			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
+			loadGraphic(pixelGraphic, true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
@@ -158,6 +170,7 @@ class StrumNote extends FlxSprite
 		if(lastAnim != null) playAnim(lastAnim, true);
 	}
 
+	final cutoutSize = FullScreenScaleMode.gameCutoutSize.x / 2.5;
 	public function playerPosition()
 	{
 		x += Note.swagWidth * noteData;

@@ -1,6 +1,6 @@
-package backend;
+package funkin.game.objects;
 
-import backend.ClientPrefs;
+import funkin.data.ClientPrefs;
 
 class Rating
 {

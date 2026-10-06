@@ -1,108 +1,179 @@
-package objects;
+package funkin.game.notes;
 
-//CODE BY PUMPSUKI!!!
-class SustainSplash extends FlxSprite
-{
-  public static var startCrochet:Float;
-  public var destroyTimer:FlxTimer;
-  public var playedEnd:Bool = false;
+import funkin.graphics.FunkinSprite;
+
+//Code by PumpSuki and DuskieWhy
+class SustainSplash extends FlxSprite {
+
+	public var data(get, set):Int;
+	public var noteData:Int = 0;
+	
+	public var player:Int = 0;
+	
+	private var _note:Note;
+	private var _strum:StrumNote;
 
   public static var defaultNoteSplash(default, never):String = "holdSplashes/holdSplash";
 
-  var strumMove:StrumNote;
+  // internal thing to optimize loading frames
+	@:noCompletion var _textureLoaded:Null<String> = null;
 
   public function new():Void {
-
     super();
 
-    var splash:String = '';
-    if (PlayState.SONG != null && PlayState.SONG.holdSkin != null && PlayState.SONG.holdSkin.length > 0) 
-		splash = PlayState.SONG.holdSkin;
-    else
-      	splash = defaultNoteSplash;
+    loadSplash();
+  }
 
-    frames = Paths.getSparrowAtlas(splash);
-    animation.addByPrefix('start', 'holdCoverStart0', 24, false);
-    animation.addByPrefix('hold', 'holdCover0', 24, true);
-	animation.addByPrefix('end', 'holdCoverEnd0', 24, false);
-    animation.play('start', true, false, 0);
+  public static function getSplashSkinPostfix()
+	{
+		var skin:String = '';
+		if (ClientPrefs.data.splashHoldSkin != ClientPrefs.defaultData.splashHoldSkin)
+			skin = '-' + ClientPrefs.data.splashHoldSkin.trim().toLowerCase().replace(' ', '-');
+		return skin;
+	}
 
-    antialiasing = ClientPrefs.data.antialiasing;
-    if (PlayState.isPixelStage) antialiasing = false;
+  public function loadSplash()
+  {
+    var splash:String = null;
+    var texture:String = null;
 
-    destroyTimer = new FlxTimer();
+    if(splash == null)
+		{
+			splash = defaultNoteSplash + getSplashSkinPostfix();
+		}
+
+		if (frames == null)
+		{
+			texture = defaultNoteSplash + getSplashSkinPostfix();
+			frames = Paths.getSparrowAtlas(texture);
+			if (frames == null)
+			{
+				texture = defaultNoteSplash;
+				frames = Paths.getSparrowAtlas(texture);
+			}
+		}
+		
+		animation.addByPrefix('start', 'holdCoverStart0', 24, false);
+    switch(ClientPrefs.data.splashHoldSkin)
+    {
+      case 'Impostor':
+        animation.addByPrefix('hold', 'holdCover0', 48, true);
+      default: 
+        animation.addByPrefix('hold', 'holdCover0', 24, true);
+    }
+		animation.addByPrefix('end', 'holdCoverEnd0', 24, false);
+
+    animation.onFinish.add(this.onAnimationFinished);
   }
 
   override function update(elapsed:Float)
   {
     super.update(elapsed);
+
+    _position();
     
     //so it won't be look weird when strum move
-    if(strumMove != null)
+    if(_strum != null)
     {
-      setPosition(strumMove.x, strumMove.y);
-      alpha = strumMove.alpha;
+      alpha = _strum.alpha;
     }
-
-    if (animation.curAnim.name == 'start' && animation.curAnim.finished) animation.play('hold');
   }
 
-	public function setupSusSplash(strum:StrumNote, daNote:Note, ?playbackRate:Float = 1):Void
+  public function playAnim(anim:String, force:Bool = false, isReversed:Bool = false, frame:Int = 0)
 	{
+    animation.play(anim, force, isReversed, frame);
+		
+		centerOffsets();
+		centerOrigin();
 
-    final lengthToGet:Int = !daNote.isSustainNote ? daNote.tail.length : daNote.parent.tail.length;
-    final timeToGet:Float = !daNote.isSustainNote ? daNote.strumTime : daNote.parent.strumTime;
-    final timeThingy:Float = (startCrochet * lengthToGet + (timeToGet - Conductor.songPosition + ClientPrefs.data.ratingOffset)) / playbackRate * .001;
+    updateHitbox();
 
-    var tailEnd:Note = !daNote.isSustainNote ? daNote.tail[daNote.tail.length - 1] : daNote.parent.tail[daNote.parent.tail.length - 1];
+    if(anim == 'end' && ClientPrefs.data.splashHoldSkin == 'Default')
+      offsetOverride = [0, -21];
+    else
+      offsetOverride = [0, 0];
 
-    tailEnd.extraData['holdSplash'] = this;
+    _position();
+	}
 
-    clipRect = new flixel.math.FlxRect(0, !PlayState.isPixelStage ? 0 : -210, frameWidth, frameHeight);
+  public function setupSplash(strum:StrumNote, ?note:Note, ?time:Float = 0.5, ?isPlayer:Bool = false):Void 
+  {
+    this._note = note;
+		this._strum = strum;
+		
+		data = note.noteData;
+		
+		visible = true;
+		angle = 0;
+		alpha = strum.alpha;
 
-    if (daNote.rgbShader.enabled) {
-      shader = new objects.NoteSplash.PixelSplashShaderRef().shader;
-      shader.data.r.value = daNote.shader.data.r.value;
-      shader.data.g.value = daNote.shader.data.g.value;
-      shader.data.b.value = daNote.shader.data.b.value;
-      shader.data.mult.value = daNote.shader.data.mult.value;
+    if (note.rgbShader.enabled) {
+      shader = new NoteSplash.PixelSplashShaderRef().shader;
+      shader.data.r.value = note.shader.data.r.value;
+      shader.data.g.value = note.shader.data.g.value;
+      shader.data.b.value = note.shader.data.b.value;
+      shader.data.mult.value = note.shader.data.mult.value;
     }
 
-    setPosition(strum.x, strum.y);
-    offset.set(PlayState.isPixelStage ? 112.5 : 106.25, 100);
+    antialiasing = ClientPrefs.data.antialiasing;
 
-    destroyTimer.start(timeThingy, (idk:FlxTimer) -> {
-      if (tailEnd.mustPress && !(daNote.isSustainNote ? daNote.parent.noteSplashData.disabled : daNote.noteSplashData.disabled) && ClientPrefs.data.splashAlpha != 0 && !PlayState.SONG.disableHoldSparkle) {
-        playEnd(tailEnd);
-        return;
-      }
-      die(tailEnd);
-    });
-
-  }
-
-  public function die(?end:Note = null):Void {
-    //if (destroyTimer != null) destroyTimer.cancel();
-
-    kill();
-    super.kill();
-    if (FlxG.state is PlayState) PlayState.instance.grpHoldSplashes.remove(this);
-    
-    if (end != null) end.extraData['holdSplash'] = null;
-  }
-
-  public function playEnd(tailEnd:Note):Void {
-    if(!playedEnd)
+    switch(ClientPrefs.data.splashHoldSkin)
     {
-      alpha = ClientPrefs.data.splashAlpha;
-      animation.play('end', true, false, 0);
-      animation.curAnim.looped = false;
-      clipRect = null;
-      playedEnd = true;
-      animation.finishCallback = (idkEither:Dynamic) -> {
-        die(tailEnd);
-      }
+      case 'Impostor':
+        scale.set(0.7, 0.7);
     }
-}
-  public function onAnimationFinished(animationName:String):Void { if (animationName.startsWith('start'))animation.play('hold', true, false, 0);}
+
+    updateHitbox();
+		
+		playAnim('start', true);
+
+    _position();
+		
+		FlxTimer.wait(time, () -> {
+			if (isPlayer && ClientPrefs.data.splashAlpha != 0 && !PlayState.SONG.disableHoldSparkle) playAnim('end', true);
+			else kill();
+		});
+
+    //offset.set(PlayState.isPixelStage ? 112.5 : (ClientPrefs.data.noteSkin == 'Default') ? 111 : 106.25, 100);
+  }
+  var offsetsChange = [13, -50];
+  var offsetOverride = [0, 0];
+  function _position()
+	{
+		if (_strum != null)
+		{
+      switch(ClientPrefs.data.splashHoldSkin)
+      {
+        case 'Impostor':
+          offsetsChange = [33, 46];
+        case 'NightmareVision':
+          offsetsChange = [-10, 15];
+        case 'Vanilla':
+          offsetsChange = [13, -50];
+        default:
+          offsetsChange = [0, -20];
+      }
+			
+			setPosition(_strum.x + (_strum.width - width) * .5, _strum.y + (_strum.height - height) * .5);
+			offset.set(offsetsChange[0] + offsetOverride[0], offsetsChange[1] + offsetOverride[1]);
+		}
+	}
+
+  inline function get_data():Int return noteData;
+	
+	inline function set_data(v:Int):Int return noteData = v;
+
+  public function onAnimationFinished(animationName:String):Void
+  {
+    if (animationName.startsWith('start'))
+    {
+      playAnim('hold', true);
+    }
+    if (animationName.startsWith('end'))
+    {
+      // *lightning* *zap* *crackle*
+      this.visible = false;
+      this.kill();
+    }
+  }
 }

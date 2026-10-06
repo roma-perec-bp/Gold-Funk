@@ -1,7 +1,7 @@
-package cutscenes;
+package funkin.game.cutscenes;
 
 import flixel.addons.text.FlxTypeText;
-import backend.Song;
+import funkin.data.Song;
 
 class DialogueBox extends FlxSpriteGroup
 {

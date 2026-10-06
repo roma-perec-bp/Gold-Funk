@@ -1,10 +1,9 @@
-package cutscenes;
+package funkin.game.cutscenes;
 
 import haxe.Json;
 import openfl.utils.Assets;
 
-import objects.TypedAlphabet;
-import cutscenes.DialogueCharacter;
+import funkin.objects.TypedAlphabet;
 
 typedef DialogueFile = {
 	var dialogue:Array<DialogueLine>;
@@ -319,9 +318,18 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	function startNextDialog():Void
 	{
 		var curDialogue:DialogueLine = null;
-		do {
+		final total:Int = (dialogueList != null && dialogueList.dialogue != null) ? dialogueList.dialogue.length : 0;
+		while (currentText < total) {
 			curDialogue = dialogueList.dialogue[currentText];
-		} while(curDialogue == null);
+			if (curDialogue != null) break;
+			currentText++;
+		}
+		if (curDialogue == null) {
+			// No usable dialogue line found; bail out instead of hanging.
+			if (finishThing != null) finishThing();
+			kill();
+			return;
+		}
 
 		if(curDialogue.text == null || curDialogue.text.length < 1) curDialogue.text = ' ';
 		if(curDialogue.boxState == null) curDialogue.boxState = 'normal';

@@ -1,6 +1,4 @@
-package backend;
-
-import objects.Note;
+package funkin.game.notes;
 
 typedef NoteTypeProperty = {
 	property:Array<String>,
@@ -18,7 +16,12 @@ class NoteTypesConfig
 		if(noteTypesData.exists(name)) return noteTypesData.get(name);
 
 		var str:String = Paths.getTextFromFile('custom_notetypes/$name.txt');
-		if(str == null || !str.contains(':') || !str.contains('=')) noteTypesData.set(name, null);
+		if (str == null || !str.contains(':') || !str.contains('=')) {
+			// Cache the negative lookup AND bail before parsing -- the
+			// previous code fell through and crashed on null `str`. noteTypesData.set(name, null);
+			noteTypesData.set(name, null);
+			return null;
+		}
 
 		var parsed:Array<NoteTypeProperty> = [];
 		var lines:Array<String> = CoolUtil.listFromString(str);
@@ -87,12 +90,22 @@ class NoteTypesConfig
 		var propArray:Array<String> = slice.split('[');
 		if(propArray.length > 1)
 		{
-			for (i in 0...propArray.length)
-			{
-				var str:Dynamic = propArray[i];
-				var id:Int = Std.parseInt(str.substr(0, str.length-1).trim());
+			// First chunk is the property name (e.g. 'foo' in 'foo[0][1]'); only
+			// the rest are numeric indices wrapped with a trailing ']'. The old
+			// loop treated chunk 0 as an index too -- Std.parseInt('foo') was
+			// null, so obj[null] silently returned junk and bracket access on
+			// any field-rooted path (the common case) was effectively broken.
+			obj = Reflect.getProperty(obj, propArray[0]);
+			for (i in 1...propArray.length) {
+				var str:String = propArray[i];
+				var parsed:Null<Int> = Std.parseInt(str.substr(0, str.length - 1).trim());
+				if (parsed == null) return obj; // malformed `[abc]` chunk -- bail with current target
+				var id:Int = parsed;
 				if(i < propArray.length-1) obj = obj[id]; //middles
-				else if (setProp) return obj[id] = valueToSet; //last
+				else if 
+					(setProp) return obj[id] = valueToSet; //last
+				else
+					return obj[id];
 			}
 			return obj;
 		}

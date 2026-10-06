@@ -3040,10 +3040,7 @@ class PlayState extends MusicBeatState
 							{
 								note.rgbShader.r = CoolUtil.colorFromString(arrOpp[0]);
 								note.rgbShader.g = CoolUtil.colorFromString(arrOpp[1]);
-								if (newDad.curCharacter.startsWith('perec-hui'))
-									note.rgbShader.b = extra_arr[0];
-								else
-									note.rgbShader.b = CoolUtil.colorFromString(arrOpp[2]);
+								note.rgbShader.b = CoolUtil.colorFromString(arrOpp[2]);
 							}
 							else
 							{
@@ -3070,10 +3067,7 @@ class PlayState extends MusicBeatState
 							{
 								note.rgbShader.r = CoolUtil.colorFromString(arrOpp[0]);
 								note.rgbShader.g = CoolUtil.colorFromString(arrOpp[1]);
-								if (newDad.curCharacter.startsWith('perec-hui'))
-									note.rgbShader.b = extra_arr[0];
-								else
-									note.rgbShader.b = CoolUtil.colorFromString(arrOpp[2]);
+								note.rgbShader.b = CoolUtil.colorFromString(arrOpp[2]);
 							}
 							else
 							{
