@@ -1,12 +1,13 @@
-package backend;
+package funkin.game.stages;
 
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;
 import flixel.group.FlxGroup;
+import funkin.graphics.FunkinCamera;
 
-import objects.Note;
-import objects.Character;
+import funkin.game.notes.Note;
+import funkin.game.objects.Character;
 
 enum Countdown
 {
@@ -40,16 +41,18 @@ class BaseStage extends FlxBasic
 
 	public var unspawnNotes(get, never):Array<Note>;
 	
-	public var camGame(get, never):FlxCamera;
-	public var camHUD(get, never):FlxCamera;
-	public var camNotes(get, never):FlxCamera;
-	public var camOther(get, never):FlxCamera;
+	public var camGame(get, never):FunkinCamera;
+	public var camHUD(get, never):FunkinCamera;
+	public var camNotes(get, never):FunkinCamera;
+	public var camOverlayHUD(get, never):FunkinCamera;
+	public var camOther(get, never):FunkinCamera;
 
 	public var defaultCamZoom(get, set):Float;
 	public var camFollow(get, never):FlxObject;
 
 	public function new()
 	{
+		super();
 		if(game == null)
 		{
 			FlxG.log.error('Invalid state for the stage added!');
@@ -58,7 +61,6 @@ class BaseStage extends FlxBasic
 		else 
 		{
 			game.stages.push(this);
-			super();
 			create();
 		}
 	}
@@ -71,6 +73,8 @@ class BaseStage extends FlxBasic
 	public function startSong() {}
 
 	public function skipIntroFunc() {}
+
+	public function onGameOver() {}
 
 	// FNF steps, beats and sections
 	public var curBeat:Int = 0;
@@ -157,7 +161,7 @@ class BaseStage extends FlxBasic
 	inline private function get_members() return game.members;
 
 	inline private function get_game() return cast FlxG.state;
-	inline private function get_onPlayState() return (Std.isOfType(FlxG.state, states.PlayState));
+	inline private function get_onPlayState() return (Std.isOfType(FlxG.state, funkin.game.PlayState));
 
 	inline private function get_boyfriend():Character return game.boyfriend;
 	inline private function get_dad():Character return game.dad;
@@ -172,10 +176,11 @@ class BaseStage extends FlxBasic
 		return cast game.unspawnNotes;
 	}
 	
-	inline private function get_camGame():FlxCamera return game.camGame;
-	inline private function get_camHUD():FlxCamera return game.camHUD;
-	inline private function get_camNotes():FlxCamera return game.camNotes;
-	inline private function get_camOther():FlxCamera return game.camOther;
+	inline private function get_camGame():FunkinCamera return game.camGame;
+	inline private function get_camHUD():FunkinCamera return game.camHUD;
+	inline private function get_camOverlayHUD():FunkinCamera return game.camOverlayHUD;
+	inline private function get_camNotes():FunkinCamera return game.camNotes;
+	inline private function get_camOther():FunkinCamera return game.camOther;
 
 	inline private function get_defaultCamZoom():Float return game.defaultCamZoom;
 	inline private function set_defaultCamZoom(value:Float):Float

@@ -1,4 +1,4 @@
-package states.stages;
+package funkin.game.stages.game_stages;
 
 class Spooky extends BaseStage
 {

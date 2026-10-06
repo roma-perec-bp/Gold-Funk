@@ -1,4 +1,4 @@
-package states.stages.objects;
+package funkin.game.stages.objects;
 
 class PhillyTrain extends BGSprite
 {

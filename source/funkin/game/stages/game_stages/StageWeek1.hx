@@ -1,7 +1,7 @@
-package states.stages;
+package funkin.game.stages.game_stages;
 
-import states.stages.objects.*;
-import objects.Character;
+import funkin.game.stages.objects.*;
+import funkin.game.objects.Character;
 
 class StageWeek1 extends BaseStage
 {
@@ -34,6 +34,7 @@ class StageWeek1 extends BaseStage
 			add(stageCurtains);
 		}
 	}
+
 	override function eventPushed(event:objects.Note.EventNote)
 	{
 		switch(event.event)

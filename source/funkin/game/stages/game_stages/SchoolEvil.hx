@@ -1,11 +1,12 @@
-package states.stages;
+package funkin.game.stages.game_stages;
+
+import funkin.game.stages.objects.*;
 
 import flixel.addons.effects.FlxTrail;
-import states.stages.objects.*;
-import substates.GameOverSubstate;
-import cutscenes.DialogueBox;
+import funkin.submenus.gameover.GameOverSubstate;
+import funkin.game.cutscenes.DialogueBox;
 import openfl.utils.Assets as OpenFlAssets;
-import shaders.WiggleEffect;
+import funkin.graphics.shaders.WiggleEffect;
 
 class SchoolEvil extends BaseStage
 {

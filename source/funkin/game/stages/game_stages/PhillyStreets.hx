@@ -1,17 +1,17 @@
-package states.stages;
+package funkin.game.stages.game_stages;
+
+import funkin.game.stages.objects.*;
 
 import openfl.filters.ShaderFilter;
-import shaders.RainShader;
+import funkin.graphics.shaders.RainShader;
 
 import flixel.addons.display.FlxTiledSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 
-import substates.GameOverSubstate;
-import states.stages.objects.*;
+import funkin.game.submenus.gameover.GameOverSubstate;
+import funkin.game.notes.Note;
 
-import objects.Note;
-
-import cutscenes.CutsceneHandler;
+import funkin.game.cutscenes.CutsceneHandler;
 
 #if LUA_ALLOWED
 import psychlua.*;

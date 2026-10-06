@@ -1,7 +1,7 @@
-package states.stages;
+package funkin.game.stages.game_stages;
 
-import states.stages.objects.*;
-import objects.Note;
+import funkin.game.stages.objects.*;
+import funkin.game.notes.Note;
 
 class Template extends BaseStage
 {

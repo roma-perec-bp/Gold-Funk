@@ -1,8 +1,8 @@
-package states.stages;
+package funkin.game.stages.game_stages;
 
-import states.stages.objects.*;
-import substates.GameOverSubstate;
-import cutscenes.DialogueBox;
+import funkin.game.stages.objects.*;
+import funkin.submenus.gameover.GameOverSubstate;
+import funkin.game.cutscenes.DialogueBox;
 
 import openfl.utils.Assets as OpenFlAssets;
 

@@ -57,9 +57,6 @@ class Main extends Sprite
 
 	public static var fpsVar:FPSCounter;
 
-	public static var darnellMode:Bool = false;
-	public static var raldman:Bool = false;
-
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	static function __init__()

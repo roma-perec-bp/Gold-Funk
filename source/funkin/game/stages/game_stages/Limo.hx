@@ -1,6 +1,6 @@
-package states.stages;
+package funkin.game.stages.game_stages;
 
-import states.stages.objects.*;
+import funkin.game.stages.objects.*;
 
 enum HenchmenKillState
 {
