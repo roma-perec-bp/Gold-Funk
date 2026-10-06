@@ -1,0 +1,141 @@
+package funkin.utils.tools;
+
+import haxe.Utf8;
+
+/**
+ * A static extension which provides utility functions for Strings.
+ */
+@:nullSafety
+class StringTools
+{
+  /**
+   * Checks if a string is `null` or blank (contains only whitespaces).
+   *
+   * @param value The string to check.
+   * @return True... or False...
+   */
+  public static function isBlank(?value:String):Bool
+  {
+    return value == null || value.trim().length == 0;
+  }
+
+  /**
+   * Converts a string to title case. For example, "hello world" becomes "Hello World".
+     *
+   * @param value The string to convert.
+   * @return The converted string.
+   */
+  public static function toTitleCase(value:String):String
+  {
+    var words:Array<String> = value.split(' ');
+    var result:String = '';
+    for (i in 0...words.length)
+    {
+      var word:String = words[i];
+      result += word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
+      if (i < words.length - 1)
+      {
+        result += ' ';
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Strip a given prefix from a string.
+   * @param value The string to strip.
+   * @param prefix The prefix to strip. If the prefix isn't found, the original string is returned.
+   * @return The stripped string.
+   */
+  public static function stripPrefix(value:String, prefix:String):String
+  {
+    if (value.startsWith(prefix))
+    {
+      return value.substr(prefix.length);
+    }
+    return value;
+  }
+
+  /**
+   * Strip a given suffix from a string.
+   * @param value The string to strip.
+   * @param suffix The suffix to strip. If the suffix isn't found, the original string is returned.
+   * @return The stripped string.
+   */
+  public static function stripSuffix(value:String, suffix:String):String
+  {
+    if (value.endsWith(suffix))
+    {
+      return value.substr(0, value.length - suffix.length);
+    }
+    return value;
+  }
+
+  /**
+   * Converts a string to lower kebab case. For example, "Hello World" becomes "hello-world".
+   *
+   * @param value The string to convert.
+   * @return The converted string.
+   */
+  public static function toLowerKebabCase(value:String):String
+  {
+    return value.toLowerCase().replace(' ', '-');
+  }
+
+  /**
+   * Converts a string to upper kebab case, aka screaming kebab case. For example, "Hello World" becomes "HELLO-WORLD".
+   *
+   * @param value The string to convert.
+   * @return The converted string.
+   */
+  public static function toUpperKebabCase(value:String):String
+  {
+    return value.toUpperCase().replace(' ', '-');
+  }
+
+  /**
+   * The regular expression to sanitize strings.
+   */
+  static final SANTIZE_REGEX:EReg = ~/[^-a-zA-Z0-9]/g;
+
+  /**
+   * Remove all instances of symbols other than alpha-numeric characters (and dashes)from a string.
+   * @param value The string to sanitize.
+   * @return The sanitized string.
+   */
+  public static function sanitize(value:String):String
+  {
+    return SANTIZE_REGEX.replace(value, '');
+  }
+
+  /**
+   * Whether the given string is upper case.
+   *
+   * @param value The value to compare.
+   * @return Whether the given string is upper case.
+   */
+  public static function isUpperCase(value:String):Bool
+  {
+    return value == value.toUpperCase();
+  }
+
+  /**
+   * Whether the given string is lower case.
+   *
+   * @param value The value to compare.
+   * @return Whether the given string is lower case.
+   */
+  public static function isLowerCase(value:String):Bool
+  {
+    return value == value.toLowerCase();
+  }
+
+
+  @:haxe.warning('-WDeprecated')
+  public static function fromUTF8CharCode(value:Int):String
+  {
+    var result = new Utf8();
+    result.addChar(value);
+    return result.toString();
+  }
+}
