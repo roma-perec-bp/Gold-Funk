@@ -1,4 +1,4 @@
-package backend;
+package funkin.data;
 
 class Difficulty
 {
@@ -50,15 +50,19 @@ class Difficulty
 		if(diffStr != null && diffStr.length > 0)
 		{
 			var diffs:Array<String> = diffStr.trim().split(',');
-			var i:Int = diffs.length - 1;
-			while (i > 0)
+			// Walk every index (the previous `while (i > 0)` skipped index 0)
+			// and use splice instead of remove-by-value (which removed the wrong
+			// element when two trimmed entries were identical).
+			var i:Int = diffs.length;
+			while (--i >= 0)
 			{
 				if(diffs[i] != null)
 				{
 					diffs[i] = diffs[i].trim();
-					if(diffs[i].length < 1) diffs.remove(diffs[i]);
-				}
-				--i;
+					if(diffs[i].length < 1) 
+						diffs.splice(i, 1);
+				} else
+					diffs.splice(i, 1);
 			}
 
 			if(diffs.length > 0 && diffs[0].length > 0)
@@ -70,15 +74,19 @@ class Difficulty
 		if(varStr != null && varStr.length > 0)
 		{
 			var vars:Array<String> = varStr.trim().split(',');
-			var i:Int = vars.length - 1;
-			while (i > 0)
+			// Walk every index (the previous `while (i > 0)` skipped index 0)
+			// and use splice instead of remove-by-value (which removed the wrong
+			// element when two trimmed entries were identical).
+			var i:Int = vars.length;
+			while (--i >= 0)
 			{
 				if(vars[i] != null)
 				{
 					vars[i] = vars[i].trim();
-					if(vars[i].length < 1) vars.remove(vars[i]);
-				}
-				--i;
+					if(vars[i].length < 1) 
+						vars.splice(i, 1);
+				} else
+					vars.splice(i, 1);
 			}
 
 			if(vars.length > 0 && vars[0].length > 0)

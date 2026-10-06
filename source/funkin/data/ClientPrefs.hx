@@ -1,30 +1,35 @@
-package backend;
+package funkin.data;
 
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
-
-import states.TitleState;
+import funkin.utils.WindowUtil;
+import funkin.debug.FPSCounter.DebugDisplayMode;
 
 // Add a variable here and it will get automatically saved
 //TO DO: ORGANIZE THIS SHIT
 @:structInit class SaveVariables {
+	public var activeBfSkin:String = 'default';
 	public var downScroll:Bool = false;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
-	public var showFPS:Bool = true;
+	public var showFPS:String = 'Off';
 	public var flashing:Bool = true;
 	public var autoPause:Bool = true;
 	public var laneUnderlay:Float = 0;
 	public var antialiasing:Bool = true;
 	public var noteSkin:String = 'Default';
-	public var splashSkin:String = 'Psych';
+	public var splashSkin:String = 'Default';
+	public var splashHoldSkin:String = 'Default';
 	public var splashAlpha:Float = 0.6;
 	public var lowQuality:Bool = false;
+	public var quants:String = 'Off';
 	public var shaders:Bool = true;
 	public var cacheOnGPU:Bool = #if !switch false #else true #end; // GPU Caching made by Raltyro
+	public var unlockedFramerate:Bool = false;
 	public var framerate:Int = 60;
 	public var camZooms:Bool = true;
+	public var optimize:Bool = false;
 	public var hideHud:Bool = false;
 	#if (cpp && windows) public var windowDarkMode:Bool = true; #end
 	public var noteOffset:Int = 0;
@@ -39,15 +44,20 @@ import states.TitleState;
 		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
 
+	public var vsync:String = 'OFF';
 	public var ghostTapping:Bool = true;
 	public var timeBarType:String = 'Time Left';
 	public var scoreZoom:Bool = true;
 	public var noReset:Bool = false;
 	public var healthBarAlpha:Float = 1;
+	public var showMsTiming:Bool = false;
 	public var hitsoundVolume:Float = 0;
+	public var hitsoundType:String = 'default';
 	public var pauseMusic:String = 'Tea Time';
 	public var checkForUpdates:Bool = true;
 	public var comboStacking:Bool = true;
+	public var colorblindStrength:Int = 1;
+	public var colorblindMode:String = 'Off';
 	public var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
@@ -69,10 +79,13 @@ import states.TitleState;
 		'instakill' => false,
 		'practice' => false,
 		'botplay' => false,
+		'sickmode' => false,
+		'fade' => false,
 		'opponentplay' => false
 	];
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0, 0, 0];
+	//public var comboOffset:Array<Int> = [22, 172, 82, 168, 214, 246];
 	public var ratingOffset:Int = 0;
 	public var sickWindow:Float = 45.0;
 	public var goodWindow:Float = 90.0;
@@ -179,15 +192,33 @@ class ClientPrefs {
 		FlxG.log.add("Settings saved!");
 	}
 
+	public static function setDebugDisplayMode(mode:DebugDisplayMode):Void
+  	{
+    	if (FlxG.game.contains(Main.fpsVar)) FlxG.game.removeChild(Main.fpsVar);
+
+    	if (mode == DebugDisplayMode.Off) return;
+
+    	Main.fpsVar.isAdvanced = (mode == DebugDisplayMode.Advanced);
+
+		FlxG.game.addChild(Main.fpsVar);
+  	}
+
 	public static function loadPrefs() {
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 
 		for (key in Reflect.fields(data))
 			if (key != 'gameplaySettings' && Reflect.hasField(FlxG.save.data, key))
 				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
-		
-		if(Main.fpsVar != null)
-			Main.fpsVar.visible = data.showFPS;
+
+		switch(data.showFPS)
+		{
+			case 'Simple':
+				setDebugDisplayMode(DebugDisplayMode.Simple);
+			case 'Off':
+				setDebugDisplayMode(DebugDisplayMode.Off);
+			case 'Advanced':
+				setDebugDisplayMode(DebugDisplayMode.Advanced);
+		}
 
 		#if (!html5 && !switch)
 		FlxG.autoPause = ClientPrefs.data.autoPause;
@@ -198,15 +229,33 @@ class ClientPrefs {
 		}
 		#end
 
-		if(data.framerate > FlxG.drawFramerate)
+		switch(data.vsync)
 		{
-			FlxG.updateFramerate = data.framerate;
-			FlxG.drawFramerate = data.framerate;
+			case 'OFF':
+				WindowUtil.setVSyncMode(lime.ui.WindowVSyncMode.OFF);
+			case 'ON':
+				WindowUtil.setVSyncMode(lime.ui.WindowVSyncMode.ON);
+			case 'ADAPTIVE':
+				WindowUtil.setVSyncMode(lime.ui.WindowVSyncMode.ADAPTIVE);
+		}
+
+		if (ClientPrefs.data.unlockedFramerate)
+		{
+			FlxG.updateFramerate = 0;
+			FlxG.drawFramerate = 0;
 		}
 		else
 		{
-			FlxG.drawFramerate = data.framerate;
-			FlxG.updateFramerate = data.framerate;
+			if(ClientPrefs.data.framerate > FlxG.drawFramerate)
+			{
+				FlxG.updateFramerate = ClientPrefs.data.framerate;
+				FlxG.drawFramerate = ClientPrefs.data.framerate;
+			}
+			else
+			{
+				FlxG.drawFramerate = ClientPrefs.data.framerate;
+				FlxG.updateFramerate = ClientPrefs.data.framerate;
+			}
 		}
 
 		if(FlxG.save.data.gameplaySettings != null)
@@ -253,9 +302,12 @@ class ClientPrefs {
 
 	public static function reloadVolumeKeys()
 	{
-		InitState.muteKeys = keyBinds.get('volume_mute').copy();
-		InitState.volumeDownKeys = keyBinds.get('volume_down').copy();
-		InitState.volumeUpKeys = keyBinds.get('volume_up').copy();
+		final mute = keyBinds.get('volume_mute');
+		final down = keyBinds.get('volume_down');
+		final up = keyBinds.get('volume_up');
+		InitState.muteKeys = (mute != null) ? mute.copy() : [];
+		InitState.volumeDownKeys = (down != null) ? down.copy() : [];
+		InitState.volumeUpKeys = (up != null) ? up.copy() : [];
 		toggleVolumeKeys(true);
 	}
 	public static function toggleVolumeKeys(?turnOn:Bool = true)

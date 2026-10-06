@@ -1,4 +1,4 @@
-package backend;
+package funkin.data;
 
 import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
@@ -176,7 +176,7 @@ class WeekData {
 		#end
 
 		if(rawJson != null && rawJson.length > 0) {
-			return cast tjson.TJSON.parse(rawJson);
+			return cast CoolUtil.parseJson(rawJson);
 		}
 		return null;
 	}

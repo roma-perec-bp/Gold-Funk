@@ -1,9 +1,9 @@
-package backend;
+package funkin.data;
 
 import haxe.Json;
 import lime.utils.Assets;
 
-import objects.Note;
+import funkin.game.notes.Note;
 
 typedef SwagSong =
 {
@@ -221,15 +221,17 @@ class Song
 				var gottaHitNote:Bool = (note[1] < 4) ? section.mustHitSection : !section.mustHitSection;
 				note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);
 
-				//COMPABILITY FOR REMOVED NOTES
-				if (note[3] == 'Alt Animation')
-					note[5] = '-alt';
-
-				if (note[3] == 'No Animation')
-					note[9] = true;
-
 				if(!Std.isOfType(note[3], String))
-					note[3] = Note.defaultNoteTypes[note[3]]; //compatibility with Week 7 and 0.1-0.3 psych charts
+				{
+					if (note[3] == 'Alt Animation')
+						note[5] = '-alt';
+	
+					if (note[3] == 'No Animation')
+						note[9] = true;
+					
+					note[3] = (note[3] != null) ? Note.defaultNoteTypes[note[3]] : ''; //compatibility with Week 7 and 0.1-0.3 psych charts
+				}
+
 			}
 
 			if(section.mustHitSection)
@@ -265,6 +267,25 @@ class Song
 				section.followCam = true;
 				section.charFollow = 'dad';
 				section.tweenFollow = 'CLASSIC'; 
+			}
+
+			for (note in section.sectionNotes)
+			{
+				if(!Std.isOfType(note[3], String))
+				{
+					if (note[3] == 'Alt Animation')
+					{
+						note[5] = '-alt';
+						note[3] = '';
+					}
+	
+					if (note[3] == 'No Animation')
+					{
+						note[9] = true;
+						note[3] = '';
+					}
+				}
+	
 			}
 		}
 	}

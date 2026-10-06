@@ -1,10 +1,10 @@
-package backend;
+package funkin.data;
 
 //CODE FROM WEDNESDAY INFIDELITY
 
 class Progression
 {
-	public static var weekProgress:Map<String, {song:Array<String>, weekMisees:Int, weekSocre:Int}> = [];
+	public static var weekProgress:Map<String, {song:Array<String>, weekMisees:Int, weekSocre:Int, weekAccu:Float, weekTotalNo:Int, weekTotalPlay:Int, weekTotalHit:Float, maxSicks:Int, maxGoods:Int, maxBads:Int, maxShits:Int, songCampHits:Int, maxComboLol:Int}> = [];
 
 	public static function load()
 		if (FlxG.save.data.weekProgress != null) weekProgress = FlxG.save.data.weekProgress;

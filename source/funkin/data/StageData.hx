@@ -1,10 +1,9 @@
-package backend;
+package funkin.data;
 
 import openfl.utils.Assets;
 import haxe.Json;
-import backend.Song;
-import psychlua.ModchartSprite;
-import psychlua.LuaUtils;
+import funkin.psychlua.ModchartSprite;
+import funkin.psychlua.LuaUtils;
 
 typedef StageFile = {
 	var directory:String;
@@ -92,10 +91,10 @@ class StageData {
 			var path:String = Paths.getPath('stages/' + stage + '.json', TEXT, null, true);
 			#if MODS_ALLOWED
 			if(FileSystem.exists(path))
-				return cast tjson.TJSON.parse(File.getContent(path));
+				return cast CoolUtil.parseJson(File.getContent(path));
 			#else
 			if(Assets.exists(path))
-				return cast tjson.TJSON.parse(Assets.getText(path));
+				return cast CoolUtil.parseJson(Assets.getText(path));
 			#end
 		}
 		return dummy();
@@ -158,7 +157,11 @@ class StageData {
 					}
 
 				case 'square', 'sprite', 'animatedSprite':
-					if(!ignoreFilters && !validateVisibility(data.filters)) continue;
+					// Coerce through Std.int: filters read straight off the Dynamic JSON
+					// can be a Float, which miscompiles the bitmask checks on hxcpp.
+					var objFilters:Int = (data.filters == null) ? 0 : Std.int(data.filters);
+					if (!ignoreFilters && !validateVisibility(objFilters))
+						continue;
 
 					var spr:ModchartSprite = new ModchartSprite(data.x, data.y);
 					spr.ID = num;
@@ -171,7 +174,7 @@ class StageData {
 						
 						if(data.type == 'animatedSprite' && data.animations != null)
 						{
-							var anims:Array<objects.Character.AnimArray> = cast data.animations;
+							var anims:Array<funkin.game.objects.Character.AnimArray> = cast data.animations;
 							for (key => anim in anims)
 							{
 								if(anim.indices == null || anim.indices.length < 1)
@@ -204,9 +207,13 @@ class StageData {
 						spr.scale.set(data.scale[0], data.scale[1]);
 						spr.updateHitbox();
 					}
-					spr.scrollFactor.set(data.scroll[0], data.scroll[1]);
-					spr.color = CoolUtil.colorFromString(data.color);
-					spr.blend = LuaUtils.blendModeFromString(data.blend);
+					if (data.scroll != null)
+						spr.scrollFactor.set(data.scroll[0], data.scroll[1]);
+					if (data.color != null)
+						spr.color = CoolUtil.colorFromString(data.color);
+
+					if (data.blend != null)
+						spr.blend = LuaUtils.blendModeFromString(data.blend);
 					
 					for (varName in ['alpha', 'angle'])
 					{
@@ -228,10 +235,14 @@ class StageData {
 
 	public static function validateVisibility(filters:LoadFilters)
 	{
-		if((filters & STORY_MODE) == STORY_MODE)
-			if(!PlayState.isStoryMode) return false;
-		else if((filters & FREEPLAY) == FREEPLAY)
-			if(PlayState.isStoryMode) return false;
+		// Previously written as a nested if/else chain whose inner branch
+		// (`if (PlayState.isStoryMode)` inside the `else` of `if (!PlayState.isStoryMode)`)
+		// was unreachable, and pure-FREEPLAY-filtered objects were never hidden in
+		// story mode. Split into two independent bitmask checks.
+		if ((filters & STORY_MODE) == STORY_MODE && !PlayState.isStoryMode)
+			return false;
+		if ((filters & FREEPLAY) == FREEPLAY && PlayState.isStoryMode)
+			return false;
 
 		return ((ClientPrefs.data.lowQuality && (filters & LOW_QUALITY) == LOW_QUALITY) ||
 			(!ClientPrefs.data.lowQuality && (filters & HIGH_QUALITY) == HIGH_QUALITY));
