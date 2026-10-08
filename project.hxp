@@ -511,6 +511,7 @@ class Project extends HXProject
 
     // Enable stack trace tracking. Good for debugging but has a (minor) performance impact.
     setHaxedef("HXCPP_CHECK_POINTER");
+    setHaxedef("HXCPP_GC_GENERATIONAL");
     setHaxedef("HXCPP_STACK_LINE");
     setHaxedef("HXCPP_STACK_TRACE");
     setHaxedef("HXCPP_CATCH_SEGV");

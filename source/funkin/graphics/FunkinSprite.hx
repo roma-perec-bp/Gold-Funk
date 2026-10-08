@@ -140,6 +140,9 @@ class FunkinSprite extends FlxAnimate
   {
     super(x, y);
 
+    @:nullSafety(Off)
+    blendTarget = null;
+
     filterRenderer = new FunkinFilterRenderer(this);
   }
 
@@ -844,17 +847,17 @@ class FunkinSprite extends FlxAnimate
 
       if (filtered)
       {
-        matrix.translate(filterOffsets[0], filterOffsets[1]);
-        camera.drawPixels(filterRenderer.graphic?.imageFrame.frame, null, matrix, colorTransform, blend, antialiasing, shader);
+        matrix.translate(filterOffsets[0] * matrix.a + filterOffsets[1] * matrix.c, filterOffsets[1] * matrix.d + filterOffsets[0] * matrix.b);
+        camera.drawPixels(filterRenderer.graphic?.imageFrame.frame, null, matrix, colorTransform, blend, antialiasing, shader, blendTarget, blendTarget);
       }
       else
       {
-        camera.drawPixels(_renderTexture.graphic.imageFrame.frame, framePixels, matrix, colorTransform, blend, antialiasing, shader);
+        camera.drawPixels(_renderTexture.graphic.imageFrame.frame, framePixels, matrix, colorTransform, blend, antialiasing, shader, blendTarget);
       }
     }
     else
     {
-      camera.drawPixels(frame, framePixels, matrix, colorTransform, blend, antialiasing, shader);
+      camera.drawPixels(frame, framePixels, matrix, colorTransform, blend, antialiasing, shader, blendTarget);
     }
   }
 
@@ -897,12 +900,12 @@ class FunkinSprite extends FlxAnimate
 
       if (filtered)
       {
-        matrix.translate(filterOffsets[0], filterOffsets[1]);
-        camera.drawPixels(filterRenderer.graphic?.imageFrame.frame, null, matrix, colorTransform, blend, antialiasing, shader);
+        matrix.translate(filterOffsets[0] * matrix.a + filterOffsets[1] * matrix.c, filterOffsets[1] * matrix.d + filterOffsets[0] * matrix.b);
+        camera.drawPixels(filterRenderer.graphic?.imageFrame.frame, null, matrix, colorTransform, blend, antialiasing, shader, blendTarget);
       }
       else
       {
-        camera.drawPixels(_renderTexture.graphic.imageFrame.frame, framePixels, matrix, colorTransform, blend, antialiasing, shader);
+        camera.drawPixels(_renderTexture.graphic.imageFrame.frame, framePixels, matrix, colorTransform, blend, antialiasing, shader, blendTarget);
       }
     }
     else
