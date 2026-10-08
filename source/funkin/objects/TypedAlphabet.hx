@@ -1,4 +1,4 @@
-package objects;
+package funkin.objects;
 
 class TypedAlphabet extends Alphabet
 {
@@ -48,7 +48,11 @@ class TypedAlphabet extends Alphabet
 					_timeToUpdate = 0;
 					break;
 				}
-				_timeToUpdate = 0;
+				// Subtract the consumed delay instead of resetting to 0; the
+				// reset capped progress at one letter per frame even when
+				// elapsed time covered several letters (e.g. after a frame
+				// drop or a paused-then-resumed state).
+				_timeToUpdate -= delay;
 			}
 		}
 

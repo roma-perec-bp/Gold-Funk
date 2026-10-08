@@ -1,4 +1,4 @@
-package objects;
+package funkin.objects;
 
 import flixel.addons.display.FlxPieDial;
 
@@ -21,11 +21,20 @@ class VideoSprite extends FlxSpriteGroup {
 	private var videoName:String;
 
 	public var waiting:Bool = false;
+	public var resizable:Bool = false;
 
-	public function new(videoName:String, isWaiting:Bool, canSkip:Bool = false, shouldLoop:Dynamic = false) {
+	/** Whether this sprite was warmed via `FlxVideoSprite.precache` and is parked for later reuse. */
+	public var precached:Bool = false;
+
+	/** Whether the underlying media was opened with looping enabled (set at load/precache time). */
+	public var looping:Bool = false;
+
+	public function new(videoName:String, isWaiting:Bool, canSkip:Bool = false, shouldLoop:Dynamic = false, precacheOnly:Bool = false, resize:Bool = true) {
 		super();
 
 		this.videoName = videoName;
+		resizable = resize;
+		looping = (shouldLoop == true);
 		scrollFactor.set();
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 
@@ -48,23 +57,40 @@ class VideoSprite extends FlxSpriteGroup {
 		// callbacks
 		if(!shouldLoop) videoSprite.bitmap.onEndReached.add(finishVideo);
 
-		videoSprite.bitmap.onFormatSetup.add(function()
+		if(videoSprite.bitmap != null) 
 		{
-			/*
-			#if hxvlc
-			var wd:Int = videoSprite.bitmap.formatWidth;
-			var hg:Int = videoSprite.bitmap.formatHeight;
-			trace('Video Resolution: ${wd}x${hg}');
-			videoSprite.scale.set(FlxG.width / wd, FlxG.height / hg);
-			#end
-			*/
-			videoSprite.setGraphicSize(FlxG.width);
-			videoSprite.updateHitbox();
-			videoSprite.screenCenter();
-		});
+			videoSprite.bitmap.onFormatSetup.add(function()
+			{
+				/*
+				#if hxvlc
+				var wd:Int = videoSprite.bitmap.formatWidth;
+				var hg:Int = videoSprite.bitmap.formatHeight;
+				trace('Video Resolution: ${wd}x${hg}');
+				videoSprite.scale.set(FlxG.width / wd, FlxG.height / hg);
+				#end
+				*/
+				if(videoSprite.bitmap != null && resizable) 
+				{
+					videoSprite.setGraphicSize(FlxG?.width, FlxG?.height);
+					videoSprite.updateHitbox();
+					videoSprite.screenCenter();
+				}
+			});
+		}
 
 		// start video and adjust resolution to screen size
-		videoSprite.load(videoName, shouldLoop ? ['input-repeat=65545'] : null);
+		final options:Array<String> = shouldLoop ? ['input-repeat=65545'] : null;
+		if (precacheOnly) {
+			// Warm the player (open + decode first frame) so a later play() starts near-instantly.
+			// The sprite stays parked (not added to a state), so no frame is drawn while warming.
+			precached = true;
+			#if (hxvlc >= "2.3.0")
+			videoSprite.precache(videoName, options);
+			#else
+			videoSprite.load(videoName, options);
+			#end
+		} else
+			videoSprite.load(videoName, options);
 	}
 
 	var alreadyDestroyed:Bool = false;

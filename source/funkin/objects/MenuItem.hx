@@ -1,4 +1,6 @@
-package objects;
+package funkin.objects;
+
+import funkin.menus.storymenu.StoryMenuState;
 
 class MenuItem extends FlxSprite
 {
