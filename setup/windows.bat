@@ -26,5 +26,6 @@ haxelib git thx.semver https://github.com/FunkinCrew/thx.semver b91cf5cfee6ebe43
 haxelib git hxcpp https://github.com/FunkinCrew/hxcpp a8b5f73b217132cdb595e515bb10332959a1ed39 --quiet --skip-dependencies
 haxelib git hxcpp-debug-server https://github.com/FunkinCrew/hxcpp-debugger 7459934666a473a4cc4d066ba4a93ef92f1ce94c --quiet --skip-dependencies
 haxelib run lime rebuild hxcpp
+lime rebuild windows -clean 
 echo Finished!
 pause
