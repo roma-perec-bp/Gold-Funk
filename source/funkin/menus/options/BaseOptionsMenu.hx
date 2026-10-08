@@ -7,7 +7,7 @@ import flixel.input.gamepad.FlxGamepadManager;
 
 import funkin.audio.FunkinSound;
 
-import funkin.objects.CheckboxThingieFake;
+import funkin.objects.CheckboxThingie;
 import funkin.objects.AttachedText;
 import funkin.backend.InputFormatter;
 
@@ -18,7 +18,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	private var optionsArray:Array<Option>;
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
-	private var checkboxGroup:FlxTypedGroup<CheckboxThingieFake>;
+	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
 	private var descBox:FlxSprite;
@@ -53,7 +53,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		grpTexts = new FlxTypedGroup<AttachedText>();
 		add(grpTexts);
 
-		checkboxGroup = new FlxTypedGroup<CheckboxThingieFake>();
+		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
 		add(checkboxGroup);
 
 		descBox = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
@@ -82,7 +82,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 			if(optionsArray[i].type == BOOL)
 			{
-				var checkbox:CheckboxThingieFake = new CheckboxThingieFake(optionText.x - 105, optionText.y, Std.string(optionsArray[i].getValue()) == 'true');
+				var checkbox:CheckboxThingie = new CheckboxThingie(optionText.x - 105, optionText.y, Std.string(optionsArray[i].getValue()) == 'true');
 				checkbox.sprTracker = optionText;
 				checkbox.ID = i;
 				checkboxGroup.add(checkbox);
