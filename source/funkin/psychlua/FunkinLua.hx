@@ -1,9 +1,9 @@
 #if LUA_ALLOWED
-package psychlua;
+package funkin.psychlua;
 
-import backend.WeekData;
-import backend.Highscore;
-import backend.Song;
+import funkin.data.*;
+
+import funkin.audio.FunkinSound;
 
 import openfl.Lib;
 import openfl.utils.Assets;
@@ -17,28 +17,27 @@ import flxgif.FlxGifSprite;
 import flixel.addons.display.FlxRuntimeShader;
 #end
 
-import cutscenes.DialogueBoxPsych;
+import funkin.game.cutscenes.DialogueBoxPsych;
 
-import objects.StrumNote;
-import objects.Note;
-import objects.NoteSplash;
-import objects.Character;
+import funkin.game.notes.*;
 
-import states.MainMenuState;
-import states.StoryMenuState;
-import states.FreeplayState;
+import funkin.game.objects.Character;
 
-import substates.PauseSubState;
-import substates.GameOverSubstate;
+import funkin.menus.mainmenu.MainMenuState;
+import funkin.menus.storymenu.StoryMenuState;
+import funkin.menus.freeplay.FreeplayState;
 
-import psychlua.LuaUtils;
-import psychlua.LuaUtils.LuaTweenOptions;
+import funkin.submenus.pause.PauseSubState;
+import funkin.submenus.gameover.GameOverSubstate;
+
+import funkin.psychlua.LuaUtils;
+import funkin.psychlua.LuaUtils.LuaTweenOptions;
 #if HSCRIPT_ALLOWED
-import psychlua.HScript;
+import funkin.psychlua.HScript;
 #end
-import psychlua.DebugLuaText;
-import psychlua.ModchartSprite;
-import psychlua.ModchartGifSprite;
+import funkin.psychlua.DebugLuaText;
+import funkin.psychlua.ModchartSprite;
+import funkin.psychlua.ModchartGifSprite;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
@@ -543,7 +542,7 @@ class FunkinLua {
 					{
 						var variables = MusicBeatState.getVariables();
 						var originalTag:String = 'tween_' + LuaUtils.formatVariable(tag);
-						variables.set(tag, FlxTween.tween(penisExam, values, duration, myOptions != null ? {
+						variables.set(originalTag, FlxTween.tween(penisExam, values, duration, myOptions != null ? {
 							type: myOptions.type,
 							ease: myOptions.ease,
 							startDelay: myOptions.startDelay,
@@ -556,11 +555,11 @@ class FunkinLua {
 								if(myOptions.onStart != null) game.callOnLuas(myOptions.onStart, [originalTag, vars]);
 							},
 							onComplete: function(twn:FlxTween) {
-								if(twn.type == FlxTweenType.ONESHOT || twn.type == FlxTweenType.BACKWARD) variables.remove(tag);
+								if(twn.type == FlxTweenType.ONESHOT || twn.type == FlxTweenType.BACKWARD) variables.remove(originalTag);
 								if(myOptions.onComplete != null) game.callOnLuas(myOptions.onComplete, [originalTag, vars]);
 							}
 						} : null));
-						return tag;
+						return originalTag;
 					}
 					else FlxTween.tween(penisExam, values, duration, myOptions != null ? {
 						type: myOptions.type,
@@ -1459,14 +1458,14 @@ class FunkinLua {
 					oldSnd.destroy();
 				}
 
-				variables.set(tag, FlxG.sound.play(Paths.sound(sound), volume, loop, null, true, function()
+				variables.set(tag, FunkinSound.load(Paths.sound(sound), volume, loop, true, function()
 				{
 					if(!loop) variables.remove(tag);
 					if(game != null) game.callOnLuas('onSoundFinished', [originalTag]);
 				}));
 				return tag;
 			}
-			FlxG.sound.play(Paths.sound(sound), volume);
+			FunkinSound.playOnce(Paths.sound(sound), volume);
 			return null;
 		});
 		Lua_helper.add_callback(lua, "stopSound", function(tag:String) {
@@ -1572,19 +1571,15 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "setSoundVolume", function(tag:String, value:Float) {
 			if(tag == null || tag.length < 1)
 			{
-				tag = LuaUtils.formatVariable('sound_$tag');
-				if(FlxG.sound.music != null)
-				{
+				if (FlxG.sound.music != null)
 					FlxG.sound.music.volume = value;
-					return;
-				}
+
+				return;
 			}
-			else
-			{
-				tag = LuaUtils.formatVariable('sound_$tag');
-				var snd:FlxSound = MusicBeatState.getVariables().get(tag);
-				if(snd != null) snd.volume = value;
-			}
+			tag = LuaUtils.formatVariable('sound_$tag');
+			var snd:FlxSound = MusicBeatState.getVariables().get(tag);
+			if (snd != null)
+				snd.volume = value;
 		});
 		Lua_helper.add_callback(lua, "getSoundTime", function(tag:String) {
 			if(tag == null || tag.length < 1)
@@ -1623,16 +1618,9 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "setSoundPitch", function(tag:String, value:Float, ?doPause:Bool = false) {
 			#if FLX_PITCH
-			tag = LuaUtils.formatVariable('sound_$tag');
-			var snd:FlxSound = MusicBeatState.getVariables().get(tag);
-			if(snd != null)
-			{
-				var wasResumed:Bool = snd.playing;
-				if (doPause) snd.pause();
-				snd.pitch = value;
-				if (doPause && wasResumed) snd.play();
-			}
-			
+			// Empty / null tag targets the global music; check BEFORE we
+			// format the tag (formatting always produces a non-empty string
+			// like "sound_", so the music branch was unreachable before).
 			if(tag == null || tag.length < 1)
 			{
 				if(FlxG.sound.music != null)
@@ -1641,19 +1629,19 @@ class FunkinLua {
 					if (doPause) FlxG.sound.music.pause();
 					FlxG.sound.music.pitch = value;
 					if (doPause && wasResumed) FlxG.sound.music.play();
-					return;
 				}
+				return;
 			}
-			else
-			{
-				var snd:FlxSound = MusicBeatState.getVariables().get(tag);
-				if(snd != null)
-				{
-					var wasResumed:Bool = snd.playing;
-					if (doPause) snd.pause();
-					snd.pitch = value;
-					if (doPause && wasResumed) snd.play();
-				}
+
+			tag = LuaUtils.formatVariable('sound_$tag');
+			var snd:FlxSound = MusicBeatState.getVariables().get(tag);
+			if (snd != null) {
+				var wasResumed:Bool = snd.playing;
+				if (doPause)
+					snd.pause();
+				snd.pitch = value;
+				if (doPause && wasResumed)
+					snd.play();
 			}
 			#else
 			luaTrace("setSoundPitch: Sound Pitch is not supported on this platform!", false, false, FlxColor.RED);
@@ -1691,7 +1679,7 @@ class FunkinLua {
 		#if ACHIEVEMENTS_ALLOWED Achievements.addLuaCallbacks(lua); #end
 		#if TRANSLATIONS_ALLOWED Language.addLuaCallbacks(lua); #end
 		HScript.implement(this);
-		#if flxanimate FlxAnimateFunctions.implement(this); #end
+		FlxAnimateFunctions.implement(this);
 		ReflectionFunctions.implement(this);
 		TextFunctions.implement(this);
 		ExtraFunctions.implement(this);
@@ -1713,7 +1701,7 @@ class FunkinLua {
 			else
 				result = LuaL.dostring(lua, scriptName);
 
-			var resultStr:String = Lua.tostring(lua, result);
+			var resultStr:String = Lua.tostring(lua, -1);
 			if(resultStr != null && result != 0) {
 				trace(resultStr);
 				#if windows
@@ -1873,15 +1861,17 @@ class FunkinLua {
 		var lua:State = lastCalledScript.lua;
 		if(lua == null) return false;
 
-		var result:String = null;
 		Lua.getglobal(lua, variable);
-		result = Convert.fromLua(lua, -1);
+		var result:Dynamic = Convert.fromLua(lua, -1);
 		Lua.pop(lua, 1);
 
-		if(result == null) {
-			return false;
-		}
-		return (result == 'true');
+		if (result == null) return false;
+		// Convert.fromLua may return a real Bool, an Int (lua 'number'),
+		// or a String; coerce the common truthy forms.
+		if (result == true) return true;
+		if (result == false) return false;
+		if ((result is String)) return (result == 'true');
+		return false;
 	}
 
 	function findScript(scriptFile:String, ext:String = '.lua')

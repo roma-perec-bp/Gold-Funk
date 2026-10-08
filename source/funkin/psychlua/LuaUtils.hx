@@ -1,15 +1,15 @@
-package psychlua;
+package funkin.psychlua;
 
-import backend.WeekData;
-import objects.Character;
-import backend.StageData;
+import funkin.data.*;
+import funkin.data.StageData;
+import funkin.game.objects.Character;
 
 import flxgif.FlxGifSprite;
 
 import openfl.display.BlendMode;
 import Type.ValueType;
 
-import substates.GameOverSubstate;
+import funkin.submenus.gameover.GameOverSubstate;
 
 typedef LuaTweenOptions = {
 	type:FlxTweenType,
@@ -58,11 +58,17 @@ class LuaUtils
 
 			for (i in 1...splitProps.length)
 			{
-				var j:Dynamic = splitProps[i].substr(0, splitProps[i].length - 1);
+				var raw:String = splitProps[i].substr(0, splitProps[i].length - 1);
+				// Convert numeric brackets to Int so Array indexing works; the
+				// previous code used the String key directly, which on Haxe
+				// arrays goes through Reflect.getProperty and silently returns
+				// the wrong thing.
+				var idx:Null<Int> = Std.parseInt(raw);
+				var key:Dynamic = (idx != null && Std.isOfType(target, Array)) ? (idx : Dynamic) : raw;
 				if(i >= splitProps.length-1) //Last array
-					target[j] = value;
+					target[key] = value;
 				else //Anything else
-					target = target[j];
+					target = target[key];
 			}
 			return target;
 		}
@@ -99,8 +105,10 @@ class LuaUtils
 
 			for (i in 1...splitProps.length)
 			{
-				var j:Dynamic = splitProps[i].substr(0, splitProps[i].length - 1);
-				target = target[j];
+				var raw:String = splitProps[i].substr(0, splitProps[i].length - 1);
+				var idx:Null<Int> = Std.parseInt(raw);
+				var key:Dynamic = (idx != null && Std.isOfType(target, Array)) ? (idx : Dynamic) : raw;
+				target = target[key];
 			}
 			return target;
 		}
@@ -136,7 +144,7 @@ class LuaUtils
 				try
 				{
 					//FunkinLua.luaTrace('getModSetting: Trying to find default value for "$saveTag" in Mod: "$modName"');
-					var parsedJson:Dynamic = tjson.TJSON.parse(data);
+					var parsedJson:Dynamic = CoolUtil.parseJson(data);
 					for (i in 0...parsedJson.length)
 					{
 						var sub:Dynamic = parsedJson[i];
@@ -311,7 +319,8 @@ class LuaUtils
 				var strIndices:Array<String> = cast (indices, String).trim().split(',');
 				var myIndices:Array<Int> = [];
 				for (i in 0...strIndices.length) {
-					myIndices.push(Std.parseInt(strIndices[i]));
+					var parsed:Null<Int> = Std.parseInt(strIndices[i]);
+					if (parsed != null) myIndices.push(parsed);
 				}
 				indices = myIndices;
 			}
@@ -529,7 +538,11 @@ class LuaUtils
 		switch(cam.toLowerCase()) {
 			case 'camgame' | 'game': return PlayState.instance.camGame;
 			case 'camhud' | 'hud': return PlayState.instance.camHUD;
+			case 'camnotes' | 'notes': return PlayState.instance.camNotes;
+			case 'camoverlayhud' | 'overlayhud': return PlayState.instance.camOverlayHUD;
 			case 'camother' | 'other': return PlayState.instance.camOther;
+			case 'camprehud'| 'prehud': return PlayState.instance.camPreHUD;
+			case 'camvid'| 'vid': return PlayState.instance.camVideoMid;
 		}
 		var camera:FlxCamera = MusicBeatState.getVariables().get(cam);
 		if (camera == null || !Std.isOfType(camera, FlxCamera)) camera = PlayState.instance.camGame;

@@ -1,12 +1,12 @@
-package psychlua;
+package funkin.psychlua;
 
 import flixel.FlxBasic;
-import objects.Character;
-import psychlua.LuaUtils;
-import psychlua.CustomSubstate;
+import funkin.game.objects.Character;
+import funkin.psychlua.LuaUtils;
+import funkin.psychlua.CustomSubstate;
 
 #if LUA_ALLOWED
-import psychlua.FunkinLua;
+import funkin.psychlua.FunkinLua;
 #end
 
 #if HSCRIPT_ALLOWED
@@ -134,6 +134,14 @@ class HScript extends Iris
 				returnValue = null;
 				this.destroy();
 				throw e;
+			} catch (e:Dynamic) {
+				// Iris.execute can also throw ValueException / generic
+				// haxe.Exception (e.g. from Reflect.callMethod inside the
+				// interpreter); without this catch the partially-constructed
+				// HScript leaks and its global Iris listener stays registered.
+				returnValue = null;
+				this.destroy();
+				throw e;
 			}
 		}
 	}
@@ -153,26 +161,26 @@ class HScript extends Iris
 		set('FlxSprite', flixel.FlxSprite);
 		set('FlxText', flixel.text.FlxText);
 		set('FlxCamera', flixel.FlxCamera);
-		set('GoldCamera', backend.GoldCamera);
+		set('GoldCamera', funkin.graphics.GoldCamera);
 		set('FlxTimer', flixel.util.FlxTimer);
 		set('FlxTween', flixel.tweens.FlxTween);
 		set('FlxEase', flixel.tweens.FlxEase);
 		set('FlxColor', CustomFlxColor);
-		set('Countdown', backend.BaseStage.Countdown);
-		set('PlayState', PlayState);
-		set('Paths', Paths);
-		set('Conductor', Conductor);
-		set('ClientPrefs', ClientPrefs);
+		set('Countdown', funkin.game.stages.BaseStage.Countdown);
+		set('PlayState', funkin.game.PlayState);
+		set('Paths', funkin.Paths);
+		set('Conductor', funkin.backend.Conductor);
+		set('ClientPrefs', funkin.data.ClientPrefs);
 		#if ACHIEVEMENTS_ALLOWED
-		set('Achievements', Achievements);
+		set('Achievements', funkin.backend.Achievements);
 		#end
-		set('Character', Character);
-		set('Alphabet', Alphabet);
-		set('Note', objects.Note);
+		set('Character', funkin.game.objects.Character);
+		set('Alphabet', funkin.objects.Alphabet);
+		set('Note', funkin.game.notes.Note);
 		set('CustomSubstate', CustomSubstate);
 		#if (!flash && sys)
 		set('FlxRuntimeShader', flixel.addons.display.FlxRuntimeShader);
-		set('ErrorHandledRuntimeShader', shaders.ErrorHandledShader.ErrorHandledRuntimeShader);
+		set('ErrorHandledRuntimeShader', funkin.graphics.shaders.ErrorHandledShader.ErrorHandledRuntimeShader);
 		#end
 		set('ShaderFilter', openfl.filters.ShaderFilter);
 		set('StringTools', StringTools);
@@ -400,6 +408,11 @@ class HScript extends Iris
 			if (funk.hscript == null)
 				initHaxeModule(funk);
 
+			// initHaxeModule may fail to assign funk.hscript (e.g. constructor
+			// throws); without this guard the next line NPEs.
+			if (funk.hscript == null)
+				return;
+
 			var pos:HScriptInfos = cast funk.hscript.interp.posInfos();
 			pos.showLine = false;
 			if (funk.lastCalledFunction != '')
@@ -429,6 +442,13 @@ class HScript extends Iris
 
 		try {
 			var func:Dynamic = interp.variables.get(funcToRun); // function signature
+			if (!Reflect.isFunction(func)) {
+				// `exists()` returns true for any variable; Reflect.callMethod
+				// on a non-function value throws a generic exception that the
+				// IrisError/ValueException catch arms below don't cover, which
+				// then propagates out and breaks the calling Lua frame.
+				return null;
+			}
 			final ret = Reflect.callMethod(null, func, args ?? []);
 			return {funName: funcToRun, signature: func, returnValue: ret};
 		}

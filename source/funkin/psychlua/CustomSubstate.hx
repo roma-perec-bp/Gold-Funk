@@ -1,4 +1,4 @@
-package psychlua;
+package funkin.psychlua;
 
 import flixel.FlxObject;
 

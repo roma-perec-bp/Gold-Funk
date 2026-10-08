@@ -1,9 +1,9 @@
-package psychlua;
+package funkin.psychlua;
 
 import Type.ValueType;
 import haxe.Constraints;
 
-import substates.GameOverSubstate;
+import funkin.submenus.gameover.GameOverSubstate;
 
 //
 // Functions that use a high amount of Reflections, which are somewhat CPU intensive

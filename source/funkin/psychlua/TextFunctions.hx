@@ -1,4 +1,4 @@
-package psychlua;
+package funkin.psychlua;
 
 class TextFunctions
 {

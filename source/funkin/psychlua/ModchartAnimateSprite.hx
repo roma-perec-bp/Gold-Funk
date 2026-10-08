@@ -1,4 +1,6 @@
-package psychlua;
+package funkin.psychlua;
+
+import funkin.graphics.FunkinSprite;
 
 class ModchartAnimateSprite extends FlxAnimate
 {
@@ -7,6 +9,8 @@ class ModchartAnimateSprite extends FlxAnimate
 	{
 		super(x, y);
 		antialiasing = ClientPrefs.data.antialiasing;
+
+		useRenderTexture = true;
 	}
 
 	public function playAnim(name:String, forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0)
