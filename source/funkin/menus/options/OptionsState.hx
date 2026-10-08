@@ -1,7 +1,10 @@
-package options;
+package funkin.menus.options;
 
-import states.MainMenuState;
-import backend.StageData;
+import funkin.menus.mainmenu.FakeMainMenuState;
+import funkin.data.StageData;
+
+
+import funkin.audio.FunkinSound;
 
 class OptionsState extends MusicBeatState
 {
@@ -23,19 +26,19 @@ class OptionsState extends MusicBeatState
 		switch(label)
 		{
 			case 'Note Colors':
-				openSubState(new options.NotesColorSubState());
+				openSubState(new funkin.menus.options.NotesColorSubState());
 			case 'Controls':
-				openSubState(new options.ControlsSubState());
+				openSubState(new funkin.menus.options.ControlsSubState());
 			case 'Graphics':
-				openSubState(new options.GraphicsSettingsSubState());
+				openSubState(new funkin.menus.options.GraphicsSettingsSubState());
 			case 'Visuals':
-				openSubState(new options.VisualsSettingsSubState());
+				openSubState(new funkin.menus.options.VisualsSettingsSubState());
 			case 'Gameplay':
-				openSubState(new options.GameplaySettingsSubState());
+				openSubState(new funkin.menus.options.GameplaySettingsSubState());
 			case 'Adjust Delay and Combo':
-				MusicBeatState.switchState(new options.NoteOffsetState());
+				MusicBeatState.switchState(new funkin.menus.options.NoteOffsetState());
 			case 'Language':
-				openSubState(new options.LanguageSubState());
+				openSubState(new funkin.menus.options.LanguageSubState());
 		}
 	}
 
@@ -98,7 +101,7 @@ class OptionsState extends MusicBeatState
 
 		if (controls.BACK)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FunkinSound.playOnce(Paths.sound('cancelMenu'));
 			if(onPlayState)
 			{
 				StageData.loadDirectory(PlayState.SONG);
@@ -127,7 +130,7 @@ class OptionsState extends MusicBeatState
 				selectorRight.y = item.y;
 			}
 		}
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FunkinSound.playOnce(Paths.sound('scrollMenu'));
 	}
 
 	override function destroy()

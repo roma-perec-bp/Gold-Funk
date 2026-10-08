@@ -1,12 +1,12 @@
-package backend;
+package funkin.menus.achievements;
 
 #if ACHIEVEMENTS_ALLOWED
-import objects.AchievementPopup;
+import funkin.menus.achievements.AchievementPopup;
 import haxe.Exception;
 import haxe.Json;
 
 #if LUA_ALLOWED
-import psychlua.FunkinLua;
+import funkin.psychlua.FunkinLua;
 #end
 
 typedef Achievement =

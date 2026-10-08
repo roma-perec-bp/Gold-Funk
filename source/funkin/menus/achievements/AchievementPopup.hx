@@ -1,4 +1,4 @@
-package objects;
+package funkin.menus.achievements;
 
 #if ACHIEVEMENTS_ALLOWED
 import openfl.events.Event;

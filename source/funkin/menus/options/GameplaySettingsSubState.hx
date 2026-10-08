@@ -1,5 +1,5 @@
-package options;
-
+package funkin.menus.options;
+import funkin.audio.FunkinSound;
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
 	public function new()
@@ -24,6 +24,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'If unchecked, opponent notes get hidden.',
 			'opponentStrums',
 			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Note Quantization: ',
+			"Colors notes in-game based on their step value. Helpful for timing your note hits \nCustom note colors doesn't work with StepMania mode turned on.",
+			'quants',
+			STRING,
+			['Off', 'on', 'StepMania Mode']);
 		addOption(option);
 
 		var option:Option = new Option('Lane Underlay Transparency',
@@ -70,6 +77,14 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.maxValue = 1;
 		option.changeValue = 0.1;
 		option.decimals = 1;
+		option.onChange = onChangeHitsoundVolume;
+
+		var option:Option = new Option('Hitsound Type:',
+			'What type of \"Tick!\" sound will play, once you hit note',
+			'hitsoundType',
+			STRING,
+			['default', 'osu', 'gapple', 'v-slice', 'clap', 'clean', 'hihat', 'vine-boom', 'fart', 'chud']);
+		addOption(option);
 		option.onChange = onChangeHitsoundVolume;
 
 		var option:Option = new Option('Rating Offset',
@@ -129,7 +144,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	}
 
 	function onChangeHitsoundVolume()
-		FlxG.sound.play(Paths.sound('hitsound'), ClientPrefs.data.hitsoundVolume);
+		FunkinSound.playOnce(Paths.sound("hitsounds/"+ClientPrefs.data.hitsoundType), ClientPrefs.data.hitsoundVolume);
 
 	function onChangeAutoPause()
 		FlxG.autoPause = ClientPrefs.data.autoPause;

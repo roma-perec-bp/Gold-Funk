@@ -1,10 +1,9 @@
-package options;
+package funkin.menus.options;
 
-import objects.Note;
-import objects.StrumNote;
-import objects.NoteSplash;
-import objects.Alphabet;
-
+import funkin.game.notes.Note;
+import funkin.game.notes.StrumNote;
+import funkin.game.notes.NoteSplash;
+import funkin.debug.FPSCounter.DebugDisplayMode;
 #if (cpp && windows)
 import hxwindowmode.WindowColorMode;
 #end
@@ -71,6 +70,13 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			option.onChange = onChangeSplashSkin;
 		}
 
+		var option:Option = new Option('Hold Note Splashes:',
+			"Select your prefered Hold Note Splash variation.",
+			'splashHoldSkin',
+			STRING,
+			['Default', 'Vanilla', 'Impostor', 'NightmareVision']);
+		addOption(option);
+
 		var option:Option = new Option('Note Splash Opacity',
 			'How much transparent should the Note Splashes be.',
 			'splashAlpha',
@@ -126,28 +132,47 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Subtitles',
-			'If checked, shows subtitles on cutscene and mis-song.',
+			'If checked, shows subtitles on cutscene and mid-song.',
 			'subtitles',
 			BOOL);
 		addOption(option);
 		
 		#if !mobile
 		var option:Option = new Option('Debug Display',
-			'If unchecked, hides FPS Counter, memory usage and watermarks.',
+			'When enabled, FPS and other debug stats are displayed.',
 			'showFPS', //TO-DO rename option name
-			BOOL);
+			STRING,
+			['Simple', 'Advanced', 'Off']);
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
 		#end
+
+		var option:Option = new Option('Colorblind Mode:',
+			"Adjust game colors for a color vision deficiency.",
+			'colorblindMode',
+			STRING,
+			['Off', 'Protan', 'Deutan', 'Tritan']);
+		addOption(option);
+		option.onChange = onChangeColorblind;
+
+		var option:Option = new Option('Colorblind Strength:',
+			"How strongly the colorblind option is applied on a scale of 1-10.",
+			'colorblindStrength',
+			INT);
+		addOption(option);
+		option.onChange = onChangeColorblind;
+
+		option.minValue = funkin.utils.ColorblindFilter.STRENGTH_MIN;
+		option.maxValue = funkin.utils.ColorblindFilter.STRENGTH_MAX;
 		
 		var option:Option = new Option('Pause Music:',
 			"What song do you prefer for the Pause Screen?",
 			'pauseMusic',
 			STRING,
-			['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico)']);
+			['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico)', 'Breakfast (Pixel)']);
 		addOption(option);
 		option.onChange = onChangePauseMusic;
-		
+
 		#if CHECK_FOR_UPDATES
 		var option:Option = new Option('Check for Updates',
 			'On Release builds, turn this on to check for updates when you start the game.',
@@ -191,7 +216,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		
 		switch(curOption.variable)
 		{
-			case 'noteSkin', 'splashSkin', 'splashAlpha':
+			case 'noteSkin', 'splashSkin', 'splashAlpha', 'splashHoldSkin':
 				if(!notesShown)
 				{
 					for (note in notes.members)
@@ -201,7 +226,8 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 					}
 				}
 				notesShown = true;
-				if(curOption.variable.startsWith('splash') && Math.abs(notes.members[0].y - noteY) < 25) playNoteSplashes();
+				if(curOption.variable != 'splashHoldSkin')
+					if(curOption.variable.startsWith('splash') && Math.abs(notes.members[0].y - noteY) < 25) playNoteSplashes();
 
 			default:
 				if(notesShown) 
@@ -317,8 +343,20 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	#if !mobile
 	function onChangeFPSCounter()
 	{
-		if(Main.fpsVar != null)
-			Main.fpsVar.visible = ClientPrefs.data.showFPS;
+		switch(ClientPrefs.data.showFPS)
+		{
+			case 'Simple':
+				ClientPrefs.setDebugDisplayMode(DebugDisplayMode.Simple);
+			case 'Off':
+				ClientPrefs.setDebugDisplayMode(DebugDisplayMode.Off);
+			case 'Advanced':
+				ClientPrefs.setDebugDisplayMode(DebugDisplayMode.Advanced);
+		}
 	}
 	#end
+
+	function onChangeColorblind()
+	{
+		funkin.utils.ColorblindFilter.apply();
+	}
 }

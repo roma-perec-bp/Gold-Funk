@@ -1,10 +1,12 @@
-package states;
+package funkin.menus.mainmenu;
 
 import flixel.FlxObject;
 import flixel.effects.FlxFlicker;
 import lime.app.Application;
-import states.editors.MasterEditorMenu;
-import options.OptionsState;
+import funkin.debug.editors.MasterEditorMenu;
+import funkin.menus.options.OptionsState;
+
+import funkin.audio.FunkinSound;
 
 enum MainMenuColumn {
 	LEFT;
@@ -38,6 +40,7 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 
 	static var showOutdatedWarning:Bool = true;
+
 	override function create()
 	{
 		super.create();
@@ -139,7 +142,6 @@ class MainMenuState extends MusicBeatState
 	}
 
 	var selectedSomethin:Bool = false;
-
 	var timeNotMoving:Float = 0;
 	override function update(elapsed:Float)
 	{
@@ -256,7 +258,7 @@ class MainMenuState extends MusicBeatState
 			{
 				selectedSomethin = true;
 				FlxG.mouse.visible = false;
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FunkinSound.playOnce(Paths.sound('cancelMenu'));
 				MusicBeatState.switchState(new TitleState());
 			}
 
@@ -351,8 +353,12 @@ class MainMenuState extends MusicBeatState
 	function changeItem(change:Int = 0)
 	{
 		if(change != 0) curColumn = CENTER;
+		var prevEntry:Int = curSelected;
+
 		curSelected = FlxMath.wrap(curSelected + change, 0, optionShit.length - 1);
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+
+		if (curSelected != prevEntry)
+			FunkinSound.playOnce(Paths.sound('scrollMenu'), 1);
 
 		for (item in menuItems)
 		{

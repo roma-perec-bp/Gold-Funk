@@ -1,6 +1,7 @@
-package options;
+package funkin.menus.options;
 
-import objects.Character;
+import funkin.game.objects.Character;
+import funkin.utils.WindowUtil;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
@@ -33,6 +34,20 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		antialiasingOption = optionsArray.length-1;
 
+		var option:Option = new Option('VSync:',
+			"If enabled, game will attempt to match framerate with your monitor.",
+			'vsync',
+			STRING,
+			['OFF', 'ON', 'ADAPTIVE']);
+		addOption(option);
+		option.onChange = onChangeVsync;
+
+		var option:Option = new Option('Full Optimization',
+			"If checked, disables absolutely EVERYTHING from camera and leaves only interface, which is making much more optimization",
+			'optimize',
+			BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Shaders', //Name
 			"If unchecked, disables shaders.\nIt's used for some visual effects, and also CPU intensive for weaker PCs.", //Description
 			'shaders',
@@ -47,9 +62,16 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 		#if !html5 //Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
 		var option:Option = new Option('Framerate',
-			"Pretty self explanatory, isn't it?",
+			"Pretty self explanatory, isn't it?\nThis setting is mutually exclusive with Unlocked Framerate.",
 			'framerate',
 			INT);
+		addOption(option);
+
+		var option:Option = new Option('Unlocked Framerate', //Name
+			"If checked, the framerate is unlocked.\nThis setting is mutually exclusive with FPS.", //Description
+			'unlockedFramerate',
+			BOOL);
+		option.onChange = toggleOffCap; //Changing onChange is only needed if you want to make a special interaction after it changes the value
 		addOption(option);
 
 		final refreshRate:Int = FlxG.stage.application.window.displayMode.refreshRate;
@@ -64,6 +86,20 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		insert(1, boyfriend);
 	}
 
+	function toggleOffCap()
+	{
+		if (ClientPrefs.data.unlockedFramerate)
+		{
+			FlxG.updateFramerate = 0;
+			FlxG.drawFramerate = 0;
+		}
+		else
+		{
+			FlxG.updateFramerate = ClientPrefs.data.framerate;
+			FlxG.drawFramerate = ClientPrefs.data.framerate;
+		}
+	}
+
 	function onChangeAntiAliasing()
 	{
 		for (sprite in members)
@@ -75,17 +111,38 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		}
 	}
 
+	function onChangeVsync()
+	{
+		switch(ClientPrefs.data.vsync)
+		{
+			case 'OFF':
+				WindowUtil.setVSyncMode(lime.ui.WindowVSyncMode.OFF);
+			case 'ON':
+				WindowUtil.setVSyncMode(lime.ui.WindowVSyncMode.ON);
+			case 'ADAPTIVE':
+				WindowUtil.setVSyncMode(lime.ui.WindowVSyncMode.ADAPTIVE);
+		}
+	}
+
 	function onChangeFramerate()
 	{
-		if(ClientPrefs.data.framerate > FlxG.drawFramerate)
+		if (ClientPrefs.data.unlockedFramerate)
 		{
-			FlxG.updateFramerate = ClientPrefs.data.framerate;
-			FlxG.drawFramerate = ClientPrefs.data.framerate;
+			FlxG.updateFramerate = 0;
+			FlxG.drawFramerate = 0;
 		}
 		else
 		{
-			FlxG.drawFramerate = ClientPrefs.data.framerate;
-			FlxG.updateFramerate = ClientPrefs.data.framerate;
+			if(ClientPrefs.data.framerate > FlxG.drawFramerate)
+			{
+				FlxG.updateFramerate = ClientPrefs.data.framerate;
+				FlxG.drawFramerate = ClientPrefs.data.framerate;
+			}
+			else
+			{
+				FlxG.drawFramerate = ClientPrefs.data.framerate;
+				FlxG.updateFramerate = ClientPrefs.data.framerate;
+			}
 		}
 	}
 

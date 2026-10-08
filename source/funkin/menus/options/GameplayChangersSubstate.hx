@@ -1,9 +1,9 @@
-package options;
+package funkin.menus.options;
 
-import objects.AttachedText;
-import objects.CheckboxThingie;
+import funkin.objects.AttachedText;
+import funkin.objects.CheckboxThingie;
 
-import options.Option.OptionType;
+import funkin.menus.options.Option;
 
 class GameplayChangersSubstate extends MusicBeatSubstate
 {
@@ -39,7 +39,6 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		}
 		optionsArray.push(option);
 
-		#if FLX_PITCH
 		var option:GameplayOption = new GameplayOption('Playback Rate', 'songspeed', FLOAT, 1);
 		option.scrollSpeed = 1;
 		option.minValue = 0.5;
@@ -48,7 +47,6 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		option.displayFormat = '%vX';
 		option.decimals = 2;
 		optionsArray.push(option);
-		#end
 
 		var option:GameplayOption = new GameplayOption('Health Gain Multiplier', 'healthgain', FLOAT, 1);
 		option.scrollSpeed = 2.5;
@@ -69,6 +67,10 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		optionsArray.push(new GameplayOption('Instakill on Miss', 'instakill', BOOL, false));
 		optionsArray.push(new GameplayOption('Practice Mode', 'practice', BOOL, false));
 		optionsArray.push(new GameplayOption('Botplay', 'botplay', BOOL, false));
+
+		optionsArray.push(new GameplayOption('Fade Out Notes', 'fade', BOOL, false));
+		optionsArray.push(new GameplayOption('Opponent Mode', 'opponentplay', BOOL, false));
+		optionsArray.push(new GameplayOption('Only Sick Node', 'sickmode', BOOL, false));
 	}
 
 	public function getOptionByName(name:String)

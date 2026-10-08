@@ -1,6 +1,6 @@
-package states;
+package funkin.menus.credits;
 
-import objects.AttachedSprite;
+import funkin.objects.AttachedSprite;
 
 class CreditsState extends MusicBeatState
 {

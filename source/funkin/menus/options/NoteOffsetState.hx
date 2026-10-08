@@ -1,11 +1,11 @@
-package options;
+package funkin.menus.options;
 
-import backend.StageData;
-import objects.Character;
-import objects.Bar;
+import funkin.data.StageData;
+import funkin.game.objects.Character;
+import funkin.objects.Bar;
 import flixel.addons.display.shapes.FlxShapeCircle;
 
-import states.stages.StageWeek1 as BackgroundStage;
+import funkin.game.stages.game_stages.StageWeek1 as BackgroundStage;
 
 class NoteOffsetState extends MusicBeatState
 {
@@ -219,7 +219,6 @@ class NoteOffsetState extends MusicBeatState
 			updateMode();
 			_lastControllerMode = controls.controllerMode;
 		}
-
 		if(onComboMenu)
 		{
 			if(FlxG.keys.justPressed.ANY || FlxG.gamepads.anyJustPressed(ANY))
@@ -302,7 +301,7 @@ class NoteOffsetState extends MusicBeatState
 					repositionCombo();
 				}
 			}
-			
+
 			// controller things
 			var analogX:Float = 0;
 			var analogY:Float = 0;
@@ -453,7 +452,7 @@ class NoteOffsetState extends MusicBeatState
 			if(OptionsState.onPlayState)
 			{
 				if(ClientPrefs.data.pauseMusic != 'None')
-					FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)));
+					FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath('pause_music/'+ClientPrefs.data.pauseMusic)));
 				else
 					FlxG.sound.music.volume = 0;
 			}

@@ -1,11 +1,10 @@
-package options;
+package funkin.menus.options;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
 
-import objects.Character;
-
-import options.Option.OptionType;
+import funkin.menus.options.Option;
+import funkin.game.objects.Character;
 
 class ModSettingsSubState extends BaseOptionsMenu
 {

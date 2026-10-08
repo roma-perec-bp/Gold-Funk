@@ -1,7 +1,7 @@
-package states;
+package funkin.menus.mods;
 
-import backend.WeekData;
-import backend.Mods;
+import funkin.data.WeekData;
+import funkin.backend.Mods;
 
 import flixel.FlxBasic;
 import flixel.graphics.FlxGraphic;
@@ -9,8 +9,8 @@ import flash.geom.Rectangle;
 import haxe.Json;
 
 import flixel.util.FlxSpriteUtil;
-import objects.AttachedSprite;
-import options.ModSettingsSubState;
+import funkin.objects.AttachedSprite;
+import funkin.menus.options.ModSettingsSubState;
 
 import openfl.display.BitmapData;
 import lime.utils.Assets;
@@ -316,17 +316,17 @@ class ModsMenuState extends MusicBeatState
 			if(waitingToRestart)
 			{
 				//MusicBeatState.switchState(new TitleState());
-				TitleState.initialized = false;
-				TitleState.closedState = false;
+				funkin.menus.title.TitleState.initialized = false;
+				funkin.menus.title.TitleState.closedState = false;
 				FlxG.sound.music.fadeOut(0.3);
-				if(FreeplayState.vocals != null)
+				if(funkin.menus.freeplay.FreeplayState.vocals != null)
 				{
-					FreeplayState.vocals.fadeOut(0.3);
-					FreeplayState.vocals = null;
+					funkin.menus.freeplay.FreeplayState.vocals.fadeOut(0.3);
+					funkin.menus.freeplay.FreeplayState.vocals = null;
 				}
 				FlxG.camera.fade(FlxColor.BLACK, 0.5, false, FlxG.resetGame, false);
 			}
-			else MusicBeatState.switchState(new MainMenuState());
+			else MusicBeatState.switchState(new funkin.menus.mainmenu.MainMenuState());
 
 			persistentUpdate = false;
 			FlxG.autoPause = ClientPrefs.data.autoPause;

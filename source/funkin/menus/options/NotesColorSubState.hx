@@ -1,4 +1,4 @@
-package options;
+package funkin.menus.options;
 
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
@@ -7,11 +7,11 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
 import lime.system.Clipboard;
 import flixel.util.FlxGradient;
-import objects.StrumNote;
-import objects.Note;
+import funkin.game.notes.StrumNote;
+import funkin.game.notes.Note;
 
-import shaders.RGBPalette;
-import shaders.RGBPalette.RGBShaderReference;
+import funkin.graphics.shaders.RGBPalette;
+import funkin.graphics.shaders.RGBPalette.RGBShaderReference;
 
 class NotesColorSubState extends MusicBeatSubstate
 {
@@ -605,8 +605,8 @@ class NotesColorSubState extends MusicBeatSubstate
 		}
 
 		// respawn stuff
-		var res:Int = onPixel ? 160 : 17;
-		skinNote = new FlxSprite(48, 24).loadGraphic(Paths.image('noteColorMenu/' + (onPixel ? 'note' : 'notePixel')), true, res, res);
+		var res:Int = onPixel ? 17 : 160;
+		skinNote = new FlxSprite(48, 24).loadGraphic(Paths.image('noteColorMenu/' + (onPixel ? 'notePixel' : 'note')), true, res, res);
 		skinNote.antialiasing = ClientPrefs.data.antialiasing;
 		skinNote.setGraphicSize(68);
 		skinNote.updateHitbox();
@@ -625,7 +625,7 @@ class NotesColorSubState extends MusicBeatSubstate
 			newNote.animation.add('anim', [i], 24, true);
 			newNote.animation.play('anim', true);
 			newNote.ID = i;
-			if(onPixel) newNote.antialiasing = false;
+			if (onPixel) newNote.antialiasing = false;
 			modeNotes.add(newNote);
 		}
 
@@ -633,7 +633,7 @@ class NotesColorSubState extends MusicBeatSubstate
 		for (i in 0...dataArray.length)
 		{
 			Note.initializeGlobalRGBShader(i);
-			var newNote:StrumNote = new StrumNote(150 + (480 / dataArray.length * i), 200, i, 0);
+			var newNote:StrumNote = new StrumNote(150 + (480 / dataArray.length * i), 200, i, 0, true);
 			newNote.useRGBShader = true;
 			newNote.setGraphicSize(102);
 			newNote.updateHitbox();

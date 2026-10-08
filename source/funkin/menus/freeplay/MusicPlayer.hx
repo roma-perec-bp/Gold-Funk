@@ -1,15 +1,13 @@
-package objects;
+package funkin.menus.freeplay;
 
 import flixel.group.FlxGroup;
 import flixel.ui.FlxBar;
 import flixel.util.FlxStringUtil;
 
-import states.FreeplayState;
-
 /**
  * Music player used for Freeplay
  */
-@:access(states.FreeplayState)
+@:access(funkin.menus.freeplay.FreeplayState)
 class MusicPlayer extends FlxGroup 
 {
 	public var instance:FreeplayState;
@@ -283,13 +281,17 @@ class MusicPlayer extends FlxGroup
 	function updatePlaybackTxt()
 	{
 		var text = "";
-		if (playbackRate is Int)
-			text = playbackRate + '.00';
+		// 'playbackRate is Int' is unreliable on hxcpp (a Float holding 1.0
+		// still tests false), so use a value comparison to detect whole
+		// numbers. We also defend against missing fractional digits.
+		if (Std.int(playbackRate) == playbackRate)
+			text = Std.int(playbackRate) + '.00';
 		else
 		{
 			var playbackRate = Std.string(playbackRate);
-			if (playbackRate.split('.')[1].length < 2) // Playback rates for like 1.1, 1.2 etc
-				playbackRate += '0';
+			var parts = playbackRate.split('.');
+			if (parts.length < 2) playbackRate += '.00';
+			else if (parts[1].length < 2) playbackRate += '0';
 
 			text = playbackRate;
 		}

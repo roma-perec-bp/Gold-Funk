@@ -1,14 +1,15 @@
-package options;
+package funkin.menus.options;
 
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.gamepad.FlxGamepadManager;
 
-import objects.CheckboxThingie;
-import objects.AttachedText;
-import options.Option;
-import backend.InputFormatter;
+import funkin.audio.FunkinSound;
+
+import funkin.objects.CheckboxThingieFake;
+import funkin.objects.AttachedText;
+import funkin.backend.InputFormatter;
 
 class BaseOptionsMenu extends MusicBeatSubstate
 {
@@ -17,7 +18,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	private var optionsArray:Array<Option>;
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
-	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
+	private var checkboxGroup:FlxTypedGroup<CheckboxThingieFake>;
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
 	private var descBox:FlxSprite;
@@ -39,7 +40,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		#end
 		
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.color = 0xFFea71fd;
+		bg.color = 0xFF7cdb7a;
 		bg.setGraphicSize(Std.int(FlxG.width * 1.1));
 		bg.screenCenter();
 		bg.antialiasing = ClientPrefs.data.antialiasing;
@@ -52,7 +53,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		grpTexts = new FlxTypedGroup<AttachedText>();
 		add(grpTexts);
 
-		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
+		checkboxGroup = new FlxTypedGroup<CheckboxThingieFake>();
 		add(checkboxGroup);
 
 		descBox = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
@@ -81,7 +82,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 			if(optionsArray[i].type == BOOL)
 			{
-				var checkbox:CheckboxThingie = new CheckboxThingie(optionText.x - 105, optionText.y, Std.string(optionsArray[i].getValue()) == 'true');
+				var checkbox:CheckboxThingieFake = new CheckboxThingieFake(optionText.x - 105, optionText.y, Std.string(optionsArray[i].getValue()) == 'true');
 				checkbox.sprTracker = optionText;
 				checkbox.ID = i;
 				checkboxGroup.add(checkbox);
@@ -142,7 +143,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		if (controls.BACK) {
 			close();
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FunkinSound.playOnce(Paths.sound('cancelMenu'));
 		}
 
 		if(nextAccept <= 0)
@@ -152,7 +153,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				case BOOL:
 					if(controls.ACCEPT)
 					{
-						FlxG.sound.play(Paths.sound('scrollMenu'));
+						FunkinSound.playOnce(Paths.sound('scrollMenu'));
 						curOption.setValue((curOption.getValue() == true) ? false : true);
 						curOption.change();
 						reloadCheckboxes();
@@ -179,7 +180,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 						bindingKey = true;
 						holdingEsc = 0;
 						ClientPrefs.toggleVolumeKeys(false);
-						FlxG.sound.play(Paths.sound('scrollMenu'));
+						FunkinSound.playOnce(Paths.sound('scrollMenu'));
 					}
 
 				default:
@@ -230,7 +231,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 								}
 								updateTextFrom(curOption);
 								curOption.change();
-								FlxG.sound.play(Paths.sound('scrollMenu'));
+								FunkinSound.playOnce(Paths.sound('scrollMenu'));
 							}
 							else if(curOption.type != STRING)
 							{
@@ -243,7 +244,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 									case INT:
 										curOption.setValue(Math.round(holdValue));
 									
-									case PERCENT:
+									case FLOAT, PERCENT:
 										curOption.setValue(FlxMath.roundDecimal(holdValue, curOption.decimals));
 
 									default:
@@ -258,7 +259,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					}
 					else if(controls.UI_LEFT_R || controls.UI_RIGHT_R)
 					{
-						if(holdTime > 0.5) FlxG.sound.play(Paths.sound('scrollMenu'));
+						if(holdTime > 0.5) FunkinSound.playOnce(Paths.sound('scrollMenu'));
 						holdTime = 0;
 					}
 			}
@@ -281,7 +282,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					updateBind(leOption);
 				}
 				leOption.change();
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FunkinSound.playOnce(Paths.sound('cancelMenu'));
 				reloadCheckboxes();
 			}
 		}
@@ -298,7 +299,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			holdingEsc += elapsed;
 			if(holdingEsc > 0.5)
 			{
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FunkinSound.playOnce(Paths.sound('cancelMenu'));
 				closeBinding();
 			}
 		}
@@ -310,7 +311,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				if (!controls.controllerMode) curOption.keys.keyboard = NONE;
 				else curOption.keys.gamepad = NONE;
 				updateBind(!controls.controllerMode ? InputFormatter.getKeyName(NONE) : InputFormatter.getGamepadName(NONE));
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FunkinSound.playOnce(Paths.sound('cancelMenu'));
 				closeBinding();
 			}
 		}
@@ -387,7 +388,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					key = InputFormatter.getGamepadName(FlxGamepadInputID.fromString(curOption.keys.gamepad));
 				}
 				updateBind(key);
-				FlxG.sound.play(Paths.sound('confirmMenu'));
+				FunkinSound.playOnce(Paths.sound('confirmMenu'));
 				closeBinding();
 			}
 		}
@@ -498,7 +499,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		descBox.updateHitbox();
 
 		curOption = optionsArray[curSelected]; //shorter lol
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FunkinSound.playOnce(Paths.sound('scrollMenu'));
 	}
 
 	function reloadCheckboxes()
