@@ -1,23 +1,22 @@
-package states;
+package funkin.menus.storymenu;
 
-import backend.WeekData;
-import backend.Highscore;
-import backend.Song;
+import funkin.data.*;
 
 import flixel.group.FlxGroup;
 import flixel.graphics.FlxGraphic;
 
-import objects.MenuItem;
-import objects.MenuCharacter;
+import funkin.graphics.FunkinSprite;
 
-import options.GameplayChangersSubstate;
-import substates.ResetScoreSubState;
-import substates.StoryProgressSubState;
+import funkin.audio.FunkinSound;
 
-import backend.FullScreenScaleMode;
+import funkin.objects.MenuItem;
+import flixel.util.FlxStringUtil;
+import funkin.menus.options.GameplayChangersSubstate;
 
-import backend.StageData;
-import backend.Progression;
+import funkin.submenus.ResetScoreSubState;
+import funkin.submenus.StoryProgressSubState;
+
+import funkin.menus.FullScreenScaleMode;
 
 class StoryMenuState extends MusicBeatState
 {
@@ -64,9 +63,9 @@ class StoryMenuState extends MusicBeatState
 		{
 			FlxTransitionableState.skipNextTransIn = true;
 			persistentUpdate = false;
-			MusicBeatState.switchState(new states.ErrorState("NO LEVELS ADDED FOR STORY MODE\n\nPress ACCEPT to go to the Week Editor Menu.\nPress BACK to return to Main Menu.",
-				function() MusicBeatState.switchState(new states.editors.WeekEditorState()),
-				function() MusicBeatState.switchState(new states.MainMenuState())));
+			MusicBeatState.switchState(new funkin.menus.ErrorState("NO LEVELS ADDED FOR STORY MODE\n\nPress ACCEPT to go to the Week Editor Menu.\nPress BACK to return to Main Menu.",
+				function() MusicBeatState.switchState(new funkin.debug.editors.WeekEditorState()),
+				function() MusicBeatState.switchState(new funkin.menus.mainmenu.MainMenuState())));
 			return;
 		}
 
@@ -86,7 +85,7 @@ class StoryMenuState extends MusicBeatState
 		grpWeekText = new FlxTypedGroup<MenuItem>();
 		add(grpWeekText);
 
-		var blackBarThingie:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, 56, FlxColor.BLACK);
+		var blackBarThingie:FunkinSprite = new FunkinSprite(bgYellow.x, 0).makeSolidColor(FlxG.width, Std.int(400 + bgYellow.y), FlxColor.BLACK);
 		add(blackBarThingie);
 
 		grpWeekCharacters = new FlxTypedGroup<MenuCharacter>();
@@ -158,7 +157,7 @@ class StoryMenuState extends MusicBeatState
 			lastDifficultyName = Difficulty.getDefaultDifficult();
 		}
 		curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(lastDifficultyName)));
-		
+
 		sprDifficulty = new FlxSprite(0, leftArrow.y);
 		sprDifficulty.antialiasing = ClientPrefs.data.antialiasing;
 		difficultySelectors.add(sprDifficulty);
@@ -174,6 +173,11 @@ class StoryMenuState extends MusicBeatState
 		add(bgYellow);
 		add(bgSprite);
 		add(grpWeekCharacters);
+
+		var gradientShit = new FlxSprite(0, 442).loadGraphic(Paths.image('story_gradient'));
+		gradientShit.antialiasing = ClientPrefs.data.antialiasing;
+		gradientShit.screenCenter(X);
+		add(gradientShit);
 
 		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07 + 100, bgSprite.y + 425).loadGraphic(Paths.image('Menu_Tracks'));
 		tracksSprite.antialiasing = ClientPrefs.data.antialiasing;
@@ -206,9 +210,10 @@ class StoryMenuState extends MusicBeatState
 		{
 			if (controls.BACK && !movedBack && !selectedWeek)
 			{
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FunkinSound.playOnce(Paths.sound('real_menu_sounds/static_sound'));
 				movedBack = true;
-				MusicBeatState.switchState(new MainMenuState());
+
+				MusicBeatState.switchState(new funkin.menus.mainmenu.MainMenuState());
 			}
 			super.update(elapsed);
 			return;
@@ -217,10 +222,10 @@ class StoryMenuState extends MusicBeatState
 		// scoreText.setFormat(Paths.font("vcr.ttf"), 32);
 		if(intendedScore != lerpScore)
 		{
-			lerpScore = Math.floor(FlxMath.lerp(intendedScore, lerpScore, Math.exp(-elapsed * 30)));
-			if(Math.abs(intendedScore - lerpScore) < 10) lerpScore = intendedScore;
+			lerpScore = Std.int(MathUtil.snap(MathUtil.smoothLerpPrecision(lerpScore, intendedScore, elapsed, 0.307), intendedScore, 1));
+			//lerpScore = Math.floor(FlxMath.lerp(intendedScore, lerpScore, Math.exp(-elapsed * 30)));
 	
-			scoreText.text = Language.getPhrase('week_score', 'WEEK SCORE: {1}', [lerpScore]);
+			scoreText.text = Language.getPhrase('week_score', 'LEVEL SCORE: {1}', [FlxStringUtil.formatMoney(lerpScore, false, true)]);
 		}
 
 		// FlxG.watch.addQuick('font', scoreText.font);
@@ -231,20 +236,20 @@ class StoryMenuState extends MusicBeatState
 			if (controls.UI_UP_P)
 			{
 				changeWeek(-1);
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FunkinSound.playOnce(Paths.sound('scrollMenu'), 1);
 				changeDiff = true;
 			}
 
 			if (controls.UI_DOWN_P)
 			{
 				changeWeek(1);
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FunkinSound.playOnce(Paths.sound('scrollMenu'), 1);
 				changeDiff = true;
 			}
 
 			if(FlxG.mouse.wheel != 0)
 			{
-				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.4);
 				changeWeek(-FlxG.mouse.wheel);
 				changeDifficulty();
 			}
@@ -269,12 +274,12 @@ class StoryMenuState extends MusicBeatState
 			if(FlxG.keys.justPressed.CONTROL)
 			{
 				persistentUpdate = false;
-				openSubState(new GameplayChangersSubstate());
+				openSubState(new funkin.menus.options.GameplayChangersSubstate());
 			}
 			else if(controls.RESET)
 			{
 				persistentUpdate = false;
-				openSubState(new ResetScoreSubState('', curDifficulty, 0, '', curWeek));
+				openSubState(new ResetScoreSubState('', curDifficulty, 0, curWeek));
 				//FlxG.sound.play(Paths.sound('scrollMenu'));
 			}
 			else if (controls.ACCEPT)
@@ -283,9 +288,10 @@ class StoryMenuState extends MusicBeatState
 
 		if (controls.BACK && !movedBack && !selectedWeek)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FunkinSound.playOnce(Paths.sound('cancelMenu'));
 			movedBack = true;
-			MusicBeatState.switchState(new MainMenuState());
+
+			MusicBeatState.switchState(new funkin.menus.mainmenu.MainMenuState());
 		}
 
 		super.update(elapsed);
@@ -324,27 +330,55 @@ class StoryMenuState extends MusicBeatState
 					openSubState(new StoryProgressSubState(
 					function()
 					{
+						PlayState.totalStoryNotesHit = 0;
+						PlayState.totalStoryPlayed = 0;
+						PlayState.fullNotes = 0;
+						PlayState.songFullHits = 0;
+
+						PlayState.campaignSicks = 0;
+						PlayState.campaignGoods = 0;
+						PlayState.campaignBads = 0;
+						PlayState.campaignShits = 0;
+
+						PlayState.maxCombo = 0;
+
+						PlayState.campaignAccuracy = 0;
+
 						PlayState.campaignScore = 0;
 						PlayState.campaignMisses = 0;
 
 						PlayState.storyPlaylist = songArray;
-				
+
 						playWeek();
 					}, 
 
 					function()
 					{
 						var resumeInfo = Progression.weekProgress.get(loadedWeeks[curWeek].weekName);
-				
+
 						songArray = resumeInfo.song;
-				
+
+						PlayState.totalStoryNotesHit = resumeInfo.weekTotalHit;
+						PlayState.totalStoryPlayed = resumeInfo.weekTotalPlay;
+						PlayState.fullNotes = resumeInfo.weekTotalNo;
+						PlayState.songFullHits = resumeInfo.songCampHits;
+
+						PlayState.campaignSicks = resumeInfo.maxSicks;
+						PlayState.campaignGoods = resumeInfo.maxGoods;
+						PlayState.campaignBads = resumeInfo.maxBads;
+						PlayState.campaignShits = resumeInfo.maxShits;
+
+						PlayState.maxCombo = resumeInfo.maxComboLol;
+
+						PlayState.campaignAccuracy = resumeInfo.weekAccu;
+
 						PlayState.campaignMisses = resumeInfo.weekMisees;
 						PlayState.campaignScore = resumeInfo.weekSocre;
-		
+
 						trace(songArray);
 
 						PlayState.storyPlaylist = songArray;
-				
+
 						playWeek();
 					}, 
 
@@ -355,11 +389,25 @@ class StoryMenuState extends MusicBeatState
 				}
 				else
 				{
+					PlayState.totalStoryNotesHit = 0;
+					PlayState.totalStoryPlayed = 0;
+					PlayState.fullNotes = 0;
+					PlayState.songFullHits = 0;
+
+					PlayState.campaignSicks = 0;
+					PlayState.campaignGoods = 0;
+					PlayState.campaignBads = 0;
+					PlayState.campaignShits = 0;
+
+					PlayState.maxCombo = 0;
+
+					PlayState.campaignAccuracy = 0;
+
 					PlayState.campaignScore = 0;
 					PlayState.campaignMisses = 0;
 
 					PlayState.storyPlaylist = songArray;
-				
+
 					playWeek();
 				}
 			}
@@ -369,7 +417,7 @@ class StoryMenuState extends MusicBeatState
 				return;
 			}
 		}
-		else FlxG.sound.play(Paths.sound('cancelMenu'));
+		else FunkinSound.playOnce(Paths.sound('cancelMenu'));
 	}
 
 	function playWeek()
@@ -377,7 +425,7 @@ class StoryMenuState extends MusicBeatState
 		PlayState.isFirstSongInCampaign = true;
 		PlayState.isStoryMode = true;
 		selectedWeek = true;
-	
+
 		var diffic = Difficulty.getFilePath(curDifficulty);
 		if(diffic == null) diffic = '';
 	
@@ -387,7 +435,7 @@ class StoryMenuState extends MusicBeatState
 
 		if (stopspamming == false)
 		{
-			FlxG.sound.play(Paths.sound('confirmMenu'));
+			FunkinSound.playOnce(Paths.sound('confirmMenu'));
 
 			grpWeekText.members[curWeek].isFlashing = true;
 			for (char in grpWeekCharacters.members)
@@ -415,7 +463,7 @@ class StoryMenuState extends MusicBeatState
 		{
 			#if !SHOW_LOADING_SCREEN FlxG.sound.music.stop(); #end
 			LoadingState.loadAndSwitchState(new PlayState(), true);
-			FreeplayState.destroyFreeplayVocals();
+			funkin.menus.freeplay.FreeplayState.destroyFreeplayVocals();
 		});
 			
 		#if (MODS_ALLOWED && DISCORD_ALLOWED)
@@ -456,7 +504,7 @@ class StoryMenuState extends MusicBeatState
 		#end
 	}
 
-	var lerpScore:Int = 49324858;
+	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
 
 	function changeWeek(change:Int = 0):Void
@@ -473,6 +521,7 @@ class StoryMenuState extends MusicBeatState
 
 		var leName:String = Language.getPhrase('storyname_${leWeek.fileName}', leWeek.storyName);
 		txtWeekTitle.text = leName.toUpperCase();
+
 		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + Math.max(10, FullScreenScaleMode.gameNotchSize.x)); // Right align.
 
 		var unlocked:Bool = !weekIsLocked(leWeek.fileName);
@@ -490,6 +539,7 @@ class StoryMenuState extends MusicBeatState
 		} else {
 			bgSprite.loadGraphic(Paths.image('menubackgrounds/menu_' + assetName));
 		}
+		bgSprite.screenCenter(X);
 		PlayState.storyWeek = curWeek;
 
 		Difficulty.loadFromWeek();

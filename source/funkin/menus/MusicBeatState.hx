@@ -1,10 +1,12 @@
-package backend;
+package funkin.menus;
 
 import openfl.display.BitmapData;
 import flixel.util.FlxSort;
 import flixel.FlxState;
-import backend.GoldCamera;
-import backend.CoolUtil;
+import funkin.graphics.GoldCamera;
+import funkin.utils.CoolUtil;
+
+import funkin.audio.FunkinSound;
 
 @:bitmap("assets/embed/images/ui/cursor.png")
 private class FunkinCursor extends BitmapData {}
@@ -38,19 +40,22 @@ class MusicBeatState extends FlxState
 		return getState().variables;
 
 	override function create() {
-		if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
+		//if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
 
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
 		//? Should fix the funkin cursor for good
 		if(!(FlxG.mouse.cursor?.bitmapData is FunkinCursor)) FlxG.mouse.load(new FunkinCursor(0,0));
+
 		#if MODS_ALLOWED Mods.updatedOnState = false; #end
 
 		if(!_psychCameraInitialized) initPsychCamera();
 
+		FunkinSound.stopAllAudio();
+
 		super.create();
 
 		if(!skip) {
-			openSubState(new CustomFadeTransition(0.5, true));
+			openSubState(new CustomFadeTransition(0.35, true));
 		}
 		FlxTransitionableState.skipNextTransOut = false;
 		timePassedOnState = 0;
@@ -67,6 +72,7 @@ class MusicBeatState extends FlxState
 	}
 
 	public static var timePassedOnState:Float = 0;
+	private static var _lastSavedFullscreen:Bool = false;
 	override function update(elapsed:Float)
 	{
 		//everyStep();
@@ -97,11 +103,18 @@ class MusicBeatState extends FlxState
 			}
 		}
 
-		if(FlxG.save.data != null) FlxG.save.data.fullscreen = FlxG.fullscreen;
+		// Only persist the fullscreen flag when it actually changes;
+		// the previous code wrote into FlxG.save.data every single frame.
+		if (FlxG.save.data != null && _lastSavedFullscreen != FlxG.fullscreen) {
+			FlxG.save.data.fullscreen = FlxG.fullscreen;
+			_lastSavedFullscreen = FlxG.fullscreen;
+		}
 		
-		stagesFunc(function(stage:BaseStage) {
+		// inline stagesFunc -- per-frame hot path; avoids closure capture of `elapsed`
+		for (stage in stages) {
+			if (stage == null || !stage.exists || !stage.active) continue;
 			stage.update(elapsed);
-		});
+		}
 
 		super.update(elapsed);
 	}
@@ -136,7 +149,7 @@ class MusicBeatState extends FlxState
 			}
 		}
 
-		if(curSection > lastSection) sectionHit();
+		if (curSection != lastSection) sectionHit();
 	}
 
 	private function updateBeat():Void
@@ -171,7 +184,7 @@ class MusicBeatState extends FlxState
 		if(FlxTransitionableState.skipNextTransIn) 
 		{
 			FlxG.resetState();
-			if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
+			//if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
 		}
 		else startTransition();
 		FlxTransitionableState.skipNextTransIn = false;
@@ -183,13 +196,13 @@ class MusicBeatState extends FlxState
 		if(nextState == null)
 			nextState = FlxG.state;
 
-		FlxG.state.openSubState(new CustomFadeTransition(0.5, false));
+		FlxG.state.openSubState(new CustomFadeTransition(0.35, false));
 		if(nextState == FlxG.state)
 		{
 			CustomFadeTransition.finishCallback = function()
 			{
 				FlxG.resetState();
-				if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
+				//if (FullScreenScaleMode.instance != null) FullScreenScaleMode.instance.onMeasurePostAwait();
 			}
 		}
 		else
@@ -202,11 +215,13 @@ class MusicBeatState extends FlxState
 
 	public function stepHit():Void
 	{
-		stagesFunc(function(stage:BaseStage) {
+		// inline stagesFunc -- per-step hot path
+		for (stage in stages) {
+			if (stage == null || !stage.exists || !stage.active) continue;
 			stage.curStep = curStep;
 			stage.curDecStep = curDecStep;
 			stage.stepHit();
-		});
+		};
 
 		if (curStep % 4 == 0)
 			beatHit();
@@ -216,20 +231,23 @@ class MusicBeatState extends FlxState
 	public function beatHit():Void
 	{
 		//trace('Beat: ' + curBeat);
-		stagesFunc(function(stage:BaseStage) {
+		// inline stagesFunc -- per-beat hot path
+		for (stage in stages) {
+			if (stage == null || !stage.exists || !stage.active) continue;
 			stage.curBeat = curBeat;
 			stage.curDecBeat = curDecBeat;
 			stage.beatHit();
-		});
+		}
 	}
 
 	public function sectionHit():Void
 	{
 		//trace('Section: ' + curSection + ', Beat: ' + curBeat + ', Step: ' + curStep);
-		stagesFunc(function(stage:BaseStage) {
+		for (stage in stages) {
+			if (stage == null || !stage.exists || !stage.active) continue;
 			stage.curSection = curSection;
 			stage.sectionHit();
-		});
+		}
 	}
 
 	/**

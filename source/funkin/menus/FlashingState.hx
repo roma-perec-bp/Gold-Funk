@@ -1,7 +1,9 @@
-package states;
+package funkin.menus;
 
 import flixel.FlxSubState;
 
+import funkin.menus.title.TitleState;
+import funkin.audio.FunkinSound;
 import flixel.effects.FlxFlicker;
 import lime.app.Application;
 

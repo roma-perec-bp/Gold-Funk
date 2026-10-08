@@ -1,4 +1,4 @@
-package backend;
+package funkin.menus.transitions;
 
 import flixel.util.FlxGradient;
 
@@ -9,6 +9,12 @@ class CustomFadeTransition extends MusicBeatSubstate {
 	var transGradient:FlxSprite;
 
 	var duration:Float;
+
+	// Normalized 0->1 sweep progress, plus the gradient's start/end Y. Driving the position off a
+	// clamped progress makes the sweep take exactly `duration` at any framerate and never overshoot.
+	var progress:Float = 0;
+	var startY:Float = 0;
+	var endY:Float = 0;
 	public function new(duration:Float, isTransIn:Bool)
 	{
 		this.duration = duration;
@@ -40,25 +46,27 @@ class CustomFadeTransition extends MusicBeatSubstate {
 		else
 			transGradient.y = -transGradient.height;
 
+		startY = transGradient.y;
+		endY = transGradient.height + 50 * Math.max(camera.zoom, 0.001);
+
 		super.create();
 	}
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		final height:Float = FlxG.height * Math.max(camera.zoom, 0.001);
-		final targetPos:Float = transGradient.height + 50 * Math.max(camera.zoom, 0.001);
-		if(duration > 0)
-			transGradient.y += (height + targetPos) * elapsed / duration;
-		else
-			transGradient.y = (targetPos) * elapsed;
+		// Time-based progress, so the fade lasts exactly `duration` regardless of framerate.
+		progress += (duration > 0) ? elapsed / duration : 1;
+		if (progress > 1)
+			progress = 1;
 
+		transGradient.y = startY + (endY - startY) * progress;
 		if(isTransIn)
 			transBlack.y = transGradient.y + transGradient.height;
 		else
 			transBlack.y = transGradient.y - transBlack.height;
 
-		if(transGradient.y >= targetPos)
+		if (progress >= 1)
 		{
 			close();
 		}

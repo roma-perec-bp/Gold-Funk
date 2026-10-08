@@ -1,8 +1,8 @@
-package backend;
+package funkin.menus;
 
 import flixel.FlxSubState;
 import flixel.util.FlxSort;
-import backend.CoolUtil;
+import funkin.utils.CoolUtil;
 
 class MusicBeatSubstate extends FlxSubState
 {
@@ -83,7 +83,7 @@ class MusicBeatSubstate extends FlxSubState
 			}
 		}
 
-		if(curSection > lastSection) sectionHit();
+		if (curSection != lastSection) sectionHit();
 	}
 
 	private function updateBeat():Void

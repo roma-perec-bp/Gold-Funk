@@ -1,4 +1,4 @@
-package states;
+package funkin.menus;
 
 class ErrorState extends MusicBeatState
 {

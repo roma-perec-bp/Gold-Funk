@@ -1,4 +1,4 @@
-package objects;
+package funkin.menus.storymenu;
 
 import openfl.utils.Assets;
 import haxe.Json;
@@ -49,52 +49,74 @@ class MenuCharacter extends FlxSprite
 				var characterPath:String = 'images/menucharacters/' + character + '.json';
 
 				var path:String = Paths.getPath(characterPath, TEXT);
+				var missing:Bool = false;
 				#if MODS_ALLOWED
 				if (!FileSystem.exists(path))
 				#else
 				if (!Assets.exists(path))
 				#end
 				{
-					path = Paths.getSharedPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+					missing = true;
 					color = FlxColor.BLACK;
 					alpha = 0.6;
 				}
 
 				var charFile:MenuCharacterFile = null;
-				try
-				{
-					#if MODS_ALLOWED
-					charFile = Json.parse(File.getContent(path));
-					#else
-					charFile = Json.parse(Assets.getText(path));
-					#end
-				}
-				catch(e:Dynamic)
-				{
-					trace('Error loading menu character file of "$character": $e');
+				if (!missing) {
+					try {
+						#if MODS_ALLOWED
+						charFile = Json.parse(File.getContent(path));
+						#else
+						charFile = Json.parse(Assets.getText(path));
+						#end
+					} catch (e:Dynamic) {
+						trace('Error loading menu character file of "$character": $e');
+					}
 				}
 
+				if (charFile == null) {
+					// Fallback used to point at characters/bf.json (a Character JSON,
+					// not a MenuCharacterFile) which guaranteed an NPE on charFile.image,
+					// charFile.position, etc. Use a synthetic default instead.
+					charFile = dummyFile();
+				}
 				frames = Paths.getSparrowAtlas('menucharacters/' + charFile.image);
-				animation.addByPrefix('idle', charFile.idle_anim, 24);
+				if (frames == null) {
+					visible = false;
+					dontPlayAnim = true;
+				} else {
+					animation.addByPrefix('idle', charFile.idle_anim, 24);
 
-				var confirmAnim:String = charFile.confirm_anim;
-				if(confirmAnim != null && confirmAnim.length > 0 && confirmAnim != charFile.idle_anim)
-				{
-					animation.addByPrefix('confirm', confirmAnim, 24, false);
-					if (animation.getByName('confirm') != null) //check for invalid animation
-						hasConfirmAnimation = true;
+					var confirmAnim:String = charFile.confirm_anim;
+					if (confirmAnim != null && confirmAnim.length > 0 && confirmAnim != charFile.idle_anim) {
+						animation.addByPrefix('confirm', confirmAnim, 24, false);
+						if (animation.getByName('confirm') != null) // check for invalid animation
+							hasConfirmAnimation = true;
+					}
+					flipX = (charFile.flipX == true);
+
+					if (charFile.scale != 1) {
+						scale.set(charFile.scale, charFile.scale);
+						updateHitbox();
+					}
+					if (charFile.position != null && charFile.position.length >= 2)
+						offset.set(charFile.position[0], charFile.position[1]);
+					animation.play('idle');
+
+					antialiasing = (charFile.antialiasing != false && ClientPrefs.data.antialiasing);
 				}
-				flipX = (charFile.flipX == true);
-
-				if(charFile.scale != 1)
-				{
-					scale.set(charFile.scale, charFile.scale);
-					updateHitbox();
-				}
-				offset.set(charFile.position[0], charFile.position[1]);
-				animation.play('idle');
-
-				antialiasing = (charFile.antialiasing != false && ClientPrefs.data.antialiasing);
 		}
+	}
+
+	private static function dummyFile():MenuCharacterFile {
+		return {
+			image: 'bf',
+			scale: 1.0,
+			position: [0, 0],
+			idle_anim: 'BF idle dance',
+			confirm_anim: 'BF HEY!!',
+			flipX: false,
+			antialiasing: true
+		};
 	}
 }
