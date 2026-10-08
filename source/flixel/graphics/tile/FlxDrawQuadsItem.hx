@@ -17,8 +17,6 @@ class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 {
 	static inline var VERTICES_PER_QUAD = 4;
 
-	public var shader:FlxShader;
-
 	var rects:Vector<Float>;
 	var transforms:Vector<Float>;
 	var alphas:Array<Float>;
@@ -39,11 +37,11 @@ class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 		super.reset();
 		rects.length = 0;
 		transforms.length = 0;
-		alphas.splice(0, alphas.length);
+		alphas.resize(0);
 		if (colorMultipliers != null)
-			colorMultipliers.splice(0, colorMultipliers.length);
+			colorMultipliers.resize(0);
 		if (colorOffsets != null)
-			colorOffsets.splice(0, colorOffsets.length);
+			colorOffsets.resize(0);
 	}
 
 	override public function dispose():Void
@@ -126,6 +124,7 @@ class FlxDrawQuadsItem extends FlxDrawBaseItem<FlxDrawQuadsItem>
 		final shader = shader != null ? shader : graphics.shader;
 		shader.bitmap.input = graphics.bitmap;
 		shader.bitmap.filter = (camera.antialiasing || antialiasing) ? LINEAR : NEAREST;
+		shader.bitmap.blendTarget = blendTarget;
 		shader.alpha.value = alphas;
 
 		if (colored || hasColorOffsets)
