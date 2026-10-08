@@ -1,10 +1,10 @@
-package substates;
+package funkin.submenus;
 
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 
-import states.MainMenuState;
-import states.TitleState;
+import funkin.menus.mainmenu.MainMenuState;
+import funkin.menus.title.TitleState;
 
 class OutdatedSubState extends MusicBeatSubstate
 {

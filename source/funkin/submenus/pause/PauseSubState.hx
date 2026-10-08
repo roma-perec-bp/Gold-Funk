@@ -1,14 +1,14 @@
-package substates;
+package funkin.submenus.pause;
 
-import backend.WeekData;
-import backend.Highscore;
-import backend.Song;
+import funkin.data.WeekData;
+import funkin.data.Highscore;
+import funkin.data.Song;
 
 import flixel.util.FlxStringUtil;
 
-import states.StoryMenuState;
-import states.FreeplayState;
-import options.OptionsState;
+import funkin.menus.storymenu.StoryMenuState;
+import funkin.menus.freeplay.FreeplayState;
+import funkin.menus.options.OptionsState;
 
 import openfl.utils.Assets;
 
@@ -67,7 +67,7 @@ class PauseSubState extends MusicBeatSubstate
 		try
 		{
 			var pauseSong:String = getPauseSong();
-			if(pauseSong != null) pauseMusic.loadEmbedded(Paths.music(pauseSong), true, true);
+			if(pauseSong != null) pauseMusic.loadEmbedded(Paths.music('pause_music/'+pauseSong), true, true);
 		}
 		catch(e:Dynamic) {}
 		pauseMusic.volume = 0;
@@ -440,7 +440,7 @@ class PauseSubState extends MusicBeatSubstate
 					MusicBeatState.switchState(new OptionsState());
 					if(ClientPrefs.data.pauseMusic != 'None')
 					{
-						FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)), pauseMusic.volume);
+						FlxG.sound.playMusic(Paths.music('pause_music/'+Paths.formatToSongPath(ClientPrefs.data.pauseMusic)), pauseMusic.volume);
 						FlxTween.tween(FlxG.sound.music, {volume: 1}, 0.8);
 						FlxG.sound.music.time = pauseMusic.time;
 					}
@@ -452,9 +452,10 @@ class PauseSubState extends MusicBeatSubstate
 
 					PlayState.instance.canResync = false;
 					Mods.loadTopMod();
-					if(PlayState.isStoryMode)
+
+					if (PlayState.isStoryMode)
 						MusicBeatState.switchState(new StoryMenuState());
-					else 
+					else
 						MusicBeatState.switchState(new FreeplayState());
 
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));

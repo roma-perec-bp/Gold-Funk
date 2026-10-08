@@ -1,14 +1,14 @@
-package substates;
+package funkin.submenus.gameover;
 
-import backend.WeekData;
+import funkin.data.WeekData;
 
-import objects.Character;
+import funkin.game.objects.Character;
 import flixel.FlxObject;
 import flixel.FlxSubState;
 import flixel.math.FlxPoint;
-
-import states.StoryMenuState;
-import states.FreeplayState;
+import funkin.audio.FunkinSound;
+import funkin.menus.storymenu.StoryMenuState;
+import funkin.menus.freeplay.FreeplayState;
 
 class GameOverSubstate extends MusicBeatSubstate
 {
@@ -90,7 +90,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		if (removeBfShaders) boyfriend_death.shader = null;
 		add(boyfriend_death);
 
-		FlxG.sound.play(Paths.sound(deathSoundName));
+		FunkinSound.playOnce(Paths.sound(deathSoundName));
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
 
@@ -101,7 +101,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		FlxG.camera.focusOn(new FlxPoint(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2)));
 		FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		add(camFollow);
-		
+
 		PlayState.instance.setOnScripts('inGameOver', true);
 		PlayState.instance.callOnScripts('onGameOverStart', []);
 		FlxG.sound.music.loadEmbedded(Paths.music(loopSoundName), true);
@@ -152,7 +152,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			}
 		}
 
-		FlxTween.tween(FlxG.camera, {zoom: PlayState.instance.stageZoom}, 1, {ease: FlxEase.expoOut}); //if camera zoom on playstate was messed up, then reset to stage zoom
+		FlxTween.tween(FlxG.camera, {zoom: 1}, 1, {ease: FlxEase.expoOut}); //if camera zoom on playstate was messed up, then reset to stage zoom
 
 		super.create();
 	}
@@ -160,6 +160,38 @@ class GameOverSubstate extends MusicBeatSubstate
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
+		if(isEnding)
+		{
+			if(PlayState.SONG.fullRestart) 
+				MusicBeatState.resetState();
+			else
+			{
+				PlayState.instance.dad.stunned = false;
+				PlayState.instance.boyfriend.stunned = false;
+
+				PlayState.instance.health = 1;
+				//PlayState.instance.add(PlayState.instance.boyfriend);
+
+				new FlxTimer().start(1, function(tmr:FlxTimer)
+				{
+					FlxTween.tween(PlayState.instance.camHUD, {alpha: 1}, 1);
+
+					PlayState.instance.camGame.stopFX();
+					PlayState.instance.camHUD.stopFX();
+					PlayState.instance.camOverlayHUD.stopFX();
+					PlayState.instance.camNotes.stopFX();
+					PlayState.instance.camOther.fade(FlxColor.BLACK, 1, true, null, true); //cuz hud
+
+					PlayState.instance.revivePlayer();
+					PlayState.instance.boyfriend.playInitAnimation();
+					PlayState.instance.dad.playInitAnimation();
+					if(PlayState.instance.gf != null) PlayState.instance.gf.playInitAnimation();
+
+					close();
+				});
+			}
+		}
 
 		PlayState.instance.callOnScripts('onUpdate', [elapsed]);
 
@@ -205,12 +237,14 @@ class GameOverSubstate extends MusicBeatSubstate
 				{
 					case 'tank':
 						coolStartDeath(0.2);
-						
+
 						var exclude:Array<Int> = [];
 						//if(!ClientPrefs.cursing) exclude = [1, 3, 8, 13, 17, 21];
-	
-						FlxG.sound.play(Paths.sound('jeffGameover/jeffGameover-' + FlxG.random.int(1, 25, exclude)), 1, false, null, true, function() {
-							if(!isEnding)
+
+						FunkinSound.playOnce(Paths.sound('jeffGameover/jeffGameover-' + FlxG.random.int(0, 7,)), function()
+						{
+							// Once the quote ends, fade in the game over music.
+							if (!isEnding)
 							{
 								FlxG.sound.music.fadeIn(0.2, 1, 4);
 							}
@@ -253,7 +287,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				overlay.offset.set(overlayConfirmOffsets.x, overlayConfirmOffsets.y);
 			}
 			FlxG.sound.music.stop();
-			FlxG.sound.play(Paths.music(endSoundName));
+			FunkinSound.playOnce(Paths.music(endSoundName));
 
 			  // confirm music length divided by 7000
       		// this is here so mods with longer confirm sounds don't have it cut off!!!
@@ -261,25 +295,30 @@ class GameOverSubstate extends MusicBeatSubstate
 
 			new FlxTimer().start(FADE_TIMER * 1000, function(tmr:FlxTimer)
 			{
+				PlayState.instance.camOther.fade(FlxColor.BLACK, 2, false, null); //cuz hud
+
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 				{
 					if(PlayState.SONG.fullRestart) 
 						MusicBeatState.resetState();
 					else
 					{
-						if(PlayState.SONG.swapPlayers)
-							PlayState.instance.dad.stunned = false;
-						else
-							PlayState.instance.boyfriend.stunned = false;
+						PlayState.instance.dad.stunned = false;
+						PlayState.instance.boyfriend.stunned = false;
 	
 						PlayState.instance.health = 1;
 						//PlayState.instance.add(PlayState.instance.boyfriend);
 	
 						new FlxTimer().start(1, function(tmr:FlxTimer)
 						{
-							if (!PlayState.SONG.fadeOutStart) PlayState.instance.camOther.fade(FlxColor.BLACK, 1, true, null, true); //cuz hud
 							FlxTween.tween(PlayState.instance.camHUD, {alpha: 1}, 1);
-							if (!PlayState.SONG.fadeOutStart) FlxG.camera.fade(FlxColor.BLACK, 1, true, null, true);
+
+							PlayState.instance.camGame.stopFX();
+							PlayState.instance.camHUD.stopFX();
+							PlayState.instance.camOverlayHUD.stopFX();
+							PlayState.instance.camNotes.stopFX();
+							PlayState.instance.camOther.fade(FlxColor.BLACK, 1, true, null, true); //cuz hud
+
 							PlayState.instance.revivePlayer();
 							PlayState.instance.boyfriend.playInitAnimation();
 							PlayState.instance.dad.playInitAnimation();

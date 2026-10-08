@@ -1,4 +1,4 @@
-package substates;
+package funkin.submenus;
 
 class StoryProgressSubState extends MusicBeatSubstate
 {
