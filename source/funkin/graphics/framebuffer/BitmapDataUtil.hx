@@ -149,11 +149,14 @@ class BitmapDataUtil
    */
    public static function toGPU(bitmap:BitmapData, disposeImage:Bool = true):BitmapData
   {
-    if (disposeImage)
+    if(ClientPrefs.data.cacheOnGPU)
     {
-      bitmap.disposeImage();
+      if (disposeImage)
+      {
+        bitmap.disposeImage();
+      }
+      bitmap.getTexture(FlxG.stage.context3D);
     }
-    bitmap.getTexture(FlxG.stage.context3D);
 
     return bitmap;
   }

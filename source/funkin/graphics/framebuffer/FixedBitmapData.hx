@@ -37,7 +37,7 @@ class FixedBitmapData extends BitmapData
    */
   public static function create(width:Int, height:Int, useGPU:Bool = true):FixedBitmapData
   {
-    if (useGPU)
+    if (useGPU && ClientPrefs.data.cacheOnGPU)
     {
       var texture:TextureBase = _createTexture(width, height);
       return fromTexture(texture);
