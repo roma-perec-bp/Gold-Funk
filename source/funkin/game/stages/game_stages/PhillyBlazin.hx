@@ -3,12 +3,12 @@ package funkin.game.stages.game_stages;
 import funkin.game.stages.objects.*;
 
 import openfl.filters.ShaderFilter;
-import shaders.RainShader;
+import funkin.graphics.shaders.RainShader;
 
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.display.FlxTiledSprite;
 
-import funkin.game.submenus.gameover.GameOverSubstate;
+import funkin.submenus.gameover.GameOverSubstate;
 import funkin.game.notes.Note;
 
 class PhillyBlazin extends BaseStage

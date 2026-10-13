@@ -1,4 +1,4 @@
-package funkin.menus;
+package funkin.submenus;
 
 import flixel.FlxSubState;
 import flixel.util.FlxSort;

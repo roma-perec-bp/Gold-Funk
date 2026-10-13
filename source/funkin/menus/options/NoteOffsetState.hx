@@ -448,7 +448,7 @@ class NoteOffsetState extends MusicBeatState
 			if(beatTween != null) beatTween.cancel();
 
 			persistentUpdate = false;
-			MusicBeatState.switchState(new options.OptionsState());
+			MusicBeatState.switchState(new funkin.menus.options.OptionsState());
 			if(OptionsState.onPlayState)
 			{
 				if(ClientPrefs.data.pauseMusic != 'None')

@@ -1,4 +1,4 @@
-package backend;
+package funkin.utils;
 
 import flixel.FlxBasic;
 import flixel.util.FlxSort;
@@ -8,10 +8,26 @@ import lime.utils.Assets as LimeAssets;
 
 class CoolUtil
 {
+	/**
+	 * Parses JSON with the strict parser, falling back to TJSON.
+	 *
+	 * `haxe.Json` is substantially faster, but TJSON tolerates the hand-written sloppiness mods rely
+	 * on (comments, trailing commas, unquoted keys). Valid JSON is the overwhelming majority, so it
+	 * shouldn't pay for leniency only malformed files need. Nothing that parsed before stops parsing,
+	 * and if both fail it throws TJSON's error, so callers' try/catch behave as they did.
+	 */
+	 public static function parseJson(raw:String):Dynamic {
+		try {
+			return haxe.Json.parse(raw);
+		} catch (error:Dynamic) {
+			return tjson.TJSON.parse(raw);
+		}
+	}
+	
 	public static function checkForUpdates(url:String = null):String {
 		if (url == null || url.length == 0)
 			url = "https://raw.githubusercontent.com/Rom4chek/Gold-Funk/main/gitVersion.txt";
-		var version:String = states.MainMenuState.goldFunkVersion.trim();
+		var version:String = funkin.menus.mainmenu.MainMenuState.goldFunkVersion.trim();
 		if(ClientPrefs.data.checkForUpdates) {
 			trace('checking for updates...');
 			var http = new haxe.Http(url);
@@ -59,10 +75,13 @@ class CoolUtil
 		return daList != null ? listFromString(daList) : [];
 	}
 
+	// Hoisted -- recompiling this regex on every call is wasteful;
+	// colorFromString is hit a lot from Lua mod scripts.
+	static final _hideCharsRegex:EReg = ~/[\t\n\r]/;
+
 	inline public static function colorFromString(color:String):FlxColor
 	{
-		var hideChars = ~/[\t\n\r]/;
-		var color:String = hideChars.split(color).join('').trim();
+		var color:String = _hideCharsRegex.split(color).join('').trim();
 		if(color.startsWith('0x')) color = color.substring(color.length - 6);
 
 		var colorNum:Null<FlxColor> = FlxColor.fromString(color);
@@ -92,16 +111,18 @@ class CoolUtil
 	inline public static function dominantColor(sprite:flixel.FlxSprite):Int
 	{
 		var countByColor:Map<Int, Int> = [];
-		for(col in 0...sprite.frameWidth)
-		{
-			for(row in 0...sprite.frameHeight)
-			{
-				var colorOfThisPixel:FlxColor = sprite.pixels.getPixel32(col, row);
+		final pixels = sprite.pixels;
+		final w:Int = sprite.frameWidth;
+		final h:Int = sprite.frameHeight;
+		for (col in 0...w) {
+			for (row in 0...h) {
+				var colorOfThisPixel:FlxColor = pixels.getPixel32(col, row);
 				if(colorOfThisPixel.alphaFloat > 0.05)
 				{
 					colorOfThisPixel = FlxColor.fromRGB(colorOfThisPixel.red, colorOfThisPixel.green, colorOfThisPixel.blue, 255);
-					var count:Int = countByColor.exists(colorOfThisPixel) ? countByColor[colorOfThisPixel] : 0;
-					countByColor[colorOfThisPixel] = count + 1;
+					// Single map lookup instead of exists()+get pair.
+					final prev = countByColor.get(colorOfThisPixel);
+					countByColor.set(colorOfThisPixel, prev == null ? 1 : prev + 1);
 				}
 			}
 		}
@@ -142,7 +163,11 @@ class CoolUtil
 			if(!absolute) folder =  Sys.getCwd() + '$folder';
 
 			folder = folder.replace('/', '\\');
-			if(folder.endsWith('/')) folder.substr(0, folder.length - 1);
+
+			// substr() is non-mutating -- the original assignment was missing,
+			// so the trailing slash was never actually trimmed. Fixed.
+			if (folder.endsWith('\\'))
+				folder = folder.substr(0, folder.length - 1);
 
 			#if linux
 			var command:String = '/usr/bin/xdg-open';

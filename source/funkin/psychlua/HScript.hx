@@ -172,7 +172,7 @@ class HScript extends Iris
 		set('Conductor', funkin.backend.Conductor);
 		set('ClientPrefs', funkin.data.ClientPrefs);
 		#if ACHIEVEMENTS_ALLOWED
-		set('Achievements', funkin.backend.Achievements);
+		set('Achievements', funkin.menus.achievements.Achievements);
 		#end
 		set('Character', funkin.game.objects.Character);
 		set('Alphabet', funkin.objects.Alphabet);

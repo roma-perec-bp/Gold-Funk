@@ -1,6 +1,6 @@
 package funkin.menus.options;
 
-import funkin.menus.mainmenu.FakeMainMenuState;
+import funkin.menus.mainmenu.MainMenuState;
 import funkin.data.StageData;
 
 

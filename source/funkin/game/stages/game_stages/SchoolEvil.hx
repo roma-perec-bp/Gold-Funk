@@ -6,7 +6,7 @@ import flixel.addons.effects.FlxTrail;
 import funkin.submenus.gameover.GameOverSubstate;
 import funkin.game.cutscenes.DialogueBox;
 import openfl.utils.Assets as OpenFlAssets;
-import funkin.graphics.shaders.WiggleEffect;
+import funkin.graphics.shaders.WiggleEffectRuntime;
 
 class SchoolEvil extends BaseStage
 {
@@ -61,7 +61,7 @@ class SchoolEvil extends BaseStage
 				}
 		}
 	}
-	override function eventPushed(event:objects.Note.EventNote)
+	override function eventPushed(event:funkin.game.notes.Note.EventNote)
 	{
 		// used for preloading assets used on events
 		switch(event.event)

@@ -35,7 +35,7 @@ class StageWeek1 extends BaseStage
 		}
 	}
 
-	override function eventPushed(event:objects.Note.EventNote)
+	override function eventPushed(event:funkin.game.notes.Note.EventNote)
 	{
 		switch(event.event)
 		{

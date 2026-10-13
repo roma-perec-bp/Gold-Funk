@@ -1,7 +1,7 @@
 package funkin.game.stages.objects;
 
-import objects.Note;
-import objects.Character;
+import funkin.game.notes.Note;
+import funkin.game.objects.Character;
 
 class DarnellBlazinHandler
 {

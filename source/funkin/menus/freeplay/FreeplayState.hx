@@ -6,7 +6,7 @@ import haxe.io.Path;
 import funkin.game.objects.HealthIcon;
 
 import funkin.audio.FunkinSound;
-
+import funkin.menus.mainmenu.MainMenuState;
 import funkin.submenus.ResetScoreSubState;
 import funkin.menus.options.GameplayChangersSubstate;
 

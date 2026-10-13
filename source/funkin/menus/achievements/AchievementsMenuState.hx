@@ -3,6 +3,7 @@ package funkin.menus.achievements;
 import flixel.FlxObject;
 import flixel.util.FlxSort;
 import funkin.objects.Bar;
+import funkin.audio.FunkinSound;
 
 #if ACHIEVEMENTS_ALLOWED
 class AchievementsMenuState extends MusicBeatState
@@ -204,8 +205,8 @@ class AchievementsMenuState extends MusicBeatState
 		}
 
 		if (controls.BACK) {
-			FlxG.sound.play(Paths.sound('cancelMenu'));
-			MusicBeatState.switchState(new MainMenuState());
+			FunkinSound.playOnce(Paths.sound('cancelMenu'));
+			MusicBeatState.switchState(new funkin.menus.mainmenu.MainMenuState());
 			goingBack = true;
 		}
 		super.update(elapsed);
@@ -214,7 +215,7 @@ class AchievementsMenuState extends MusicBeatState
 	public var barTween:FlxTween = null;
 	function _changeSelection()
 	{
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FunkinSound.playOnce(Paths.sound('scrollMenu'));
 		var hasProgress = options[curSelected].maxProgress > 0;
 		nameText.text = options[curSelected].displayName;
 		descText.text = options[curSelected].description;
@@ -297,7 +298,7 @@ class ResetAchievementSubstate extends MusicBeatSubstate
 		if(controls.BACK)
 		{
 			close();
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FunkinSound.playOnce(Paths.sound('cancelMenu'));
 			return;
 		}
 
@@ -335,7 +336,7 @@ class ResetAchievementSubstate extends MusicBeatSubstate
 				Achievements.save();
 				FlxG.save.flush();
 
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FunkinSound.playOnce(Paths.sound('cancelMenu'));
 			}
 			close();
 			return;
@@ -351,7 +352,7 @@ class ResetAchievementSubstate extends MusicBeatSubstate
 		yesText.scale.set(scales[confirmInt], scales[confirmInt]);
 		noText.alpha = alphas[1 - confirmInt];
 		noText.scale.set(scales[1 - confirmInt], scales[1 - confirmInt]);
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FunkinSound.playOnce(Paths.sound('scrollMenu'));
 	}
 }
 #end

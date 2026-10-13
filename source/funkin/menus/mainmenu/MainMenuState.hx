@@ -116,10 +116,10 @@ class MainMenuState extends MusicBeatState
 		#end
 
 		#if CHECK_FOR_UPDATES
-		if (showOutdatedWarning && ClientPrefs.data.checkForUpdates && substates.OutdatedSubState.updateVersion != goldFunkVersion) {
+		if (showOutdatedWarning && ClientPrefs.data.checkForUpdates && funkin.submenus.OutdatedSubState.updateVersion != goldFunkVersion) {
 			persistentUpdate = false;
 			showOutdatedWarning = false;
-			openSubState(new substates.OutdatedSubState());
+			openSubState(new funkin.submenus.OutdatedSubState());
 		}
 		#end
 
@@ -259,7 +259,7 @@ class MainMenuState extends MusicBeatState
 				selectedSomethin = true;
 				FlxG.mouse.visible = false;
 				FunkinSound.playOnce(Paths.sound('cancelMenu'));
-				MusicBeatState.switchState(new TitleState());
+				MusicBeatState.switchState(new funkin.menus.title.TitleState());
 			}
 
 			if (controls.ACCEPT || (FlxG.mouse.justPressed && allowMouse))
@@ -293,24 +293,24 @@ class MainMenuState extends MusicBeatState
 					switch (option)
 					{
 						case 'story_mode':
-							MusicBeatState.switchState(new StoryMenuState());
+							MusicBeatState.switchState(new funkin.menus.storymenu.StoryMenuState());
 						case 'freeplay':
-							MusicBeatState.switchState(new FreeplayState());
+							MusicBeatState.switchState(new funkin.menus.freeplay.FreeplayState());
 
 						#if MODS_ALLOWED
 						case 'mods':
-							MusicBeatState.switchState(new ModsMenuState());
+							MusicBeatState.switchState(new funkin.menus.mods.ModsMenuState());
 						#end
 
 						#if ACHIEVEMENTS_ALLOWED
 						case 'achievements':
-							MusicBeatState.switchState(new AchievementsMenuState());
+							MusicBeatState.switchState(new funkin.menus.achievements.AchievementsMenuState());
 						#end
 
 						case 'credits':
-							MusicBeatState.switchState(new CreditsState());
+							MusicBeatState.switchState(new funkin.menus.credits.CreditsState());
 						case 'options':
-							MusicBeatState.switchState(new OptionsState());
+							MusicBeatState.switchState(new funkin.menus.options.OptionsState());
 							OptionsState.onPlayState = false;
 							if (PlayState.SONG != null)
 							{

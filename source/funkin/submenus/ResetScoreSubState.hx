@@ -2,7 +2,7 @@ package funkin.submenus;
 
 import funkin.data.WeekData;
 import funkin.data.Highscore;
-
+import funkin.game.objects.HealthIcon;
 import flixel.FlxSubState;
 
 class ResetScoreSubState extends MusicBeatSubstate

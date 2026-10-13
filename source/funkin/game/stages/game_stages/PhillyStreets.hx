@@ -8,7 +8,7 @@ import funkin.graphics.shaders.RainShader;
 import flixel.addons.display.FlxTiledSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 
-import funkin.game.submenus.gameover.GameOverSubstate;
+import funkin.submenus.gameover.GameOverSubstate;
 import funkin.game.notes.Note;
 
 import funkin.game.cutscenes.CutsceneHandler;
@@ -19,6 +19,7 @@ import psychlua.*;
 import psychlua.LuaUtils;
 import psychlua.HScript;
 #end
+import funkin.psychlua.LuaUtils;
 
 enum NeneState
 {

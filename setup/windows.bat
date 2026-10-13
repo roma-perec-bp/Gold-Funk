@@ -5,7 +5,7 @@ cd ..
 echo Installing dependencies...
 echo This might take a few moments depending on your internet speed.
 haxelib git lime https://github.com/FunkinCrew/lime 8888c14061aa55243da7fb6bdab21636bb32b248  --skip-dependencies
-haxelib git openfl  https://github.com/FunkinCrew/openfl 05b4d5162741c823dab7b97899e38db09e54d775 --skip-dependencies
+haxelib git openfl  https://github.com/FunkinCrew/openfl dbf6097b96098a3fab6d280d9e75211c03fe14fc --skip-dependencies
 haxelib git flixel https://github.com/FunkinCrew/flixel f21eaef2c3e470dcee45798ec4402114829f8455 --skip-dependencies
 haxelib git flixel-addons https://github.com/FunkinCrew/flixel-addons e038c227c0b48bd23a3ffa0f554e59b9c4c4bf2f --skip-dependencies
 haxelib install flixel-tools 1.5.1
@@ -13,6 +13,7 @@ haxelib install hscript-iris 1.1.3
 haxelib install hxWindowColorMode
 haxelib install flxgif
 haxelib install format
+haxelib install hxp 1.3.0
 haxelib install tjson 1.4.0
 haxelib install hxdiscord_rpc 1.2.4 --skip-dependencies
 haxelib git hxvlc https://github.com/MAJigsaw77/hxvlc 5ceac764bd21625d1e9d92ea02f9a0d110c6a58c --skip-dependencies

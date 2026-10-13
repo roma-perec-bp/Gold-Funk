@@ -1,5 +1,6 @@
 package funkin.menus.credits;
 
+import funkin.audio.FunkinSound;
 import funkin.objects.AttachedSprite;
 
 class CreditsState extends MusicBeatState
@@ -175,8 +176,8 @@ class CreditsState extends MusicBeatState
 			}
 			if (controls.BACK)
 			{
-				FlxG.sound.play(Paths.sound('cancelMenu'));
-				MusicBeatState.switchState(new MainMenuState());
+				FunkinSound.playOnce(Paths.sound('cancelMenu'));
+				MusicBeatState.switchState(new funkin.menus.mainmenu.MainMenuState());
 				quitting = true;
 			}
 		}
@@ -205,7 +206,7 @@ class CreditsState extends MusicBeatState
 	var moveBGTween:FlxTween = null;
 	function changeSelection(change:Int = 0)
 	{
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.4);
 		do
 		{
 			curSelected = FlxMath.wrap(curSelected + change, 0, creditsStuff.length - 1);

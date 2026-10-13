@@ -279,7 +279,7 @@ class StoryMenuState extends MusicBeatState
 			else if(controls.RESET)
 			{
 				persistentUpdate = false;
-				openSubState(new ResetScoreSubState('', curDifficulty, 0, curWeek));
+				openSubState(new ResetScoreSubState('', curDifficulty, 0, '',  curWeek));
 				//FlxG.sound.play(Paths.sound('scrollMenu'));
 			}
 			else if (controls.ACCEPT)

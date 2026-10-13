@@ -392,15 +392,12 @@ class Project extends HXProject
 
     PSYCH_WATERMARKS.apply(this, true);
 
-    if(isOfficialBuild())
-    {
-      VIDEOS_ALLOWED.apply(this, true);
-      BASE_GAME_FILES.apply(this, true);
-      TITLE_SCREEN_EASTER_EGG.apply(this, true);
-    }
+    VIDEOS_ALLOWED.apply(this, true);
+    BASE_GAME_FILES.apply(this, true);
+    TITLE_SCREEN_EASTER_EGG.apply(this, true);
 
     CRASH_HANDLER.apply(this, isDesktop());
-    CHECK_FOR_UPDATES.apply(this, isOfficialBuild());
+    CHECK_FOR_UPDATES.apply(this, true);
     x86_BUILD.apply(this, is32Bit());
 
     if (isRun() || isInstall() || isUninstall())
@@ -859,11 +856,6 @@ class Project extends HXProject
   public function isCleanCommand():Bool
   {
     return this.command == "clean";
-  }
-
-  public function isOfficialBuild():Bool
-  {
-    return this.command == "officialBuild";
   }
 
 

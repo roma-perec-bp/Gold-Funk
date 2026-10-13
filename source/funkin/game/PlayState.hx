@@ -58,7 +58,7 @@ import funkin.menus.storymenu.StoryMenuState;
 import funkin.menus.freeplay.FreeplayState;
 
 import funkin.submenus.pause.*;
-import funkin.submenus.ResultSubState;
+//import funkin.submenus.ResultSubState;
 import funkin.submenus.gameover.GameOverSubstate;
 
 #if !flash
@@ -621,14 +621,11 @@ class PlayState extends MusicBeatState
 
 		if (!stageData.hide_girlfriend)
 		{
-			SONG.gfVersion = gfToChange;
 			if (SONG.gfVersion == null || SONG.gfVersion.trim().length == 0) SONG.gfVersion = 'gf';
 			gf = addCharacterToList(SONG.gfVersion, 2, false);
 		}
 
 		dad = addCharacterToList(SONG.player2, 1, false);
-
-		SONG.player1 = bfToChange;
 
 		boyfriend = addCharacterToList(SONG.player1, 0, false);
 		
@@ -830,7 +827,7 @@ class PlayState extends MusicBeatState
 		skipText.alpha = 0;
 		if(!ClientPrefs.data.hideHud) add(skipText);
 
-		watermark = new FlxText(0, 690, FlxG.width, "FNF GoldFunk' Engine v" +  MainMenuState.goldFunkVersion + " | Alpha version ", 16);
+		watermark = new FlxText(0, 690, FlxG.width, "FNF GoldFunk' Engine v" +  funkin.menus.mainmenu.MainMenuState.goldFunkVersion + " | Alpha version ", 16);
 		watermark.scrollFactor.set();
 		watermark.borderSize = 1.25;
 		watermark.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE_FAST,FlxColor.BLACK);
@@ -7545,9 +7542,6 @@ class PlayState extends MusicBeatState
 		FlxG.sound.music.pitch = 1;
 		FlxG.animationTimeScale = 1;
 
-		if(isStoryMode || opponentMode || Main.raldman || Main.darnellMode)
-			ClientPrefs.data.activeBfSkin = cacheBF;
-
 		Note.globalRgbShaders = [];
 		NoteTypesConfig.clearNoteTypesData();
 
@@ -7570,7 +7564,7 @@ class PlayState extends MusicBeatState
 				camNotesShaders.push(effect);
 				var newCamEffects:Array<BitmapFilter>=[]; // IT SHUTS HAXE UP IDK WHY BUT WHATEVER IDK WHY I CANT JUST ARRAY<SHADERFILTER>
 				for(i in camNotesShaders) newCamEffects.push(new ShaderFilter(i.shader));
-				camNotes.filters = newCamEffects ;
+				camNotes.filters = newCamEffects;
 				
 			case 'camhudoverlay' | 'overlay':
 				camHudOverlayShaders.push(effect);

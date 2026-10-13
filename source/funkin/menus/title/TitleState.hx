@@ -20,7 +20,7 @@ import openfl.display.BitmapData;
 import funkin.graphics.shaders.ColorSwap;
 
 import funkin.menus.storymenu.StoryMenuState;
-import funkin.menus.mainmenu.FakeMainMenuState;
+import funkin.menus.freeplay.FreeplayState;
 import funkin.menus.mainmenu.MainMenuState;
 
 typedef TitleData =
@@ -559,11 +559,11 @@ class TitleState extends MusicBeatState
 					case 'RIVEREN':
 						sound = FunkinSound.playOnce(Paths.sound('JingleRiver'));
 					case 'SHADOW':
-						FunkinSound.playOnc(Paths.sound('JingleShadow'));
+						FunkinSound.playOnce(Paths.sound('JingleShadow'));
 					case 'BBPANZU':
-						sound = FunkinSound.playOnc(Paths.sound('JingleBB'));
+						sound = FunkinSound.playOnce(Paths.sound('JingleBB'));
 					case 'PESSY':
-						sound = FunkinSound.playOnc(Paths.sound('JinglePessy'));
+						sound = FunkinSound.playOnce(Paths.sound('JinglePessy'));
 
 					default: //Go back to normal ugly ass boring GF
 						remove(ngSpr);

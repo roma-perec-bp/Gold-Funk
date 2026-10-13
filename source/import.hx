@@ -28,7 +28,7 @@ import funkin.data.Song;
 import funkin.data.*;
 import funkin.utils.*;
 import funkin.menus.MusicBeatState;
-import funkin.menus.MusicBeatSubstate;
+import funkin.submenus.MusicBeatSubstate;
 import funkin.menus.transitions.CustomFadeTransition;
 
 import funkin.backend.Conductor;
