@@ -216,6 +216,7 @@ class MainMenuState extends MusicBeatState
 						curColumn = CENTER;
 						curSelected = distItem;
 						changeItem();
+						FunkinSound.playOnce(Paths.sound('scrollMenu'), 1);
 					}
 				}
 			}
@@ -231,11 +232,13 @@ class MainMenuState extends MusicBeatState
 					if(controls.UI_LEFT_P && leftOption != null)
 					{
 						curColumn = LEFT;
+						FunkinSound.playOnce(Paths.sound('scrollMenu'), 1);
 						changeItem();
 					}
 					else if(controls.UI_RIGHT_P && rightOption != null)
 					{
 						curColumn = RIGHT;
+						FunkinSound.playOnce(Paths.sound('scrollMenu'), 1);
 						changeItem();
 					}
 
@@ -243,6 +246,7 @@ class MainMenuState extends MusicBeatState
 					if(controls.UI_RIGHT_P)
 					{
 						curColumn = CENTER;
+						FunkinSound.playOnce(Paths.sound('scrollMenu'), 1);
 						changeItem();
 					}
 
@@ -250,6 +254,7 @@ class MainMenuState extends MusicBeatState
 					if(controls.UI_LEFT_P)
 					{
 						curColumn = CENTER;
+						FunkinSound.playOnce(Paths.sound('scrollMenu'), 1);
 						changeItem();
 					}
 			}

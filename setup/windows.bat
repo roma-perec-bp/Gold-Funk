@@ -5,7 +5,7 @@ cd ..
 echo Installing dependencies...
 echo This might take a few moments depending on your internet speed.
 haxelib git lime https://github.com/FunkinCrew/lime 8888c14061aa55243da7fb6bdab21636bb32b248  --skip-dependencies
-haxelib git openfl  https://github.com/FunkinCrew/openfl dbf6097b96098a3fab6d280d9e75211c03fe14fc --skip-dependencies
+haxelib git openfl  https://github.com/FunkinCrew/openfl cbee6c79620b4c1deec93f2075d1bb5a79ad87a2 --skip-dependencies
 haxelib git flixel https://github.com/FunkinCrew/flixel f21eaef2c3e470dcee45798ec4402114829f8455 --skip-dependencies
 haxelib git flixel-addons https://github.com/FunkinCrew/flixel-addons e038c227c0b48bd23a3ffa0f554e59b9c4c4bf2f --skip-dependencies
 haxelib install flixel-tools 1.5.1

@@ -552,6 +552,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	var animationFramerate:PsychUINumericStepper;
 	var animationLoopCheckBox:PsychUICheckBox;
 	var animationFlipX:PsychUICheckBox;
+	var animationFrameLable:PsychUICheckBox;
 	function addAnimationsUI()
 	{
 		var tab_group = UI_characterbox.getTab('Animations').menu;
@@ -562,6 +563,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		animationFramerate = new PsychUINumericStepper(animationInputText.x + 170, animationInputText.y - 40, 1, 24, 0, 240, 0);
 		animationLoopCheckBox = new PsychUICheckBox(animationNameInputText.x + 170, animationNameInputText.y - 41, "Should it Loop?", 100);
 		animationFlipX = new PsychUICheckBox(animationNameInputText.x + 170, animationNameInputText.y - 1, "Flip X", 100);
+		animationFrameLable = new PsychUICheckBox(animationNameInputText.x + 250, animationNameInputText.y - 1, "Is it Frame Lable", 100);
 
 		animationDropDown = new PsychUIDropDownMenu(15, animationInputText.y - 55, [''], function(selectedAnimation:Int, pressed:String) {
 			var anim:AnimArray = character.animationsArray[selectedAnimation];
@@ -570,6 +572,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			animationLoopCheckBox.checked = anim.loop;
 			animationFramerate.value = anim.fps;
 			animationFlipX.checked = anim.flipX;
+			animationFrameLable.checked = anim.framelabel;
 
 			var indicesStr:String = anim.indices.toString();
 			animationIndicesInputText.text = indicesStr.substr(1, indicesStr.length - 2);
@@ -625,7 +628,8 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			addedAnim.flipX = animationFlipX.checked;
 			addedAnim.indices = indices;
 			addedAnim.offsets = lastOffsets;
-			addAnimation(addedAnim.anim, addedAnim.name, addedAnim.fps, addedAnim.loop, addedAnim.indices, addedAnim.flipX);
+			addedAnim.framelabel = animationFrameLable.checked;
+			addAnimation(addedAnim.anim, addedAnim.name, addedAnim.fps, addedAnim.loop, addedAnim.indices, addedAnim.flipX, addedAnim.framelabel);
 			character.animationsArray.push(addedAnim);
 
 			reloadAnimList();
@@ -671,6 +675,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		tab_group.add(animationFramerate);
 		tab_group.add(animationLoopCheckBox);
 		tab_group.add(animationFlipX);
+		tab_group.add(animationFrameLable);
 		tab_group.add(addUpdateButton);
 		tab_group.add(removeButton);
 		tab_group.add(animationDropDown);
@@ -1117,7 +1122,8 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			var animLoop:Bool = !!anim.loop; //Bruh
 			var animIndices:Array<Int> = anim.indices;
 			var animflipX:Bool = anim.flipX;
-			addAnimation(animAnim, animName, animFps, animLoop, animIndices, animflipX);
+			var framelbl:Bool = anim.framelabel;
+			addAnimation(animAnim, animName, animFps, animLoop, animIndices, animflipX, framelbl);
 		}
 
 		if(anims.length > 0)
@@ -1512,7 +1518,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				name.endsWith('-opponent') || name.startsWith('gf-') || name.endsWith('-gf') || name == 'gf';
 	}
 
-	function addAnimation(animName:String, name:String, fps:Float, loop:Bool, indices:Array<Int>, flipX:Bool)
+	function addAnimation(animName:String, name:String, fps:Float, loop:Bool, indices:Array<Int>, flipX:Bool, frameLable:Bool)
 	{
 		if(!character.isAnimateAtlas)
 		{
@@ -1526,7 +1532,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			var frameLabels:Array<String> = character.getFrameLabelList();
 			var atlasFps:Null<Float> = (fps > 0) ? cast fps : null;
 
-			if (frameLabels != null)
+			if (frameLable)
 			{
 				if(indices != null && indices.length > 0)
 					character.anim.addByFrameLabelIndices(animName, name, indices, atlasFps, loop, flipX);
@@ -1555,6 +1561,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			anim: anim,
 			indices: [],
 			flipX: false,
+			framelabel: false,
 			name: name
 		};
 	}

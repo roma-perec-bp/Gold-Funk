@@ -50,6 +50,7 @@ typedef AnimArray = {
 	var fps:Int;
 	var loop:Bool;
 	var flipX:Bool;
+	var framelabel:Bool;
 	var indices:Array<Int>;
 	var offsets:Array<Int>;
 }
@@ -332,6 +333,7 @@ class Character extends FunkinSprite
 				var animFlipX:Bool = animation.flipX;
 				var animLoop:Bool = !!animation.loop; //Bruh
 				var animIndices:Array<Int> = animation.indices;
+				var framelabel:Bool = animation.framelabel;
 
 				if(!isAnimateAtlas)
 				{
@@ -342,10 +344,8 @@ class Character extends FunkinSprite
 				}
 				else
 				{
-					var frameLabels:Array<String> = getFrameLabelList();
 					var atlasFps:Null<Float> = (animFps > 0) ? cast animFps : null;
-
-					if (frameLabels != null)
+					if (framelabel)
 					{
 						if(animIndices != null && animIndices.length > 0)
 							anim.addByFrameLabelIndices(animAnim, animName, animIndices, atlasFps, animLoop, animFlipX);

@@ -5,7 +5,7 @@ import funkin.backend.animation.PsychAnimationController;
 import funkin.graphics.shaders.RGBPalette;
 import funkin.graphics.shaders.RGBPalette.RGBShaderReference;
 
-import funkin.graphics.shaders.ColorSwap;
+import funkin.graphics.shaders.HSVShader;
 
 import flixel.math.FlxRect;
 
@@ -103,14 +103,14 @@ class Note extends FlxSprite
 	public var rgbShader:RGBShaderReference;
 	public static var globalRgbShaders:Array<RGBPalette> = [];
 
-	var _colorSwap:Null<ColorSwap> = null;
- 	var colorSwap(get, never):ColorSwap;
+	var _hsvShader:Null<HSVShader> = null;
+ 	var hsvShader(get, never):HSVShader;
 
-	function get_colorSwap():ColorSwap
+	function get_hsvShader():HSVShader
 	{
-		if (_colorSwap == null) _colorSwap = new ColorSwap();
+		if (_hsvShader == null) _hsvShader = new HSVShader();
 	
-		return _colorSwap;
+		return _hsvShader;
 	}
 
 	// Per-song dedupe set for hitsound precaching. set_noteType used to
@@ -509,8 +509,7 @@ class Note extends FlxSprite
 			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB)
 			{
 				rgbShader.enabled = false;
-
-				if (_colorSwap != null) shader = _colorSwap.shader;
+				shader = null;
 			}
 			texture = '';
 
@@ -591,8 +590,7 @@ class Note extends FlxSprite
 		if(PlayState.SONG != null && PlayState.SONG.disableDadRGB && !mustPress)
 		{
 			rgbShader.enabled = false;
-
-			if (_colorSwap != null) shader = _colorSwap.shader;
+			shader = null;
 		}
 	}
 
@@ -756,11 +754,12 @@ class Note extends FlxSprite
 
 	public function desaturate():Void
 	{
-		if(_colorSwap != null)
+		if(_hsvShader != null)
 		{
-			_colorSwap.hue = 0;
-			_colorSwap.brightness = 0;
-			_colorSwap.saturation = -1;
+			this.shader = hsvShader;
+			_hsvShader.hue = 1.0;
+			_hsvShader.saturation = 0.2;
+			_hsvShader.value = 1.0;
 		}
 	}
 

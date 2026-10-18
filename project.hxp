@@ -42,13 +42,13 @@ class Project extends HXProject
   /**
    * The game's name. Used as the default window title.
    */
-  static final TITLE:String = "Gold Funk'";
+  static final TITLE:String = "FNF - Gold Funk Engine";
 
   /**
    * The name of the generated executable file.
    * For example, `"Funkin"` will create a file called `Funkin.exe`.
    */
-  static final EXECUTABLE_NAME:String = "Gold Funk'";
+  static final EXECUTABLE_NAME:String = "Gold Funk Engine";
 
    /**
    * A package name used for identifying the app on various app stores.

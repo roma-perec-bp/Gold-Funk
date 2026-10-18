@@ -97,7 +97,7 @@ class TitleState extends MusicBeatState
 	var gfDance:FlxSprite;
 	var danceLeft:Bool = false;
 	var titleText:FlxSprite;
-	var swagShader:ColorSwap = null;
+	var swagShader:ColorSwap;
 
 	function startIntro()
 	{	
@@ -434,8 +434,8 @@ class TitleState extends MusicBeatState
 
 		if(swagShader != null)
 		{
-			if(controls.UI_LEFT) swagShader.hue -= elapsed * 0.1;
-			if(controls.UI_RIGHT) swagShader.hue += elapsed * 0.1;
+			if(controls.UI_LEFT) swagShader.update(-elapsed * 0.1);
+			if(controls.UI_RIGHT) swagShader.update(elapsed * 0.1);
 		}
 
 		super.update(elapsed);

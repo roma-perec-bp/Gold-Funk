@@ -951,7 +951,7 @@ class PlayState extends MusicBeatState
 
 		cacheCountdown();
 
-		WindowUtil.setTitle("FNF - Gold Funk' Engine: "+ songTxt);
+		WindowUtil.setTitle("FNF - Gold Funk Engine: "+ songTxt);
 
 		if(opponentMode)
 		{
@@ -2157,7 +2157,7 @@ class PlayState extends MusicBeatState
 						if (!SONG.quietCountdown)
 						{
 							countdownGo = createCountdownSprite(introAlts[2], antialias);
-							FunkinSound.playOnce(Paths.sound('intro0' + introSoundsSuffix), 0.6);
+							FunkinSound.playOnce(Paths.sound('introGo' + introSoundsSuffix), 0.6);
 						}
 						tick = GO;
 					case 4:
@@ -3958,8 +3958,7 @@ class PlayState extends MusicBeatState
 				}
 		}*/
 
-		if(chartingMode)
-			openSubState(new PauseSubState());
+		openSubState(new PauseSubState());
 
 		#if DISCORD_ALLOWED
 		if(autoUpdateRPC) DiscordClient.changePresence(detailsPausedText, SONG.displayName == null ? SONG.song : SONG.displayName + " (" + storyDifficultyText + ")", '', SONG.song.toLowerCase());
@@ -5868,7 +5867,7 @@ class PlayState extends MusicBeatState
 				Mods.loadTopMod();
 				#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 
-				WindowUtil.setTitle("FNF - Gold Funk' Engine");
+				WindowUtil.setTitle("FNF - Gold Funk Engine");
 
 				canResync = false;
 				//TO-DO add proper results
@@ -7490,10 +7489,10 @@ class PlayState extends MusicBeatState
 			closeSubState();
 			resetSubState();
 
-			WindowUtil.setTitle("FNF - Gold Funk' Engine");
+			WindowUtil.setTitle("FNF - Gold Funk Engine");
 		}
 
-		WindowUtil.setTitle("FNF - Gold Funk' Engine");
+		WindowUtil.setTitle("FNF - Gold Funk Engine");
 
 		#if LUA_ALLOWED
 		for (lua in luaArray)

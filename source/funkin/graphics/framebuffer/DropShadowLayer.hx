@@ -20,6 +20,7 @@ using flixel.util.FlxColorTransformUtil;
  @:access(openfl.display.BitmapData)
  @:access(openfl.display.DisplayObject)
  @:access(flixel.FlxCamera)
+ @:access(openfl.display.OpenGLRenderer)
  class DropShadowLayer extends FlxSprite
 {
    /**

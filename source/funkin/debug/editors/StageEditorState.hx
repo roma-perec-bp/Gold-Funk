@@ -2263,7 +2263,8 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 				loop: animationLoopCheckBox.checked,
 				flipX: flipX,
 				indices: indices,
-				offsets: lastOffsets
+				offsets: lastOffsets,
+				framelabel: true //TO-DO: Add check for checking this, not everyone uses BTA :(
 			};
 
 			if(addedAnim.indices != null && addedAnim.indices.length > 0)
