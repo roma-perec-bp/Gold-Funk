@@ -422,7 +422,7 @@ class Song
 			var fmt:String = songJson.format;
 			if(fmt == null) fmt = songJson.format = 'unknown';
 
-			switch(convertTo)
+			/*switch(convertTo)
 			{
 				case 'gold_v1':
 					if(!fmt.startsWith('gold_v1'))
@@ -431,7 +431,7 @@ class Song
 						songJson.format = 'gold_v1_convert';
 						convertGold(songJson);
 					}
-			}
+			}*/
 		}
 		return songJson;
 	}
