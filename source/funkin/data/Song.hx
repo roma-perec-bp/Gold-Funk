@@ -10,7 +10,8 @@ typedef SwagSong =
 	var song:String;
 	var postfix:String; //mostly for chart editor
 	var displayName:String; //it has no use rn but will be used on freeplay shit in future
-	var notes:Array<SwagSection>;
+	var notes:Array<NoteSection>;
+	var section:Array<SwagSection>;
 	var events:Array<Dynamic>;
 	var bpm:Float;
 	var needsVoices:Bool;
@@ -78,6 +79,11 @@ typedef SwagSong =
 	@:optional var toggleTransOut:Bool;
 }
 
+typedef NoteSection =
+{
+	var sectionNotes:Array<Dynamic>;
+}
+
 typedef SwagSection =
 {
 	var sectionNotes:Array<Dynamic>;
@@ -108,7 +114,8 @@ typedef SwagSection =
 class Song
 {
 	public var song:String;
-	public var notes:Array<SwagSection>;
+	public var notes:Array<NoteSection>;
+	public var section:Array<SwagSection>;
 	public var events:Array<Dynamic>;
 	public var bpm:Float;
 	public var needsVoices:Bool = true;
@@ -204,7 +211,31 @@ class Song
 			}
 		}
 
-		var sectionsData:Array<SwagSection> = songJson.notes;
+		//TO DO: at this time, backward compability to move notes from notes sections doesnt work, might fix it later sometime, for now only manual change
+		if(songJson.notes == null)
+		{
+			songJson.notes = [];
+			for (secNum in 0...songJson.notes.length)
+			{
+				var sec:SwagSection = songJson.notes[secNum];
+
+				var i:Int = 0;
+				var notes:Array<Dynamic> = sec.sectionNotes;
+				var len:Int = notes.length;
+				while(i < len)
+				{
+					var note:Array<Dynamic> = notes[i];
+
+					songJson.notes.sectionNotes.push(note);
+					notes.remove(note);
+					len = notes.length;
+					i++;
+				}
+			}
+		}
+
+		var sectionsData:Array<SwagSection> = songJson.section;
+		var sectionNote:Array<NoteSection> = songJson.notes;
 		if(sectionsData == null) return;
 
 		for (section in sectionsData)
@@ -214,24 +245,6 @@ class Song
 			{
 				section.sectionBeats = 4;
 				if(Reflect.hasField(section, 'lengthInSteps')) Reflect.deleteField(section, 'lengthInSteps');
-			}
-
-			for (note in section.sectionNotes)
-			{
-				var gottaHitNote:Bool = (note[1] < 4) ? section.mustHitSection : !section.mustHitSection;
-				note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);
-
-				if(!Std.isOfType(note[3], String))
-				{
-					if (note[3] == 'Alt Animation')
-						note[5] = '-alt';
-	
-					if (note[3] == 'No Animation')
-						note[9] = true;
-					
-					note[3] = (note[3] != null) ? Note.defaultNoteTypes[note[3]] : ''; //compatibility with Week 7 and 0.1-0.3 psych charts
-				}
-
 			}
 
 			if(section.mustHitSection)
@@ -247,15 +260,74 @@ class Song
 				section.tweenFollow = 'CLASSIC'; 
 			}
 		}
+
+		var musthit:Bool = false;
+
+		for (section in sectionsData)
+		{
+			musthit = section.mustHitSection;
+		}
+
+		for (section in sectionNote)
+		{
+			for (note in section.sectionNotes)
+			{
+				var gottaHitNote:Bool = (note[1] < 4) ? musthit : !musthit;
+	
+				note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);
+	
+				if(!Std.isOfType(note[3], String))
+				{
+					if (note[3] == 'Alt Animation')
+						note[5] = '-alt';
+	
+					if (note[3] == 'No Animation')
+						note[9] = true;
+					
+					note[3] = (note[3] != null) ? Note.defaultNoteTypes[note[3]] : ''; //compatibility with Week 7 and 0.1-0.3 psych charts
+				}
+			}
+		}
 	}
 
 	public static function convertGold(songJson:Dynamic) // Convert psychs to gold
 	{
-		var sectionsData:Array<SwagSection> = songJson.notes;
+		//TO DO: at this time, backward compability to move notes from notes sections doesnt work, might fix it later sometime, for now only manual change
+		if(songJson.notes == null)
+		{
+			songJson.notes = [];
+			for (secNum in 0...songJson.notes.length)
+			{
+				var sec:SwagSection = songJson.notes[secNum];
+
+				var i:Int = 0;
+				var notes:Array<Dynamic> = sec.sectionNotes;
+				var len:Int = notes.length;
+				while(i < len)
+				{
+					var note:Array<Dynamic> = notes[i];
+
+					songJson.notes.sectionNotes.push(note);
+					notes.remove(note);
+					len = notes.length;
+					i++;
+				}
+			}
+		}
+
+		var sectionsData:Array<SwagSection> = songJson.section;
+		var sectionNote:Array<NoteSection> = songJson.notes;
 		if(sectionsData == null) return;
 
 		for (section in sectionsData)
 		{
+			var beats:Null<Float> = cast section.sectionBeats;
+			if (beats == null || Math.isNaN(beats))
+			{
+				section.sectionBeats = 4;
+				if(Reflect.hasField(section, 'lengthInSteps')) Reflect.deleteField(section, 'lengthInSteps');
+			}
+
 			if(section.mustHitSection)
 			{
 				section.followCam = true;
@@ -268,24 +340,33 @@ class Song
 				section.charFollow = 'dad';
 				section.tweenFollow = 'CLASSIC'; 
 			}
+		}
 
+		var musthit:Bool = false;
+
+		for (section in sectionsData)
+		{
+			musthit = section.mustHitSection;
+		}
+
+		for (section in sectionNote)
+		{
 			for (note in section.sectionNotes)
 			{
+				var gottaHitNote:Bool = (note[1] < 4) ? musthit : !musthit;
+	
+				note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);
+	
 				if(!Std.isOfType(note[3], String))
 				{
 					if (note[3] == 'Alt Animation')
-					{
 						note[5] = '-alt';
-						note[3] = '';
-					}
 	
 					if (note[3] == 'No Animation')
-					{
 						note[9] = true;
-						note[3] = '';
-					}
+					
+					note[3] = (note[3] != null) ? Note.defaultNoteTypes[note[3]] : ''; //compatibility with Week 7 and 0.1-0.3 psych charts
 				}
-	
 			}
 		}
 	}
@@ -343,18 +424,12 @@ class Song
 
 			switch(convertTo)
 			{
-				case 'psych_v1':
-					if(fmt.startsWith('psych_v1')) //IM GENIUS, IF IT IS PSYCH V1 THEN DO THE THING
+				case 'gold_v1':
+					if(!fmt.startsWith('gold_v1'))
 					{
 						trace('converting chart $nameForError with format $fmt to gold_v1 format...');
 						songJson.format = 'gold_v1_convert';
 						convertGold(songJson);
-					}
-					else if(!fmt.startsWith('gold_v1')) //Convert to Psych 1.0 format
-					{
-						trace('converting chart $nameForError with format $fmt to psych_v1 format...');
-						songJson.format = 'psych_v1_convert';
-						convert(songJson);
 					}
 			}
 		}

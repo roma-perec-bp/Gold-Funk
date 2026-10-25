@@ -670,6 +670,12 @@ class PlayState extends MusicBeatState
 				if(gf != null)
 					gf.visible = false;
 			}
+			else
+			{
+				dad.setPosition(DAD_X, DAD_Y);
+				if(gf != null)
+					gf.visible = true;
+			}
 		}
 
 		resetCamera();
@@ -1302,7 +1308,7 @@ class PlayState extends MusicBeatState
 			{
 				function onVideoEnd()
 				{
-					if (!isDead && generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null && !endingSong && !isCameraOnForcedPos)
+					if (!isDead && generatedMusic && PlayState.SONG.section[Std.int(curStep / 16)] != null && !endingSong && !isCameraOnForcedPos)
 					{
 						moveCameraSection();
 						FlxG.camera.snapToTarget();
@@ -1429,23 +1435,15 @@ class PlayState extends MusicBeatState
 		iconP1.changeIcon(boyfriend.healthIcon, true, boyfriend.iconOffsets, boyfriend.iconScale, boyfriend.iconFlipX, boyfriend.iconBlend, boyfriend.iconFps24);
 		setOnScripts('boyfriendName', boyfriend.curCharacter);
 
-
 		if(dad.curCharacter != SONG.player2) {
 			if(!dadMap.exists(SONG.player2)) {
 				addCharacterToList(SONG.player2, 1);
 			}
 
-			var wasGf:Bool = dad.curCharacter.startsWith('gf-') || dad.curCharacter == 'gf';
 			var lastAlpha:Float = dad.alpha;
 			dad.alpha = 0.00001;
 			dad = dadMap.get(SONG.player2);
-			if(!dad.curCharacter.startsWith('gf-') && dad.curCharacter != 'gf') {
-				if(wasGf && gf != null) {
-					gf.visible = true;
-				}
-			} else if(gf != null) {
-				gf.visible = false;
-			}
+
 			dad.alpha = lastAlpha;
 		}
 		dadGroup.x = DAD_X;
@@ -1453,6 +1451,19 @@ class PlayState extends MusicBeatState
 
 		dad.x = dadGroup.x;
 		dad.y = dadGroup.y;
+
+		if(dad.curCharacter.startsWith('gf')) {
+			dad.setPosition(GF_X, GF_Y);
+			if(gf != null)
+				gf.visible = false;
+		}
+		else
+		{
+			dad.setPosition(DAD_X, DAD_Y);
+			if(gf != null)
+				gf.visible = true;
+		}
+
 		startCharacterPos(dad);
 
 		iconP2.changeIcon(dad.healthIcon, true, dad.iconOffsets, dad.iconScale, dad.iconFlipX, dad.iconBlend, dad.iconFps24);
@@ -2726,7 +2737,8 @@ class PlayState extends MusicBeatState
 		catch(e:Dynamic) {}
 
 		var oldNote:Note = null;
-		var sectionsData:Array<SwagSection> = PlayState.SONG.notes;
+		var sectionsData:Array<SwagSection> = PlayState.SONG.section;
+		var sectionsNotes:Array<NoteSection> = PlayState.SONG.notes;
 		var ghostNotesCaught:Int = 0;
 		var daBpm:Float = Conductor.bpm;
 	
@@ -2734,7 +2746,10 @@ class PlayState extends MusicBeatState
 		{
 			if (section.changeBPM != null && section.changeBPM && section.bpm != null && daBpm != section.bpm)
 				daBpm = section.bpm;
+		}
 
+		for (section in sectionsNotes)
+		{
 			for (i in 0...section.sectionNotes.length)
 			{
 				final songNotes: Array<Dynamic> = section.sectionNotes[i];
@@ -2801,8 +2816,8 @@ class PlayState extends MusicBeatState
 				}
 
 				var swagNote:Note = new Note(spawnTime, noteColumn, oldNote, false, false, null, gottaHitNote);
-				var isAlt: Bool = section.altAnim && !gottaHitNote;
-				swagNote.gfNote = (section.gfSection && gottaHitNote == section.mustHitSection);
+				var isAlt: Bool = sectionsData[i].altAnim && !gottaHitNote;
+				swagNote.gfNote = (sectionsData[i].gfSection && gottaHitNote == sectionsData[i].mustHitSection);
 
 				if(altAnimSuffix == '0' || altAnimSuffix == null || altAnimSuffix == '') //WHAT THE FUCK HOW IT'S FUCKING ZERO, IT TOOK ME HOURS TO FIGURE OUT WHY ANIMATIONS DIDN'T PLAYED
 					swagNote.animSuffix = isAlt ? "-alt" : "";
@@ -3531,9 +3546,9 @@ class PlayState extends MusicBeatState
 			camNotes.zoom = zoomNotesPlusBop;  // Actually apply the zoom to the camera.
 		}
 
-		if (SONG.notes[curSection] != null)
+		if (SONG.section[curSection] != null)
 		{
-			if (SONG.notes[curSection].gfSection)
+			if (SONG.section[curSection].gfSection)
 				charBF = gf;
 			else
 				charBF = boyfriend;
@@ -3555,7 +3570,7 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if (SONG.notes[curSection].gfSection)
+			if (SONG.section[curSection].gfSection)
 				char = gf;
 			else
 				char = dad;
@@ -4510,7 +4525,7 @@ class PlayState extends MusicBeatState
 						targetX += gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0];
 						targetY += gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1];
 
-						if(!SONG.notes[curSection].mustHitSection)
+						if(!SONG.section[curSection].mustHitSection)
 							curFocusedChar = 'dad';
 						else
 							curFocusedChar = 'bf';
@@ -5620,17 +5635,17 @@ class PlayState extends MusicBeatState
 		if(sec == null) sec = curSection;
 		if(sec < 0) sec = 0;
 
-		if(SONG.notes[sec] == null) return;
+		if(SONG.section[sec] == null) return;
 
 		moveCamera();
 
-		if (gf != null && SONG.notes[sec].gfSection)
+		if (gf != null && SONG.section[sec].gfSection)
 		{
 			callOnScripts('onMoveCamera', ['gf']);
 			return;
 		}
 
-		var isDad:Bool = (SONG.notes[sec].mustHitSection != true);
+		var isDad:Bool = (SONG.section[sec].mustHitSection != true);
 		if (isDad)
 			callOnScripts('onMoveCamera', ['dad']);
 		else
@@ -5641,12 +5656,12 @@ class PlayState extends MusicBeatState
 	{
 		if(ClientPrefs.data.optimize) return;
 
-		var targetX:Float = SONG.notes[curSection].followX;
-		var targetY:Float = SONG.notes[curSection].followY;
+		var targetX:Float = SONG.section[curSection].followX;
+		var targetY:Float = SONG.section[curSection].followY;
 
-		if (SONG.notes[curSection].followCam)
+		if (SONG.section[curSection].followCam)
 		{
-			switch (SONG.notes[curSection].charFollow.toLowerCase())
+			switch (SONG.section[curSection].charFollow.toLowerCase())
 			{
 				case "bf":
 					targetX += boyfriend.getMidpoint().x - boyfriend.cameraPosition[0] + boyfriendCameraOffset[0] - 100;
@@ -5656,7 +5671,7 @@ class PlayState extends MusicBeatState
 					targetX += gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0];
 					targetY += gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1];
 
-					if(!SONG.notes[curSection].mustHitSection)
+					if(!SONG.section[curSection].mustHitSection)
 						curFocusedChar = 'dad';
 					else
 						curFocusedChar = 'bf';
@@ -5666,7 +5681,7 @@ class PlayState extends MusicBeatState
 					curFocusedChar = 'dad';
 			}
 	
-			var ease:String = SONG.notes[curSection].tweenFollow;
+			var ease:String = SONG.section[curSection].tweenFollow;
 			
 			switch (ease)
 			{
@@ -5677,28 +5692,28 @@ class PlayState extends MusicBeatState
 				case 'INSTANT': // Instant ease. Duration is automatically 0.
 					tweenCameraToPosition(targetX, targetY, 0);
 				default:
-					var durSeconds:Float = Conductor.stepCrochet * SONG.notes[curSection].followTime / 1000;
+					var durSeconds:Float = Conductor.stepCrochet * SONG.section[curSection].followTime / 1000;
 					tweenCameraToPosition(targetX, targetY, durSeconds, LuaUtils.getTweenEaseByString(ease));
 			}
 		}
 
-		if (SONG.notes[curSection].zoomCam)
+		if (SONG.section[curSection].zoomCam)
 		{
-			var ease:String = SONG.notes[curSection].tweenZoom;
+			var ease:String = SONG.section[curSection].tweenZoom;
 
 			switch(ease)
 			{
 				case "CLASSIC":
-					var targetZoom = SONG.notes[curSection].zoom * (SONG.notes[curSection].stgZoom ? FlxCamera.defaultZoom : stageZoom);
+					var targetZoom = SONG.section[curSection].zoom * (SONG.section[curSection].stgZoom ? FlxCamera.defaultZoom : stageZoom);
 					PlayState.instance.cancelCameraZoomTween();
 					requiredZoom = targetZoom;
 				case "INSTANT":
-					var targetZoom = SONG.notes[curSection].zoom * (SONG.notes[curSection].stgZoom ? FlxCamera.defaultZoom : stageZoom);
-					tweenCameraZoom(SONG.notes[curSection].zoom, 0, SONG.notes[curSection].stgZoom);
+					var targetZoom = SONG.section[curSection].zoom * (SONG.section[curSection].stgZoom ? FlxCamera.defaultZoom : stageZoom);
+					tweenCameraZoom(SONG.section[curSection].zoom, 0, SONG.section[curSection].stgZoom);
 					requiredZoom = targetZoom;
 				default:
-					var durSeconds:Float = Conductor.stepCrochet * SONG.notes[curSection].zoomTime / 1000;
-					tweenCameraZoom(SONG.notes[curSection].zoom, durSeconds, SONG.notes[curSection].stgZoom, LuaUtils.getTweenEaseByString(ease));
+					var durSeconds:Float = Conductor.stepCrochet * SONG.section[curSection].zoomTime / 1000;
+					tweenCameraZoom(SONG.section[curSection].zoom, durSeconds, SONG.section[curSection].stgZoom, LuaUtils.getTweenEaseByString(ease));
 			}
 		}
 	}	
@@ -6554,7 +6569,7 @@ class PlayState extends MusicBeatState
 				char = dad;
 			}
 		}
-		if((daNote != null && daNote.gfNote) || (SONG.notes[curSection] != null && SONG.notes[curSection].gfSection)) char = gf;
+		if((daNote != null && daNote.gfNote) || (SONG.section[curSection] != null && SONG.section[curSection].gfSection)) char = gf;
 
 		if(char != null && (daNote == null || !daNote.noMissAnimation) && char.hasMissAnimations)
 		{
@@ -6596,7 +6611,7 @@ class PlayState extends MusicBeatState
 				char = boyfriend;
 			}
 		}
-		if((note != null && note.gfNote) || (SONG.notes[curSection] != null && SONG.notes[curSection].gfSection)) char = gf;
+		if((note != null && note.gfNote) || (SONG.section[curSection] != null && SONG.section[curSection].gfSection)) char = gf;
 
 		if(char != null && (note == null || !note.noAnimation))
 		{
@@ -6750,7 +6765,7 @@ class PlayState extends MusicBeatState
 				char = boyfriend;
 			}
 		}
-		if((note != null && note.gfNote) || (SONG.notes[curSection] != null && SONG.notes[curSection].gfSection)) char = gf;
+		if((note != null && note.gfNote) || (SONG.section[curSection] != null && SONG.section[curSection].gfSection)) char = gf;
 
 		if(char != null && (note == null || !note.noMissAnimation) && char.hasMissAnimations)
 		{
@@ -6973,7 +6988,7 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if(SONG.notes[curSection] != null && canMoveCam)
+			if(SONG.section[curSection] != null && canMoveCam)
 			{
 				FlxG.camera.targetOffset.set(0,0);
 				switch(note.noteData)
@@ -7299,7 +7314,7 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if(SONG.notes[curSection] != null && canMoveCam)
+			if(SONG.section[curSection] != null && canMoveCam)
 			{
 				FlxG.camera.targetOffset.set(0,0);
 				switch(note.noteData)
@@ -7717,8 +7732,8 @@ class PlayState extends MusicBeatState
 		if (generatedMusic)
 			notes.sort(FlxSort.byY, ClientPrefs.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 
-		iconP1.scale.set(boyfriend.iconScale + customBopOffset);
-		iconP2.scale.set(dad.iconScale + customBopOffset);
+		iconP1.scale.set(boyfriend.iconScale + customBopOffset, boyfriend.iconScale + customBopOffset);
+		iconP2.scale.set(dad.iconScale + customBopOffset, dad.iconScale + customBopOffset);
 
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
@@ -7770,21 +7785,21 @@ class PlayState extends MusicBeatState
 
 	override function sectionHit()
 	{
-		if (SONG.notes[curSection] != null)
+		if (SONG.section[curSection] != null)
 		{
 			if (generatedMusic && !endingSong && !isCameraOnForcedPos)
 				moveCameraSection();
 
-			if (SONG.notes[curSection].changeBPM)
+			if (SONG.section[curSection].changeBPM)
 			{
-				Conductor.bpm = SONG.notes[curSection].bpm;
+				Conductor.bpm = SONG.section[curSection].bpm;
 				setOnScripts('curBpm', Conductor.bpm);
 				setOnScripts('crochet', Conductor.crochet);
 				setOnScripts('stepCrochet', Conductor.stepCrochet);
 			}
-			setOnScripts('mustHitSection', SONG.notes[curSection].mustHitSection);
-			setOnScripts('altAnim', SONG.notes[curSection].altAnim);
-			setOnScripts('gfSection', SONG.notes[curSection].gfSection);
+			setOnScripts('mustHitSection', SONG.section[curSection].mustHitSection);
+			setOnScripts('altAnim', SONG.section[curSection].altAnim);
+			setOnScripts('gfSection', SONG.section[curSection].gfSection);
 		}
 		super.sectionHit();
 
@@ -7796,7 +7811,7 @@ class PlayState extends MusicBeatState
 	{
 		if (SONG.charFocusStart == null)
 		{
-			if(!SONG.notes[0].mustHitSection)
+			if(!SONG.section[0].mustHitSection)
 			{
 				cameraFollowPoint.setPosition(dad.getMidpoint().x + dad.cameraPosition[0] + opponentCameraOffset[0] + 150, dad.getMidpoint().y + dad.cameraPosition[1] + opponentCameraOffset[1] - 100);
 				curFocusedChar = 'dad';
@@ -7818,7 +7833,7 @@ class PlayState extends MusicBeatState
 				case 'gf':
 					cameraFollowPoint.setPosition(gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0] + SONG.cameraOffsetX,  gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1] + SONG.cameraOffsetY);
 
-					if(!SONG.notes[curSection].mustHitSection)
+					if(!SONG.section[curSection].mustHitSection)
 						curFocusedChar = 'dad';
 					else
 						curFocusedChar = 'bf';

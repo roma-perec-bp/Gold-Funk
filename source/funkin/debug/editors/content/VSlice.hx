@@ -221,6 +221,7 @@ class VSlice
 			var scrollSpeed:Float = Reflect.hasField(chart.scrollSpeed, diff) ? Reflect.field(chart.scrollSpeed, diff) : Reflect.field(chart.scrollSpeed, 'default');
 			var notes:Array<VSliceNote> = notesMap.get(diff);
 
+			var sectionNotes:Array<NoteSection> = [];
 			var sectionData:Array<SwagSection> = [];
 			for (section in baseSections) //clone sections
 			{
@@ -244,15 +245,16 @@ class VSlice
 				var psychNote:Array<Dynamic> = [note.t, note.d, (note.l != null ? note.l : 0)];
 				if(note.k != null && note.k.length > 0 && note.k != 'normal') psychNote.push(note.k);
 
-				if(sectionData[noteSec] != null)
-					sectionData[noteSec].sectionNotes.push(psychNote);
+				if(sectionNotes[noteSec] != null)
+					sectionNotes[noteSec].sectionNotes.push(psychNote);
 			}
 
 			var swagSong:SwagSong = {
 				song: metadata.songName,
 				displayName: metadata.songName,
 				postfix: '', //TO DO: uhh variations suppoert
-				notes: sectionData,
+				notes: sectionNotes,
+				section: sectionData,
 				events: [],
 				bpm: songBpm,
 				needsVoices: true, //There's no value on V-Slice to identify if there are vocals as it checks automatically
@@ -342,7 +344,7 @@ class VSlice
 		var lastMustHit:Bool = false;
 		if(songData.notes != null)
 		{
-			for (section in songData.notes)
+			for (section in songData.section)
 			{
 				// Add notes
 				if(section.sectionNotes != null && section.sectionNotes.length > 0)

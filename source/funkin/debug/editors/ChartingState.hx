@@ -663,6 +663,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			displayName: 'Test',
 			postfix: '',
 			notes: [],
+			section: [],
 			events: [],
 			bpm: 150,
 			needsVoices: true,
@@ -959,7 +960,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					}
 					else if(FlxG.keys.justPressed.D)
 					{
-						if(curSec + shiftAdd >= PlayState.SONG.notes.length) shiftAdd = PlayState.SONG.notes.length - curSec - 1;
+						if(curSec + shiftAdd >= PlayState.SONG.section.length) shiftAdd = PlayState.SONG.section.length - curSec - 1;
 						
 						if(shiftAdd > 0)
 						{
@@ -980,7 +981,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					setSongPlaying(false);
 					setChartTheme(true);
 					Conductor.songPosition = FlxG.sound.music.time = FlxG.sound.music.length - 1;
-					loadSection(PlayState.SONG.notes.length - 1);
+					loadSection(PlayState.SONG.section.length - 1);
 				}
 				else if(FlxG.keys.justPressed.R)
 				{
@@ -2005,7 +2006,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		setSongPlaying(false);
 		setChartTheme(true);
 		Conductor.songPosition = FlxG.sound.music.time = vocals.time = opponentVocals.time = FlxG.sound.music.length - 1;
-		curSec = PlayState.SONG.notes.length - 1;
+		curSec = PlayState.SONG.section.length - 1;
 		forceDataUpdate = true;
 	}
 
@@ -2121,6 +2122,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	{
 		if(secNum == null) secNum = curSec;
 		var section = PlayState.SONG.notes[secNum];
+		var sectiondata = PlayState.SONG.section[secNum];
 
 		var daStrumTime:Float = note[0];
 		var daNoteData:Int = Std.int(note[1] % GRID_COLUMNS_PER_PLAYER);
@@ -2129,7 +2131,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		var swagNote:MetaNote = new MetaNote(daStrumTime, daNoteData, note);
 		swagNote.mustPress = gottaHitNote;
 		swagNote.setSustainLength(note[2], cachedSectionCrochets[secNum] / 4, curZoom);
-		swagNote.gfNote = (section.gfSection && gottaHitNote == section.mustHitSection);
+		swagNote.gfNote = (sectiondata.gfSection && gottaHitNote == sectiondata.mustHitSection);
 		swagNote.noteType = note[3];
 		swagNote.sustainType = note[4];
 
@@ -2219,7 +2221,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		var bpm:Float = PlayState.SONG.bpm;
 		var reachedLimit:Bool = false;
-		for (secNum => section in PlayState.SONG.notes)
+		for (secNum => section in PlayState.SONG.section)
 		{
 			var secs:Null<Float> = cast section.sectionBeats;
 			if(secs == null || Math.isNaN(secs) || secs <= 0) section.sectionBeats = 4;
@@ -2241,17 +2243,17 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			for (note in section.sectionNotes)
 			{
 				if(secNum > 0 && note[0] < lastTime) note[0] = lastTime;
-				else if(secNum < PlayState.SONG.notes.length && note[0] >= time - 0.000001) note[0] = time - 0.000001;
+				else if(secNum < PlayState.SONG.section.length && note[0] >= time - 0.000001) note[0] = time - 0.000001;
 			}
 
 			if(FlxG.sound.music != null && time >= FlxG.sound.music.length)
 			{
-				var lastSectionNum:Int = PlayState.SONG.notes.length - 1;
+				var lastSectionNum:Int = PlayState.SONG.section.length - 1;
 				if(secNum < lastSectionNum) //Delete extra sections
 				{
-					while(PlayState.SONG.notes.length - 1 > secNum)
+					while(PlayState.SONG.section.length - 1 > secNum)
 					{
-						PlayState.SONG.notes.pop();
+						PlayState.SONG.section.pop();
 					}
 	
 					trace('breaking at section $secNum');
@@ -2268,7 +2270,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 		if(FlxG.sound.music != null && !reachedLimit) //Created sections to fill blank space
 		{
-			var lastSection = PlayState.SONG.notes[PlayState.SONG.notes.length-1];
+			var lastSection = PlayState.SONG.section[PlayState.SONG.section.length-1];
 			var beat:Float = Conductor.calculateCrochet(bpm);
 			var sectionBeats:Float = lastSection != null ? lastSection.sectionBeats : 4;
 			var rowRound:Int = Math.round(4 * sectionBeats);
@@ -2292,7 +2294,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 			while(!reachedLimit)
 			{
-				PlayState.SONG.notes.push({
+				PlayState.SONG.section.push({
 					sectionNotes: [],
 					sectionBeats: sectionBeats,
 					mustHitSection: mustHitSec,
@@ -2314,6 +2316,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					stgZoom: zoomStaging,
 				});
 
+				PlayState.SONG.notes.push({
+					sectionNotes: []
+				});
+
 				cachedSectionRow.push(row);
 				cachedSectionTimes.push(time);
 				cachedSectionCrochets.push(beat);
@@ -2324,7 +2330,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 				if(time >= FlxG.sound.music.length)
 				{
-					trace('created sections until ${PlayState.SONG.notes.length-1}');
+					trace('created sections until ${PlayState.SONG.section.length-1}');
 					reachedLimit = true;
 				}
 			}
@@ -2340,31 +2346,31 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	function loadSection(?sec:Null<Int> = null)
 	{
 		if(sec != null) curSec = sec;
-		curSec = Std.int(FlxMath.bound(curSec, 0, PlayState.SONG.notes.length-1));
+		curSec = Std.int(FlxMath.bound(curSec, 0, PlayState.SONG.section.length-1));
 		Conductor.bpm = cachedSectionBPMs[curSec];
 
 		var hei:Float = 0;
 		if(curSec > 0)
 		{
 			prevGridBg.y = cachedSectionRow[curSec-1] * GRID_SIZE * curZoom;
-			prevGridBg.rows = 4 * PlayState.SONG.notes[curSec-1].sectionBeats * curZoom;
+			prevGridBg.rows = 4 * PlayState.SONG.section[curSec-1].sectionBeats * curZoom;
 			prevGridBg.visible = showPreviousSection;
 			hei += prevGridBg.height;
 			eventLockOverlay.y = prevGridBg.y;
 		}
 		else prevGridBg.visible = false;
 
-		if(curSec < PlayState.SONG.notes.length - 1)
+		if(curSec < PlayState.SONG.section.length - 1)
 		{
 			nextGridBg.y = cachedSectionRow[curSec+1] * GRID_SIZE * curZoom;
-			nextGridBg.rows = 4 * PlayState.SONG.notes[curSec+1].sectionBeats * curZoom;
+			nextGridBg.rows = 4 * PlayState.SONG.section[curSec+1].sectionBeats * curZoom;
 			nextGridBg.visible = showNextSection;
 			hei += nextGridBg.height;
 		}
 		else nextGridBg.visible = false;
 
 		gridBg.y = cachedSectionRow[curSec] * GRID_SIZE * curZoom;
-		gridBg.rows = 4 * PlayState.SONG.notes[curSec].sectionBeats * curZoom;
+		gridBg.rows = 4 * PlayState.SONG.section[curSec].sectionBeats * curZoom;
 		hei += gridBg.height;
 
 		if(!prevGridBg.visible) eventLockOverlay.y = gridBg.y;
@@ -2537,7 +2543,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var _lastGfSection:Null<Bool> = null;
 	function updateHeads(ignoreCheck:Bool = false):Void
 	{
-		var curSecData:SwagSection = PlayState.SONG.notes[curSec];
+		var curSecData:SwagSection = PlayState.SONG.section[curSec];
 		var isGfSection:Bool = (curSecData != null && curSecData.gfSection == true);
 		if(_lastGfSection == isGfSection && _lastSec == curSec && !ignoreCheck) return; //optimization
 
@@ -5483,7 +5489,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 
 					var timeStepper:PsychUINumericStepper = new PsychUINumericStepper(state.bg.x + 100, state.bg.y + 90, 1, Math.floor(curTime)/1000, 0, FlxG.sound.music.length/1000 - 0.01, 2, 80);
 					timeStepper.cameras = state.cameras;
-					var sectionStepper:PsychUINumericStepper = new PsychUINumericStepper(timeStepper.x + 160, timeStepper.y, 1, currentSec, 0, PlayState.SONG.notes.length - 1, 0);
+					var sectionStepper:PsychUINumericStepper = new PsychUINumericStepper(timeStepper.x + 160, timeStepper.y, 1, currentSec, 0, PlayState.SONG.section.length - 1, 0);
 					sectionStepper.cameras = state.cameras;
 
 					var txt1:FlxText = new FlxText(timeStepper.x, timeStepper.y - 15, 100, 'Time (in seconds):');
@@ -5765,6 +5771,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	
 	inline function getCurChartSection()
 	{
+		return PlayState.SONG.section != null ? PlayState.SONG.section[curSec] : null;
+	}
+
+	inline function getCurChartNotes()
+	{
 		return PlayState.SONG.notes != null ? PlayState.SONG.notes[curSec] : null;
 	}
 
@@ -5801,7 +5812,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		showNextGridButton.text.text = showNextSection		? '  Hide Next Section' :  '  Show Next Section';
 
 		prevGridBg.visible = (curSec > 0 && showPreviousSection);
-		nextGridBg.visible = (curSec < PlayState.SONG.notes.length - 1 && showNextSection);
+		nextGridBg.visible = (curSec < PlayState.SONG.section.length - 1 && showNextSection);
 		
 		noteTypeLabelsButton.text.text = showNoteTypeLabels ? '  Hide Note Labels' : '  Show Note Labels';
 		for (num => text in MetaNote.noteTypeTexts)
@@ -5895,7 +5906,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		if(FlxG.sound.music != null && time >= FlxG.sound.music.length)
 		{
 			time = FlxG.sound.music.length - 1;
-			curSec = PlayState.SONG.notes.length - 1;
+			curSec = PlayState.SONG.section.length - 1;
 		}
 		FlxG.sound.music.time = time;
 		Conductor.songPosition = time;

@@ -270,10 +270,10 @@ class EditorPlayState extends MusicBeatSubstate
 	
 	override function sectionHit()
 	{
-		if (PlayState.SONG.notes[curSection] != null)
+		if (PlayState.SONG.section[curSection] != null)
 		{
-			if (PlayState.SONG.notes[curSection].changeBPM)
-				Conductor.bpm = PlayState.SONG.notes[curSection].bpm;
+			if (PlayState.SONG.section[curSection].changeBPM)
+				Conductor.bpm = PlayState.SONG.section[curSection].bpm;
 		}
 		super.sectionHit();
 	}
@@ -339,7 +339,7 @@ class EditorPlayState extends MusicBeatSubstate
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
 
-		var daBpm:Float = (PlayState.SONG.notes[0].changeBPM == true) ? PlayState.SONG.notes[0].bpm : PlayState.SONG.bpm;
+		var daBpm:Float = (PlayState.SONG.section[0].changeBPM == true) ? PlayState.SONG.section[0].bpm : PlayState.SONG.bpm;
 		var oldNote:Note = null;
 
 		// Section Time/Crochet
@@ -350,10 +350,10 @@ class EditorPlayState extends MusicBeatSubstate
 		if(PlayState.SONG != null)
 		{
 			var tempBpm:Float = daBpm;
-			for (secNum => section in PlayState.SONG.notes)
+			for (secNum => section in PlayState.SONG.section)
 			{
-				if(PlayState.SONG.notes[noteSec].changeBPM == true)
-					tempBpm = PlayState.SONG.notes[noteSec].bpm;
+				if(PlayState.SONG.section[noteSec].changeBPM == true)
+					tempBpm = PlayState.SONG.section[noteSec].bpm;
 
 				secTime += Conductor.calculateCrochet(tempBpm) * (Math.round(4 * section.sectionBeats) / 4);
 				cachedSectionTimes.push(secTime);
@@ -368,8 +368,8 @@ class EditorPlayState extends MusicBeatSubstate
 			while(cachedSectionTimes.length > noteSec + 1 && cachedSectionTimes[noteSec + 1] <= note.strumTime)
 			{
 				noteSec++;
-				if(PlayState.SONG.notes[noteSec].changeBPM == true)
-					daBpm = PlayState.SONG.notes[noteSec].bpm;
+				if(PlayState.SONG.section[noteSec].changeBPM == true)
+					daBpm = PlayState.SONG.section[noteSec].bpm;
 			}
 
 			var idx: Int = _noteList.indexOf(note);

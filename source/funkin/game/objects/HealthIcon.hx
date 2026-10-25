@@ -99,8 +99,33 @@ class HealthIcon extends FlxSprite
 				else
 					antialiasing = ClientPrefs.data.antialiasing;
 			}
-		}
 
+			scale.set(scalePar, scalePar);
+
+			flipX = flipXpar;
+
+			if (animated)
+			{
+				iconOffsets[0] = (width - 150) + iconOffsetsPar[0];
+				iconOffsets[1] = (height - 150) + iconOffsetsPar[1];
+			}
+			else
+			{
+				var iSize:Int = Math.round(graphic.width / graphic.height);
+				if (iSize < 1) iSize = 1;
+
+				iconOffsets[0] = (width - 150) / iSize + iconOffsetsPar[0];
+				iconOffsets[1] = (height - 150) / iSize + iconOffsetsPar[1];
+			}
+
+			updateHitbox();
+
+			blend = LuaUtils.blendModeFromString(blendThing);
+		}
+	}
+
+	public function updateParams(?iconOffsetsPar:Array<Float>, ?scalePar:Float = 1, ?flipXpar:Bool = false, ?blendThing:String = '', ?fpsThing:Int = 24)
+	{
 		scale.set(scalePar, scalePar);
 
 		flipX = flipXpar;

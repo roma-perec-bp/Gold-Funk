@@ -54,13 +54,7 @@ class SustainSplash extends FlxSprite {
 		}
 		
 		animation.addByPrefix('start', 'holdCoverStart0', 24, false);
-    switch(ClientPrefs.data.splashHoldSkin)
-    {
-      case 'Impostor':
-        animation.addByPrefix('hold', 'holdCover0', 48, true);
-      default: 
-        animation.addByPrefix('hold', 'holdCover0', 24, true);
-    }
+    animation.addByPrefix('hold', 'holdCover0', 24, true);
 		animation.addByPrefix('end', 'holdCoverEnd0', 24, false);
 
     animation.onFinish.add(this.onAnimationFinished);
@@ -117,12 +111,6 @@ class SustainSplash extends FlxSprite {
 
     antialiasing = ClientPrefs.data.antialiasing;
 
-    switch(ClientPrefs.data.splashHoldSkin)
-    {
-      case 'Impostor':
-        scale.set(0.7, 0.7);
-    }
-
     updateHitbox();
 		
 		playAnim('start', true);
@@ -144,14 +132,8 @@ class SustainSplash extends FlxSprite {
 		{
       switch(ClientPrefs.data.splashHoldSkin)
       {
-        case 'Impostor':
-          offsetsChange = [33, 46];
-        case 'NightmareVision':
-          offsetsChange = [-10, 15];
-        case 'Vanilla':
-          offsetsChange = [13, -50];
         default:
-          offsetsChange = [0, -20];
+          offsetsChange = [13, -50];
       }
 			
 			setPosition(_strum.x + (_strum.width - width) * .5, _strum.y + (_strum.height - height) * .5);

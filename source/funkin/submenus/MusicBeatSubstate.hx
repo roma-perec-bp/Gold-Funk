@@ -72,9 +72,9 @@ class MusicBeatSubstate extends FlxSubState
 		var lastSection:Int = curSection;
 		curSection = 0;
 		stepsToDo = 0;
-		for (i in 0...PlayState.SONG.notes.length)
+		for (i in 0...PlayState.SONG.section.length)
 		{
-			if (PlayState.SONG.notes[i] != null)
+			if (PlayState.SONG.section[i] != null)
 			{
 				stepsToDo += Math.round(getBeatsOnSection() * 4);
 				if(stepsToDo > curStep) break;
@@ -128,7 +128,7 @@ class MusicBeatSubstate extends FlxSubState
 	function getBeatsOnSection()
 	{
 		var val:Null<Float> = 4;
-		if(PlayState.SONG != null && PlayState.SONG.notes[curSection] != null) val = PlayState.SONG.notes[curSection].sectionBeats;
+		if(PlayState.SONG != null && PlayState.SONG.section[curSection] != null) val = PlayState.SONG.section[curSection].sectionBeats;
 		return val == null ? 4 : val;
 	}
 }

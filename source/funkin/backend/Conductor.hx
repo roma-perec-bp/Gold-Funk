@@ -129,11 +129,11 @@ class Conductor
 		var curBPM:Float = song.bpm;
 		var totalSteps:Int = 0;
 		var totalPos:Float = 0;
-		for (i in 0...song.notes.length)
+		for (i in 0...song.section.length)
 		{
-			if(song.notes[i].changeBPM && song.notes[i].bpm != curBPM)
+			if(song.section[i].changeBPM && song.section[i].bpm != curBPM)
 			{
-				curBPM = song.notes[i].bpm;
+				curBPM = song.section[i].bpm;
 				var event:BPMChangeEvent = {
 					stepTime: totalSteps,
 					songTime: totalPos,
@@ -152,7 +152,7 @@ class Conductor
 	static function getSectionBeats(song:SwagSong, section:Int)
 	{
 		var val:Null<Float> = null;
-		if(song.notes[section] != null) val = song.notes[section].sectionBeats;
+		if(song.section[section] != null) val = song.section[section].sectionBeats;
 		return val != null ? val : 4;
 	}
 
