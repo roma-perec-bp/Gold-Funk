@@ -670,12 +670,6 @@ class PlayState extends MusicBeatState
 				if(gf != null)
 					gf.visible = false;
 			}
-			else
-			{
-				dad.setPosition(DAD_X, DAD_Y);
-				if(gf != null)
-					gf.visible = true;
-			}
 		}
 
 		resetCamera();
@@ -1459,7 +1453,6 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			dad.setPosition(DAD_X, DAD_Y);
 			if(gf != null)
 				gf.visible = true;
 		}
