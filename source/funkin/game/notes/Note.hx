@@ -4,7 +4,7 @@ import funkin.backend.animation.PsychAnimationController;
 
 import funkin.graphics.shaders.RGBPalette;
 import funkin.graphics.shaders.RGBPalette.RGBShaderReference;
-
+import funkin.graphics.FunkinSprite;
 import funkin.graphics.shaders.HSVShader;
 
 import flixel.math.FlxRect;
@@ -33,12 +33,19 @@ typedef NoteSplashData = {
 	a:Float
 }
 
+/*
+TO-DO:
+Playfield along with able to create custom playfields for different characters
+Note pooling
+Vertex notes
+*/
+
 /**
  * The note object used as a data structure to spawn and manage notes during gameplay.
  * 
  * If you want to make a custom note type, you should search for: "function set_noteType"
 **/
-class Note extends FlxSprite
+class Note extends FunkinSprite
 {
 	//This is needed for the hardcoded note types to appear on the Chart Editor,
 	//It's also used for backwards compatibility with 0.1 - 0.3.2 charts.

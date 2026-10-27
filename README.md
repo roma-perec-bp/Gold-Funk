@@ -1,9 +1,16 @@
 <h1 align='center'>Gold Funk'!</h1>
 
-This is the another fork of Psych Engine 1.0.4 but this one has more than other forks (i guess)
-Welp for now it doesnt but current target is making custom softcode states and edit other states like Freeplay, MainMenu, etc.
+This is the another fork of Psych Engine 1.0.4!
+With combined stuff from original Funkin (Atlas animate, libraries, blends and much more), more optionaly chart editors and other fixies editors, optimized (hopefully) things, and of course bug fixes of original psych engine! (Credits to PE continued)
 
-Parts of engine was used in mods like:
+More coming soon! Such as rewriten og songs from original funkin with some extra things added in, customizable existing states, custom states and much more!
+If you want to contribute (or just clean my the most messiest code ever), all pull request are welcomed and will be reviewed!
+
+Have fun! I guess...
+
+# THIS ENGINE IS STILL VERY VERY WIP, ALL THINGS HERE ARE SUBJECT TO CHANGE. IT ALSO IMPLIES TO MENUS IN ACTUAL GAME AND MORE STUFF
+
+Engine (Prototypes and etc) was used in mods like:
 
 [Brutal Pizdec Impotence DLC](https://gamebanana.com/mods/573827)
 
@@ -11,26 +18,33 @@ Parts of engine was used in mods like:
 
 [I Hate This Mod](https://gamebanana.com/mods/582655)
 
+[Pepper's Files](https://gamebanana.com/mods/707659)
+
+Singing Bastards(Coming Soon...)
+
 ## Installation:
 
 Refer to [the Build Instructions](/docs/BUILDING.md)
 
 ## Customization:
 
-If you wish to disable things like *Lua Scripts* or *Video Cutscenes*, you can refer to the `Project.xml` file.
+If you wish to disable things like *Lua Scripts* or *Video Cutscenes*, you can refer to the `Project.hx` file.
 
-Inside `Project.xml`, you will find several variables to customize Psych Engine to your liking.
+Inside `Project.hx`, you will find several variables to customize Gold Funk to your liking.
 
-To start you off, disabling *Video Cutscenes* should be simple, simply delete the line `"VIDEOS_ALLOWED"` or comment it out by wrapping the line in XML-like comments, like this: `<!-- YOUR_LINE_HERE -->`
+To start you off, disabling *Video Cutscenes* should be simple, simply delete the line `"VIDEOS_ALLOWED"` or comment it out by wrapping the line in HX-like comments, like this: `//YOUR_LINE_HERE` or `/*YOUR_LINE_HERE*/`
 
-Same goes for *Lua Scripts*, comment out or delete the line with `LUA_ALLOWED`, this and other customization options are all available within the `Project.xml` file.
+Same goes for *Lua Scripts*, comment out or delete the line with `LUA_ALLOWED`, this and other customization options are all available within the `Project.hx` file.
 
 ## Credits:
 * ROMA PEREC - Main Programmer of Gold Funk
 * Shadow Mario - Creator of Original Psych Engine.
 
+More credits in credits menu from the game!
+
 ### Special Thanks
-*later idk who to thank for now :/
+* SantiagoCalebe - Documents stuff
+* All contributors that did... contributions
 
 ***
 
@@ -38,7 +52,12 @@ Same goes for *Lua Scripts*, comment out or delete the line with `LUA_ALLOWED`, 
 
 # Features along with psych ones
 
-Wip shit about whaa custom state whatever soon
+* BLEND MODES: Yes! Overlay works here!
+* Animate Atlas: With framelabels and more!
+* All notes are... very customizable: You can change sing time or even custom alt anim without creating more notetypes!
+* Many options in metadata chart editor: Not only credits or gameover stuff, but combo pop ups in game camera or even force middle scroll!
+* Custom colored opponent notes!: It's all RGB!
+* And much much more!
 
 ## Changes in weeks (Warning, none of these are done but still planned to be)
 

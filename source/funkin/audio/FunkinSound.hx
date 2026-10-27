@@ -93,10 +93,21 @@ class FunkinSound extends FlxSound implements ICloneable<FunkinSound>
   @:nullSafety(Off)
   override public function destroy():Void
   {
+    var sound:Null<openfl.media.Sound> = this._sound;
+
     super.destroy();
+
+    //funkin.assets.FunkinAssetCache.FunkinAssetCache.instance.releaseSoundIfUnused(sound);
 
     FlxTween.cancelTweensOf(this);
     this._label = 'unknown';
+  }
+
+  public static function stripLibrary(key:String):String
+  {
+    var parts:Array<String> = key.split(':');
+    if (parts.length < 2) return key;
+    return parts[1];
   }
 
   /**
@@ -131,19 +142,15 @@ class FunkinSound extends FlxSound implements ICloneable<FunkinSound>
     // Sets `exists = true` as a side effect.
     sound.loadEmbedded(embeddedSound, looped, autoDestroy, onComplete);
 
-    if (embeddedSound is String)
+    sound._label = (embeddedSound is String) ? stripLibrary(embeddedSound) : 'unknown';
+
+    // Call onLoad() because the sound already loaded
+    if (onLoad != null && sound._sound != null)
     {
-      sound._label = embeddedSound;
-    }
-    else
-    {
-      sound._label = 'unknown';
+      onLoad();
     }
 
-    if (autoPlay) sound.play();
-    sound.volume = volume;
     FlxG.sound.defaultSoundGroup.add(sound);
-    sound.persist = persist;
 
     // Make sure to add the sound to the list.
     // If it's already in, it won't get re-added.
@@ -151,8 +158,13 @@ class FunkinSound extends FlxSound implements ICloneable<FunkinSound>
     // it will get re-added (then if this was called by playMusic(), removed again)
     FlxG.sound.list.add(sound);
 
-    // Call onLoad() because the sound already loaded
-    if (onLoad != null && sound._sound != null) onLoad();
+    sound.volume = volume;
+    sound.persist = persist;
+
+    if (autoPlay)
+    {
+      sound.play();
+    }
 
     return sound;
   }
@@ -264,7 +276,7 @@ class FunkinSound extends FlxSound implements ICloneable<FunkinSound>
   {
     if (value == muted) return value;
     muted = value;
-    updateTransform();
+    updateVolume();
     return value;
   }
 

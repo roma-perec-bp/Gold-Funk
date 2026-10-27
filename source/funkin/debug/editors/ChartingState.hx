@@ -582,10 +582,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			"Z/X - Zoom in/out",
 			"Left/Right - Change Snap (in Vortex Mode)",
 			"Page/Arrows Up/Down - Scroll (in Vortex Mode)",
-			#if FLX_PITCH
 			"Left Bracket / Right Bracket - Change Song Playback Rate",
 			"ALT + Left Bracket / Right Bracket - Reset Song Playback Rate",
-			#end
 			"",
 			"Ctrl + Z - Undo",
 			"Ctrl + Y - Redo",
@@ -2023,12 +2021,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var playbackRate:Float = 1;
 	function setPitch(?value:Null<Float>)
 	{
-		#if FLX_PITCH
 		if(value == null) value = playbackRate;
 		FlxG.sound.music.pitch = value;
 		vocals.pitch = value;
 		opponentVocals.pitch = value;
-		#end
 	}
 
 	function setChartTheme(doPlay:Bool)
@@ -6342,9 +6338,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		wavData[1][0].resize(0);
 		wavData[1][1].resize(0);
 
+		//hell yeah jigsaw you da goat
 		@:privateAccess {
-		var bytes:Bytes = sound._sound.__buffer.data.toBytes();
-		wavData = waveformData(sound._sound.__buffer, bytes, cachedSectionTimes[curSec] - Conductor.offset, cachedSectionTimes[curSec+1] - Conductor.offset, 1, wavData, height);
+		wavData = waveformData(sound._sound.__buffer, sound._source.buffer.data.buffer, cachedSectionTimes[curSec] - Conductor.offset, cachedSectionTimes[curSec+1] - Conductor.offset, 1, wavData, height);
 		}
 
 		// Draws
