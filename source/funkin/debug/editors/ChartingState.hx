@@ -6368,6 +6368,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	}
 	#end
 
+	//test
+
 	function waveformData(buffer:AudioBuffer, bytes:Bytes, time:Float, endTime:Float, multiply:Float = 1, ?array:Array<Array<Array<Float>>>, ?steps:Float):Array<Array<Array<Float>>>
 	{
 		#if (lime_cffi && !macro)
